@@ -172,8 +172,6 @@ module CSRFile(
   wire  _T_902;
   wire  insn_ret; // @[CSR.scala 581:95:freechips.rocketchip.system.DefaultRV32Config.fir@148735.4]
   wire  _T_1871; // @[CSR.scala 718:39:freechips.rocketchip.system.DefaultRV32Config.fir@149788.6]
-//  wire  (io_rw_addr[9] == 1'h0);
-//  wire  io_rw_addr[10]; // @[CSR.scala 724:47:freechips.rocketchip.system.DefaultRV32Config.fir@149804.8]
   reg [1:0] reg_dcsr_prv; // @[CSR.scala 303:21:freechips.rocketchip.system.DefaultRV32Config.fir@147685.4]
   reg [31:0] _RAND_14;
   wire [1:0] _GEN_93; // @[CSR.scala 724:53:freechips.rocketchip.system.DefaultRV32Config.fir@149806.8]
@@ -205,7 +203,6 @@ module CSRFile(
   reg  reg_debug;
   reg [31:0] _RAND_19;
   wire  trapToDebug;
-//  wire  (reg_debug == 1'h0);
   wire [1:0] _GEN_42;
   wire  _T_1478;
   reg [31:0] reg_mideleg;
@@ -649,7 +646,7 @@ module CSRFile(
   wire [15:0] _T_625; // @[Cat.scala 29:58:freechips.rocketchip.system.DefaultRV32Config.fir@148437.4]
   wire [31:0] _T_627; // @[Cat.scala 29:58:freechips.rocketchip.system.DefaultRV32Config.fir@148439.4]
   wire  sel_tdata1; // @[CSR.scala 566:73:freechips.rocketchip.system.DefaultRV32Config.fir@148491.4]
-  wire  _T_676; // @[CSR.scala 566:73:freechips.rocketchip.system.DefaultRV32Config.fir@148492.4]
+  wire  sel_tdata2; // @[CSR.scala 566:73:freechips.rocketchip.system.DefaultRV32Config.fir@148492.4]
   wire  _T_677; // @[CSR.scala 566:73:freechips.rocketchip.system.DefaultRV32Config.fir@148493.4]
   wire  sel_mstatus; // @[CSR.scala 566:73:freechips.rocketchip.system.DefaultRV32Config.fir@148494.4]
   wire  _T_679; // @[CSR.scala 566:73:freechips.rocketchip.system.DefaultRV32Config.fir@148495.4]
@@ -660,8 +657,8 @@ module CSRFile(
   wire  _T_684; // @[CSR.scala 566:73:freechips.rocketchip.system.DefaultRV32Config.fir@148500.4]
   wire  _T_685; // @[CSR.scala 566:73:freechips.rocketchip.system.DefaultRV32Config.fir@148501.4]
   wire  sel_dcsr; // @[CSR.scala 566:73:freechips.rocketchip.system.DefaultRV32Config.fir@148503.4]
-  wire  _T_688; // @[CSR.scala 566:73:freechips.rocketchip.system.DefaultRV32Config.fir@148504.4]
-  wire  _T_689; // @[CSR.scala 566:73:freechips.rocketchip.system.DefaultRV32Config.fir@148505.4]
+  wire  sel_dpc; // @[CSR.scala 566:73:freechips.rocketchip.system.DefaultRV32Config.fir@148504.4]
+  wire  sel_dscratch0; // @[CSR.scala 566:73:freechips.rocketchip.system.DefaultRV32Config.fir@148505.4]
   wire  _T_690; // @[CSR.scala 566:73:freechips.rocketchip.system.DefaultRV32Config.fir@148506.4]
   wire  _T_691; // @[CSR.scala 566:73:freechips.rocketchip.system.DefaultRV32Config.fir@148507.4]
   wire  _T_692; // @[CSR.scala 566:73:freechips.rocketchip.system.DefaultRV32Config.fir@148508.4]
@@ -684,8 +681,8 @@ module CSRFile(
   wire  _T_854; // @[CSR.scala 566:73:freechips.rocketchip.system.DefaultRV32Config.fir@148670.4]
   wire  _T_855; // @[CSR.scala 566:73:freechips.rocketchip.system.DefaultRV32Config.fir@148671.4]
   wire  _T_856; // @[CSR.scala 566:73:freechips.rocketchip.system.DefaultRV32Config.fir@148672.4]
-  wire  _T_857; // @[CSR.scala 566:73:freechips.rocketchip.system.DefaultRV32Config.fir@148673.4]
-  wire  _T_858; // @[CSR.scala 566:73:freechips.rocketchip.system.DefaultRV32Config.fir@148674.4]
+  wire  sel_mideleg; // @[CSR.scala 566:73:freechips.rocketchip.system.DefaultRV32Config.fir@148673.4]
+  wire  sel_medeleg; // @[CSR.scala 566:73:freechips.rocketchip.system.DefaultRV32Config.fir@148674.4]
   wire  _T_859; // @[CSR.scala 566:73:freechips.rocketchip.system.DefaultRV32Config.fir@148675.4]
   wire  _T_860; // @[CSR.scala 566:73:freechips.rocketchip.system.DefaultRV32Config.fir@148676.4]
   wire  _T_863; // @[CSR.scala 566:73:freechips.rocketchip.system.DefaultRV32Config.fir@148679.4]
@@ -1220,7 +1217,7 @@ module CSRFile(
   wire  _T_1504; // @[CSR.scala 644:53:freechips.rocketchip.system.DefaultRV32Config.fir@149351.4]
   wire  _T_1505; // @[CSR.scala 644:37:freechips.rocketchip.system.DefaultRV32Config.fir@149352.4]
   wire  _T_1506; // @[CSR.scala 644:74:freechips.rocketchip.system.DefaultRV32Config.fir@149353.4]
-  wire  _T_1509; // @[CSR.scala 649:53:freechips.rocketchip.system.DefaultRV32Config.fir@149361.4]
+//  wire  _T_1509; // @[CSR.scala 649:53:freechips.rocketchip.system.DefaultRV32Config.fir@149361.4]
   reg [1:0] _T_1511; // @[CSR.scala 649:24:freechips.rocketchip.system.DefaultRV32Config.fir@149363.4]
   reg [31:0] _RAND_110;
   wire [1:0] _T_1513; // @[Bitwise.scala 47:55:freechips.rocketchip.system.DefaultRV32Config.fir@149369.4]
@@ -1247,7 +1244,7 @@ module CSRFile(
   wire [31:0] epc; // @[CSR.scala 1059:26:freechips.rocketchip.system.DefaultRV32Config.fir@149427.4]
   wire [1:0] _T_1548; // @[CSR.scala 673:86:freechips.rocketchip.system.DefaultRV32Config.fir@149437.10]
   wire [1:0] _T_1549; // @[CSR.scala 673:56:freechips.rocketchip.system.DefaultRV32Config.fir@149438.10]
-  wire  _GEN_38; // @[CSR.scala 670:25:freechips.rocketchip.system.DefaultRV32Config.fir@149434.8]
+//  wire  (reg_debug == 1'h0) | reg_debug; // @[CSR.scala 670:25:freechips.rocketchip.system.DefaultRV32Config.fir@149434.8]
   wire  _GEN_47; // @[CSR.scala 677:27:freechips.rocketchip.system.DefaultRV32Config.fir@149446.8]
   wire [1:0] _GEN_48; // @[CSR.scala 677:27:freechips.rocketchip.system.DefaultRV32Config.fir@149446.8]
   wire  _GEN_54; // @[CSR.scala 677:27:freechips.rocketchip.system.DefaultRV32Config.fir@149446.8]
@@ -1451,7 +1448,7 @@ module CSRFile(
   wire  _T_4917; // @[CSR.scala 828:88:freechips.rocketchip.system.DefaultRV32Config.fir@153785.8]
   wire  _T_4921; // @[CSR.scala 828:88:freechips.rocketchip.system.DefaultRV32Config.fir@153793.8]
   wire  _T_4925; // @[CSR.scala 828:88:freechips.rocketchip.system.DefaultRV32Config.fir@153801.8]
-  wire [31:0] _T_4932; // @[CSR.scala 835:59:freechips.rocketchip.system.DefaultRV32Config.fir@153820.8]
+//  wire [31:0] _T_4932; // @[CSR.scala 835:59:freechips.rocketchip.system.DefaultRV32Config.fir@153820.8]
   wire [31:0] _T_4934; // @[CSR.scala 1059:31:freechips.rocketchip.system.DefaultRV32Config.fir@153825.8]
   wire [31:0] _T_4935; // @[CSR.scala 1059:26:freechips.rocketchip.system.DefaultRV32Config.fir@153826.8]
   wire [31:0] _T_4936; // @[CSR.scala 840:62:freechips.rocketchip.system.DefaultRV32Config.fir@153836.8]
@@ -1477,9 +1474,9 @@ module CSRFile(
   wire [31:0] _GEN_158; // @[CSR.scala 857:38:freechips.rocketchip.system.DefaultRV32Config.fir@153881.6]
   wire [31:0] _GEN_159; // @[CSR.scala 857:38:freechips.rocketchip.system.DefaultRV32Config.fir@153881.6]
   wire [1:0] _T_4955; // @[CSR.scala 867:43:freechips.rocketchip.system.DefaultRV32Config.fir@153893.8]
-  wire  _T_4962; // @[CSR.scala 867:43:freechips.rocketchip.system.DefaultRV32Config.fir@153907.8]
-  wire  _T_4963; // @[CSR.scala 867:43:freechips.rocketchip.system.DefaultRV32Config.fir@153909.8]
-  wire  _T_4965; // @[CSR.scala 867:43:freechips.rocketchip.system.DefaultRV32Config.fir@153913.8]
+//  wire  _T_4962; // @[CSR.scala 867:43:freechips.rocketchip.system.DefaultRV32Config.fir@153907.8]
+//  wire  _T_4963; // @[CSR.scala 867:43:freechips.rocketchip.system.DefaultRV32Config.fir@153909.8]
+//  wire  _T_4965; // @[CSR.scala 867:43:freechips.rocketchip.system.DefaultRV32Config.fir@153913.8]
   wire  _T_4969; // @[CSR.scala 1042:27:freechips.rocketchip.system.DefaultRV32Config.fir@153925.8]
   wire [1:0] _GEN_169; // @[CSR.scala 878:41:freechips.rocketchip.system.DefaultRV32Config.fir@153938.6]
   wire [31:0] _T_5010; // @[CSR.scala 890:54:freechips.rocketchip.system.DefaultRV32Config.fir@154018.8]
@@ -1498,7 +1495,7 @@ module CSRFile(
   wire [31:0] _T_5049; // @[CSR.scala 906:64:freechips.rocketchip.system.DefaultRV32Config.fir@154103.8]
   wire  _T_5052; // @[CSR.scala 919:37:freechips.rocketchip.system.DefaultRV32Config.fir@154126.6]
   wire  _T_5053; // @[CSR.scala 919:55:freechips.rocketchip.system.DefaultRV32Config.fir@154127.6]
-  wire  _T_5057; // @[CSR.scala 922:41:freechips.rocketchip.system.DefaultRV32Config.fir@154139.10]
+//  wire  _T_5057; // @[CSR.scala 922:41:freechips.rocketchip.system.DefaultRV32Config.fir@154139.10]
 //  wire  _T_5058; // @[CSR.scala 922:41:freechips.rocketchip.system.DefaultRV32Config.fir@154141.10]
 //  wire  _T_5060; // @[CSR.scala 922:41:freechips.rocketchip.system.DefaultRV32Config.fir@154145.10]
 //  wire  _T_5061; // @[CSR.scala 922:41:freechips.rocketchip.system.DefaultRV32Config.fir@154147.10]
@@ -1514,12 +1511,12 @@ module CSRFile(
   wire  _T_5195; // @[CSR.scala 939:60:freechips.rocketchip.system.DefaultRV32Config.fir@154373.6]
   wire  _T_5196; // @[CSR.scala 939:57:freechips.rocketchip.system.DefaultRV32Config.fir@154374.6]
   wire [7:0] _T_5199; // @[:freechips.rocketchip.system.DefaultRV32Config.fir@154379.8 :freechips.rocketchip.system.DefaultRV32Config.fir@154381.8]
-  wire  _T_5200; // @[CSR.scala 940:46:freechips.rocketchip.system.DefaultRV32Config.fir@154382.8]
-  wire  _T_5201; // @[CSR.scala 940:46:freechips.rocketchip.system.DefaultRV32Config.fir@154384.8]
-  wire  _T_5202; // @[CSR.scala 940:46:freechips.rocketchip.system.DefaultRV32Config.fir@154386.8]
-  wire [1:0] _T_5203; // @[CSR.scala 940:46:freechips.rocketchip.system.DefaultRV32Config.fir@154388.8]
-  wire  _T_5205; // @[CSR.scala 940:46:freechips.rocketchip.system.DefaultRV32Config.fir@154392.8]
-  wire  _T_5206; // @[CSR.scala 943:31:freechips.rocketchip.system.DefaultRV32Config.fir@154395.8]
+//  wire  wdata[0]; // @[CSR.scala 940:46:freechips.rocketchip.system.DefaultRV32Config.fir@154382.8]
+//  wire  _T_5201; // @[CSR.scala 940:46:freechips.rocketchip.system.DefaultRV32Config.fir@154384.8]
+//  wire  wdata[2]; // @[CSR.scala 940:46:freechips.rocketchip.system.DefaultRV32Config.fir@154386.8]
+//  wire [1:0] wdata[4:3]; // @[CSR.scala 940:46:freechips.rocketchip.system.DefaultRV32Config.fir@154388.8]
+//  wire  _T_5205; // @[CSR.scala 940:46:freechips.rocketchip.system.DefaultRV32Config.fir@154392.8]
+//  wire  _T_5206; // @[CSR.scala 943:31:freechips.rocketchip.system.DefaultRV32Config.fir@154395.8]
   wire  _T_5207; // @[PMP.scala 45:20:freechips.rocketchip.system.DefaultRV32Config.fir@154398.6]
   wire  _T_5208; // @[PMP.scala 47:13:freechips.rocketchip.system.DefaultRV32Config.fir@154399.6]
   wire  _T_5210; // @[PMP.scala 47:20:freechips.rocketchip.system.DefaultRV32Config.fir@154401.6]
@@ -1532,12 +1529,12 @@ module CSRFile(
   wire  _T_5216; // @[CSR.scala 939:57:freechips.rocketchip.system.DefaultRV32Config.fir@154410.6]
   wire [23:0] _T_5217; // @[CSR.scala 940:53:freechips.rocketchip.system.DefaultRV32Config.fir@154412.8]
   wire [7:0] _T_5219; // @[:freechips.rocketchip.system.DefaultRV32Config.fir@154415.8 :freechips.rocketchip.system.DefaultRV32Config.fir@154417.8]
-  wire  _T_5220; // @[CSR.scala 940:46:freechips.rocketchip.system.DefaultRV32Config.fir@154418.8]
-  wire  _T_5221; // @[CSR.scala 940:46:freechips.rocketchip.system.DefaultRV32Config.fir@154420.8]
-  wire  _T_5222; // @[CSR.scala 940:46:freechips.rocketchip.system.DefaultRV32Config.fir@154422.8]
-  wire [1:0] _T_5223; // @[CSR.scala 940:46:freechips.rocketchip.system.DefaultRV32Config.fir@154424.8]
-  wire  _T_5225; // @[CSR.scala 940:46:freechips.rocketchip.system.DefaultRV32Config.fir@154428.8]
-  wire  _T_5226; // @[CSR.scala 943:31:freechips.rocketchip.system.DefaultRV32Config.fir@154431.8]
+//  wire  wdata[8]; // @[CSR.scala 940:46:freechips.rocketchip.system.DefaultRV32Config.fir@154418.8]
+//  wire  _T_5221; // @[CSR.scala 940:46:freechips.rocketchip.system.DefaultRV32Config.fir@154420.8]
+//  wire  wdata[10]; // @[CSR.scala 940:46:freechips.rocketchip.system.DefaultRV32Config.fir@154422.8]
+//  wire [1:0] wdata[12:11]; // @[CSR.scala 940:46:freechips.rocketchip.system.DefaultRV32Config.fir@154424.8]
+//  wire  wdata[15]; // @[CSR.scala 940:46:freechips.rocketchip.system.DefaultRV32Config.fir@154428.8]
+//  wire  wdata[9] _T_5226 wdata[8]; // @[CSR.scala 943:31:freechips.rocketchip.system.DefaultRV32Config.fir@154431.8]
   wire  _T_5227; // @[PMP.scala 45:20:freechips.rocketchip.system.DefaultRV32Config.fir@154434.6]
   wire  _T_5228; // @[PMP.scala 47:13:freechips.rocketchip.system.DefaultRV32Config.fir@154435.6]
   wire  _T_5230; // @[PMP.scala 47:20:freechips.rocketchip.system.DefaultRV32Config.fir@154437.6]
@@ -1550,12 +1547,12 @@ module CSRFile(
   wire  _T_5236; // @[CSR.scala 939:57:freechips.rocketchip.system.DefaultRV32Config.fir@154446.6]
   wire [15:0] _T_5237; // @[CSR.scala 940:53:freechips.rocketchip.system.DefaultRV32Config.fir@154448.8]
   wire [7:0] _T_5239; // @[:freechips.rocketchip.system.DefaultRV32Config.fir@154451.8 :freechips.rocketchip.system.DefaultRV32Config.fir@154453.8]
-  wire  _T_5240; // @[CSR.scala 940:46:freechips.rocketchip.system.DefaultRV32Config.fir@154454.8]
-  wire  _T_5241; // @[CSR.scala 940:46:freechips.rocketchip.system.DefaultRV32Config.fir@154456.8]
-  wire  _T_5242; // @[CSR.scala 940:46:freechips.rocketchip.system.DefaultRV32Config.fir@154458.8]
-  wire [1:0] _T_5243; // @[CSR.scala 940:46:freechips.rocketchip.system.DefaultRV32Config.fir@154460.8]
-  wire  _T_5245; // @[CSR.scala 940:46:freechips.rocketchip.system.DefaultRV32Config.fir@154464.8]
-  wire  _T_5246; // @[CSR.scala 943:31:freechips.rocketchip.system.DefaultRV32Config.fir@154467.8]
+//  wire  wdata[16]; // @[CSR.scala 940:46:freechips.rocketchip.system.DefaultRV32Config.fir@154454.8]
+//  wire  _T_5241; // @[CSR.scala 940:46:freechips.rocketchip.system.DefaultRV32Config.fir@154456.8]
+//  wire  wdata[18]; // @[CSR.scala 940:46:freechips.rocketchip.system.DefaultRV32Config.fir@154458.8]
+//  wire [1:0] wdata[20:19]; // @[CSR.scala 940:46:freechips.rocketchip.system.DefaultRV32Config.fir@154460.8]
+//  wire  wdata[23]; // @[CSR.scala 940:46:freechips.rocketchip.system.DefaultRV32Config.fir@154464.8]
+//  wire  wdata[7] _T_5246 wdata[16]; // @[CSR.scala 943:31:freechips.rocketchip.system.DefaultRV32Config.fir@154467.8]
   wire  _T_5247; // @[PMP.scala 45:20:freechips.rocketchip.system.DefaultRV32Config.fir@154470.6]
   wire  _T_5248; // @[PMP.scala 47:13:freechips.rocketchip.system.DefaultRV32Config.fir@154471.6]
   wire  _T_5250; // @[PMP.scala 47:20:freechips.rocketchip.system.DefaultRV32Config.fir@154473.6]
@@ -1567,12 +1564,12 @@ module CSRFile(
   wire  _T_5255; // @[CSR.scala 939:60:freechips.rocketchip.system.DefaultRV32Config.fir@154481.6]
   wire  _T_5256; // @[CSR.scala 939:57:freechips.rocketchip.system.DefaultRV32Config.fir@154482.6]
   wire [7:0] _T_5257; // @[CSR.scala 940:53:freechips.rocketchip.system.DefaultRV32Config.fir@154484.8]
-  wire  _T_5260; // @[CSR.scala 940:46:freechips.rocketchip.system.DefaultRV32Config.fir@154490.8]
-  wire  _T_5261; // @[CSR.scala 940:46:freechips.rocketchip.system.DefaultRV32Config.fir@154492.8]
-  wire  _T_5262; // @[CSR.scala 940:46:freechips.rocketchip.system.DefaultRV32Config.fir@154494.8]
-  wire [1:0] _T_5263; // @[CSR.scala 940:46:freechips.rocketchip.system.DefaultRV32Config.fir@154496.8]
-  wire  _T_5265; // @[CSR.scala 940:46:freechips.rocketchip.system.DefaultRV32Config.fir@154500.8]
-  wire  _T_5266; // @[CSR.scala 943:31:freechips.rocketchip.system.DefaultRV32Config.fir@154503.8]
+//  wire  wdata[24]; // @[CSR.scala 940:46:freechips.rocketchip.system.DefaultRV32Config.fir@154490.8]
+//  wire  _T_5261; // @[CSR.scala 940:46:freechips.rocketchip.system.DefaultRV32Config.fir@154492.8]
+//  wire  wdata[26]; // @[CSR.scala 940:46:freechips.rocketchip.system.DefaultRV32Config.fir@154494.8]
+//  wire [1:0] wdata[28:27]; // @[CSR.scala 940:46:freechips.rocketchip.system.DefaultRV32Config.fir@154496.8]
+//  wire  wdata[31]; // @[CSR.scala 940:46:freechips.rocketchip.system.DefaultRV32Config.fir@154500.8]
+//  wire  wdata[25] _T_5266 wdata[24]; // @[CSR.scala 943:31:freechips.rocketchip.system.DefaultRV32Config.fir@154503.8]
   wire  _T_5267; // @[PMP.scala 45:20:freechips.rocketchip.system.DefaultRV32Config.fir@154506.6]
   wire  _T_5268; // @[PMP.scala 47:13:freechips.rocketchip.system.DefaultRV32Config.fir@154507.6]
   wire  _T_5270; // @[PMP.scala 47:20:freechips.rocketchip.system.DefaultRV32Config.fir@154509.6]
@@ -1932,7 +1929,7 @@ module CSRFile(
   assign _T_625 = {reg_pmp_5_cfg_l,2'h0,reg_pmp_5_cfg_a,reg_pmp_5_cfg_x,reg_pmp_5_cfg_w,reg_pmp_5_cfg_r,_T_609}; // @[Cat.scala 29:58:freechips.rocketchip.system.DefaultRV32Config.fir@148437.4]
   assign _T_627 = {reg_pmp_7_cfg_l,2'h0,reg_pmp_7_cfg_a,reg_pmp_7_cfg_x,reg_pmp_7_cfg_w,reg_pmp_7_cfg_r,_T_619,_T_625}; // @[Cat.scala 29:58:freechips.rocketchip.system.DefaultRV32Config.fir@148439.4]
   assign sel_tdata1 = io_rw_addr == 12'h7a1; // @[CSR.scala 566:73:freechips.rocketchip.system.DefaultRV32Config.fir@148491.4]
-  assign _T_676 = io_rw_addr == 12'h7a2; // @[CSR.scala 566:73:freechips.rocketchip.system.DefaultRV32Config.fir@148492.4]
+  assign sel_tdata2 = io_rw_addr == 12'h7a2; // @[CSR.scala 566:73:freechips.rocketchip.system.DefaultRV32Config.fir@148492.4]
   assign _T_677 = io_rw_addr == 12'h301; // @[CSR.scala 566:73:freechips.rocketchip.system.DefaultRV32Config.fir@148493.4]
   assign sel_mstatus = io_rw_addr == 12'h300; // @[CSR.scala 566:73:freechips.rocketchip.system.DefaultRV32Config.fir@148494.4]
   assign _T_679 = io_rw_addr == 12'h305; // @[CSR.scala 566:73:freechips.rocketchip.system.DefaultRV32Config.fir@148495.4]
@@ -1943,8 +1940,8 @@ module CSRFile(
   assign _T_684 = io_rw_addr == 12'h343; // @[CSR.scala 566:73:freechips.rocketchip.system.DefaultRV32Config.fir@148500.4]
   assign _T_685 = io_rw_addr == 12'h342; // @[CSR.scala 566:73:freechips.rocketchip.system.DefaultRV32Config.fir@148501.4]
   assign sel_dcsr = io_rw_addr == 12'h7b0; // @[CSR.scala 566:73:freechips.rocketchip.system.DefaultRV32Config.fir@148503.4]
-  assign _T_688 = io_rw_addr == 12'h7b1; // @[CSR.scala 566:73:freechips.rocketchip.system.DefaultRV32Config.fir@148504.4]
-  assign _T_689 = io_rw_addr == 12'h7b2; // @[CSR.scala 566:73:freechips.rocketchip.system.DefaultRV32Config.fir@148505.4]
+  assign sel_dpc = io_rw_addr == 12'h7b1; // @[CSR.scala 566:73:freechips.rocketchip.system.DefaultRV32Config.fir@148504.4]
+  assign sel_dscratch0 = io_rw_addr == 12'h7b2; // @[CSR.scala 566:73:freechips.rocketchip.system.DefaultRV32Config.fir@148505.4]
   assign _T_690 = io_rw_addr == 12'h1; // @[CSR.scala 566:73:freechips.rocketchip.system.DefaultRV32Config.fir@148506.4]
   assign _T_691 = io_rw_addr == 12'h2; // @[CSR.scala 566:73:freechips.rocketchip.system.DefaultRV32Config.fir@148507.4]
   assign _T_692 = io_rw_addr == 12'h3; // @[CSR.scala 566:73:freechips.rocketchip.system.DefaultRV32Config.fir@148508.4]
@@ -1967,8 +1964,8 @@ module CSRFile(
   assign _T_854 = io_rw_addr == 12'h141; // @[CSR.scala 566:73:freechips.rocketchip.system.DefaultRV32Config.fir@148670.4]
   assign _T_855 = io_rw_addr == 12'h105; // @[CSR.scala 566:73:freechips.rocketchip.system.DefaultRV32Config.fir@148671.4]
   assign _T_856 = io_rw_addr == 12'h106; // @[CSR.scala 566:73:freechips.rocketchip.system.DefaultRV32Config.fir@148672.4]
-  assign _T_857 = io_rw_addr == 12'h303; // @[CSR.scala 566:73:freechips.rocketchip.system.DefaultRV32Config.fir@148673.4]
-  assign _T_858 = io_rw_addr == 12'h302; // @[CSR.scala 566:73:freechips.rocketchip.system.DefaultRV32Config.fir@148674.4]
+  assign sel_mideleg = io_rw_addr == 12'h303; // @[CSR.scala 566:73:freechips.rocketchip.system.DefaultRV32Config.fir@148673.4]
+  assign sel_medeleg = io_rw_addr == 12'h302; // @[CSR.scala 566:73:freechips.rocketchip.system.DefaultRV32Config.fir@148674.4]
   assign _T_859 = io_rw_addr == 12'h3a0; // @[CSR.scala 566:73:freechips.rocketchip.system.DefaultRV32Config.fir@148675.4]
   assign _T_860 = io_rw_addr == 12'h3a1; // @[CSR.scala 566:73:freechips.rocketchip.system.DefaultRV32Config.fir@148676.4]
   assign _T_863 = io_rw_addr == 12'h3b0; // @[CSR.scala 566:73:freechips.rocketchip.system.DefaultRV32Config.fir@148679.4]
@@ -2503,7 +2500,6 @@ module CSRFile(
   assign _T_1504 = io_status_xs == 2'h3; // @[CSR.scala 644:53:freechips.rocketchip.system.DefaultRV32Config.fir@149351.4]
   assign _T_1505 = _T_1503 | _T_1504; // @[CSR.scala 644:37:freechips.rocketchip.system.DefaultRV32Config.fir@149352.4]
   assign _T_1506 = io_status_vs == 2'h3; // @[CSR.scala 644:74:freechips.rocketchip.system.DefaultRV32Config.fir@149353.4]
-  assign _T_1509 = reg_mstatus_mprv & (reg_debug == 1'h0); // @[CSR.scala 649:53:freechips.rocketchip.system.DefaultRV32Config.fir@149361.4]
   assign _T_1513 = insn_ret + insn_call; // @[Bitwise.scala 47:55:freechips.rocketchip.system.DefaultRV32Config.fir@149369.4]
   assign _T_1515 = insn_break + io_exception; // @[Bitwise.scala 47:55:freechips.rocketchip.system.DefaultRV32Config.fir@149371.4]
   assign _T_1517 = _T_1513 + _T_1515; // @[Bitwise.scala 47:55:freechips.rocketchip.system.DefaultRV32Config.fir@149373.4]
@@ -2528,7 +2524,6 @@ module CSRFile(
   assign epc = ~ _T_1546; // @[CSR.scala 1059:26:freechips.rocketchip.system.DefaultRV32Config.fir@149427.4]
   assign _T_1548 = causeIsDebugTrigger ? 2'h2 : 2'h1; // @[CSR.scala 673:86:freechips.rocketchip.system.DefaultRV32Config.fir@149437.10]
   assign _T_1549 = causeIsDebugInt ? 2'h3 : _T_1548; // @[CSR.scala 673:56:freechips.rocketchip.system.DefaultRV32Config.fir@149438.10]
-  assign _GEN_38 = (reg_debug == 1'h0) | reg_debug; // @[CSR.scala 670:25:freechips.rocketchip.system.DefaultRV32Config.fir@149434.8]
   assign _GEN_47 = delegate ? reg_mstatus_sie : reg_mstatus_spie; // @[CSR.scala 677:27:freechips.rocketchip.system.DefaultRV32Config.fir@149446.8]
   assign _GEN_48 = delegate ? reg_mstatus_prv : {{1'd0}, reg_mstatus_spp}; // @[CSR.scala 677:27:freechips.rocketchip.system.DefaultRV32Config.fir@149446.8]
   assign _GEN_54 = delegate ? reg_mstatus_mpie : reg_mstatus_mie; // @[CSR.scala 677:27:freechips.rocketchip.system.DefaultRV32Config.fir@149446.8]
@@ -2551,7 +2546,7 @@ module CSRFile(
   assign _GEN_110 = insn_ret ? _GEN_101 : _GEN_85; // @[CSR.scala 717:19:freechips.rocketchip.system.DefaultRV32Config.fir@149787.4]
   assign _GEN_117 = insn_cease | _T_1894; // @[Reg.scala 28:19:freechips.rocketchip.system.DefaultRV32Config.fir@149835.4]
   assign _T_1896 = sel_tdata1 ? _T_408 : 32'h0; // @[Mux.scala 27:72:freechips.rocketchip.system.DefaultRV32Config.fir@149852.4]
-  assign _T_1897 = _T_676 ? reg_bp_0_address : 32'h0; // @[Mux.scala 27:72:freechips.rocketchip.system.DefaultRV32Config.fir@149853.4]
+  assign _T_1897 = sel_tdata2 ? reg_bp_0_address : 32'h0; // @[Mux.scala 27:72:freechips.rocketchip.system.DefaultRV32Config.fir@149853.4]
   assign _T_1898 = _T_677 ? reg_misa : 32'h0; // @[Mux.scala 27:72:freechips.rocketchip.system.DefaultRV32Config.fir@149854.4]
   assign _T_1899 = sel_mstatus ? read_mstatus : 32'h0; // @[Mux.scala 27:72:freechips.rocketchip.system.DefaultRV32Config.fir@149855.4]
   assign _T_1900 = _T_679 ? read_mtvec : 32'h0; // @[Mux.scala 27:72:freechips.rocketchip.system.DefaultRV32Config.fir@149856.4]
@@ -2562,8 +2557,8 @@ module CSRFile(
   assign _T_1905 = _T_684 ? reg_mtval : 32'h0; // @[Mux.scala 27:72:freechips.rocketchip.system.DefaultRV32Config.fir@149861.4]
   assign _T_1906 = _T_685 ? reg_mcause : 32'h0; // @[Mux.scala 27:72:freechips.rocketchip.system.DefaultRV32Config.fir@149862.4]
   assign _T_1908 = sel_dcsr ? _T_426 : 32'h0; // @[Mux.scala 27:72:freechips.rocketchip.system.DefaultRV32Config.fir@149864.4]
-  assign _T_1909 = _T_688 ? _T_431 : 32'h0; // @[Mux.scala 27:72:freechips.rocketchip.system.DefaultRV32Config.fir@149865.4]
-  assign _T_1910 = _T_689 ? reg_dscratch : 32'h0; // @[Mux.scala 27:72:freechips.rocketchip.system.DefaultRV32Config.fir@149866.4]
+  assign _T_1909 = sel_dpc ? _T_431 : 32'h0; // @[Mux.scala 27:72:freechips.rocketchip.system.DefaultRV32Config.fir@149865.4]
+  assign _T_1910 = sel_dscratch0 ? reg_dscratch : 32'h0; // @[Mux.scala 27:72:freechips.rocketchip.system.DefaultRV32Config.fir@149866.4]
   assign _T_1911 = _T_690 ? reg_fflags : 5'h0; // @[Mux.scala 27:72:freechips.rocketchip.system.DefaultRV32Config.fir@149867.4]
   assign _T_1912 = _T_691 ? reg_frm : 3'h0; // @[Mux.scala 27:72:freechips.rocketchip.system.DefaultRV32Config.fir@149868.4]
   assign _T_1913 = _T_692 ? read_fcsr : 10'h0; // @[Mux.scala 27:72:freechips.rocketchip.system.DefaultRV32Config.fir@149869.4]
@@ -2586,8 +2581,8 @@ module CSRFile(
   assign _T_2075 = _T_854 ? _T_571 : 32'h0; // @[Mux.scala 27:72:freechips.rocketchip.system.DefaultRV32Config.fir@150031.4]
   assign _T_2076 = _T_855 ? read_stvec : 32'h0; // @[Mux.scala 27:72:freechips.rocketchip.system.DefaultRV32Config.fir@150032.4]
   assign _T_2077 = _T_856 ? read_scounteren : 32'h0; // @[Mux.scala 27:72:freechips.rocketchip.system.DefaultRV32Config.fir@150033.4]
-  assign _T_2078 = _T_857 ? read_mideleg : 32'h0; // @[Mux.scala 27:72:freechips.rocketchip.system.DefaultRV32Config.fir@150034.4]
-  assign _T_2079 = _T_858 ? read_medeleg : 32'h0; // @[Mux.scala 27:72:freechips.rocketchip.system.DefaultRV32Config.fir@150035.4]
+  assign _T_2078 = sel_mideleg ? read_mideleg : 32'h0; // @[Mux.scala 27:72:freechips.rocketchip.system.DefaultRV32Config.fir@150034.4]
+  assign _T_2079 = sel_medeleg ? read_medeleg : 32'h0; // @[Mux.scala 27:72:freechips.rocketchip.system.DefaultRV32Config.fir@150035.4]
   assign _T_2080 = _T_859 ? _T_604 : 32'h0; // @[Mux.scala 27:72:freechips.rocketchip.system.DefaultRV32Config.fir@150036.4]
   assign _T_2081 = _T_860 ? _T_627 : 32'h0; // @[Mux.scala 27:72:freechips.rocketchip.system.DefaultRV32Config.fir@150037.4]
   assign _T_2084 = _T_863 ? reg_pmp_0_addr : 30'h0; // @[Mux.scala 27:72:freechips.rocketchip.system.DefaultRV32Config.fir@150040.4]
@@ -2691,26 +2686,13 @@ module CSRFile(
   assign _T_4825 = _T_2316 | _T_2317; // @[package.scala 64:59:freechips.rocketchip.system.DefaultRV32Config.fir@153630.4]
   assign csr_wen = _T_4825 | _T_2315; // @[package.scala 64:59:freechips.rocketchip.system.DefaultRV32Config.fir@153631.4]
   assign _T_4839 = {{70'd0}, wdata}; // @[:freechips.rocketchip.system.DefaultRV32Config.fir@153649.8 :freechips.rocketchip.system.DefaultRV32Config.fir@153651.8]
-//  assign _T_4841 = _T_4839[1]; // @[CSR.scala 791:47:freechips.rocketchip.system.DefaultRV32Config.fir@153654.8]
-//  assign _T_4843 = _T_4839[3]; // @[CSR.scala 791:47:freechips.rocketchip.system.DefaultRV32Config.fir@153658.8]
-//  assign _T_4845 = _T_4839[5]; // @[CSR.scala 791:47:freechips.rocketchip.system.DefaultRV32Config.fir@153662.8]
-//  assign _T_4847 = _T_4839[7]; // @[CSR.scala 791:47:freechips.rocketchip.system.DefaultRV32Config.fir@153666.8]
   assign _T_4848 = _T_4839[8]; // @[CSR.scala 791:47:freechips.rocketchip.system.DefaultRV32Config.fir@153668.8]
   assign _T_4850 = _T_4839[12:11]; // @[CSR.scala 791:47:freechips.rocketchip.system.DefaultRV32Config.fir@153672.8]
-//  assign _T_4851 = _T_4839[14:13]; // @[CSR.scala 791:47:freechips.rocketchip.system.DefaultRV32Config.fir@153674.8]
-//  assign _T_4853 = _T_4839[17]; // @[CSR.scala 791:47:freechips.rocketchip.system.DefaultRV32Config.fir@153678.8]
-//  assign _T_4854 = _T_4839[18]; // @[CSR.scala 791:47:freechips.rocketchip.system.DefaultRV32Config.fir@153680.8]
-//  assign _T_4855 = _T_4839[19]; // @[CSR.scala 791:47:freechips.rocketchip.system.DefaultRV32Config.fir@153682.8]
-//  assign _T_4856 = _T_4839[20]; // @[CSR.scala 791:47:freechips.rocketchip.system.DefaultRV32Config.fir@153684.8]
-//  assign _T_4857 = _T_4839[21]; // @[CSR.scala 791:47:freechips.rocketchip.system.DefaultRV32Config.fir@153686.8]
-//  assign _T_4858 = _T_4839[22]; // @[CSR.scala 791:47:freechips.rocketchip.system.DefaultRV32Config.fir@153688.8]
   assign _T_4871 = _T_4850 == 2'h2; // @[CSR.scala 1042:27:freechips.rocketchip.system.DefaultRV32Config.fir@153717.8]
-//  assign _T_4873 = _T_4851 != 2'h0; // @[CSR.scala 1063:73:freechips.rocketchip.system.DefaultRV32Config.fir@153728.8]
   assign _GEN_126 = sel_mstatus ? {{1'd0}, _T_4848} : _GEN_110; // @[CSR.scala 790:39:freechips.rocketchip.system.DefaultRV32Config.fir@153646.6]
   assign _T_4876 = wdata[5]; // @[CSR.scala 816:20:freechips.rocketchip.system.DefaultRV32Config.fir@153735.8]
   assign _T_4877 = io_pc[1]; // @[CSR.scala 818:39:freechips.rocketchip.system.DefaultRV32Config.fir@153736.8]
   assign _T_4878 = _T_4877 == 1'h0; // @[CSR.scala 818:33:freechips.rocketchip.system.DefaultRV32Config.fir@153737.8]
-//  assign wdata[2] = wdata[2]; // @[CSR.scala 818:51:freechips.rocketchip.system.DefaultRV32Config.fir@153739.8]
   assign _T_4881 = _T_4878 | wdata[2]; // @[CSR.scala 818:43:freechips.rocketchip.system.DefaultRV32Config.fir@153740.8]
   assign _T_4882 = ~ wdata; // @[CSR.scala 820:25:freechips.rocketchip.system.DefaultRV32Config.fir@153742.10]
   assign _T_4883 = _T_4876 == 1'h0; // @[CSR.scala 820:35:freechips.rocketchip.system.DefaultRV32Config.fir@153743.10]
@@ -2730,7 +2712,6 @@ module CSRFile(
   assign _T_4917 = _T_4915[1]; // @[CSR.scala 828:88:freechips.rocketchip.system.DefaultRV32Config.fir@153785.8]
   assign _T_4921 = _T_4915[5]; // @[CSR.scala 828:88:freechips.rocketchip.system.DefaultRV32Config.fir@153793.8]
   assign _T_4925 = _T_4915[9]; // @[CSR.scala 828:88:freechips.rocketchip.system.DefaultRV32Config.fir@153801.8]
-  assign _T_4932 = wdata & 32'haaa; // @[CSR.scala 835:59:freechips.rocketchip.system.DefaultRV32Config.fir@153820.8]
   assign _T_4934 = _T_4882 | 32'h1; // @[CSR.scala 1059:31:freechips.rocketchip.system.DefaultRV32Config.fir@153825.8]
   assign _T_4935 = ~ _T_4934; // @[CSR.scala 1059:26:freechips.rocketchip.system.DefaultRV32Config.fir@153826.8]
   assign _T_4936 = wdata & 32'h8000000f; // @[CSR.scala 840:62:freechips.rocketchip.system.DefaultRV32Config.fir@153836.8]
@@ -2756,9 +2737,6 @@ module CSRFile(
   assign _GEN_158 = _T_692 ? wdata : _GEN_154; // @[CSR.scala 857:38:freechips.rocketchip.system.DefaultRV32Config.fir@153881.6]
   assign _GEN_159 = _T_692 ? {{5'd0}, _T_4952} : _GEN_156; // @[CSR.scala 857:38:freechips.rocketchip.system.DefaultRV32Config.fir@153881.6]
   assign _T_4955 = wdata[1:0]; // @[CSR.scala 867:43:freechips.rocketchip.system.DefaultRV32Config.fir@153893.8]
-  assign _T_4962 = wdata[12]; // @[CSR.scala 867:43:freechips.rocketchip.system.DefaultRV32Config.fir@153907.8]
-  assign _T_4963 = wdata[13]; // @[CSR.scala 867:43:freechips.rocketchip.system.DefaultRV32Config.fir@153909.8]
-  assign _T_4965 = wdata[15]; // @[CSR.scala 867:43:freechips.rocketchip.system.DefaultRV32Config.fir@153913.8]
   assign _T_4969 = _T_4955 == 2'h2; // @[CSR.scala 1042:27:freechips.rocketchip.system.DefaultRV32Config.fir@153925.8]
   assign _GEN_169 = sel_sstatus ? {{1'd0}, _T_4848} : _GEN_126; // @[CSR.scala 878:41:freechips.rocketchip.system.DefaultRV32Config.fir@153938.6]
   assign _T_5010 = ~ read_mideleg; // @[CSR.scala 890:54:freechips.rocketchip.system.DefaultRV32Config.fir@154018.8]
@@ -2777,12 +2755,6 @@ module CSRFile(
   assign _T_5049 = wdata & 32'h8000001f; // @[CSR.scala 906:64:freechips.rocketchip.system.DefaultRV32Config.fir@154103.8]
   assign _T_5052 = reg_bp_0_control_dmode == 1'h0; // @[CSR.scala 919:37:freechips.rocketchip.system.DefaultRV32Config.fir@154126.6]
   assign _T_5053 = _T_5052 | reg_debug; // @[CSR.scala 919:55:freechips.rocketchip.system.DefaultRV32Config.fir@154127.6]
-  assign _T_5057 = wdata[0]; // @[CSR.scala 922:41:freechips.rocketchip.system.DefaultRV32Config.fir@154139.10]
-//  assign _T_5058 = wdata[1]; // @[CSR.scala 922:41:freechips.rocketchip.system.DefaultRV32Config.fir@154141.10]
-//  assign _T_5060 = wdata[3]; // @[CSR.scala 922:41:freechips.rocketchip.system.DefaultRV32Config.fir@154145.10]
-//  assign _T_5061 = wdata[4]; // @[CSR.scala 922:41:freechips.rocketchip.system.DefaultRV32Config.fir@154147.10]
-//  assign _T_5063 = wdata[6]; // @[CSR.scala 922:41:freechips.rocketchip.system.DefaultRV32Config.fir@154151.10]
-//  assign _T_5064 = wdata[8:7]; // @[CSR.scala 922:41:freechips.rocketchip.system.DefaultRV32Config.fir@154153.10]
   assign _T_5087 = _T_883 ? _T_408 : 32'h0; // @[CSR.scala 1038:9:freechips.rocketchip.system.DefaultRV32Config.fir@154185.10]
   assign _T_5088 = _T_5087 | io_rw_wdata; // @[CSR.scala 1038:34:freechips.rocketchip.system.DefaultRV32Config.fir@154186.10]
   assign _T_5093 = _T_5088 & _T_889; // @[CSR.scala 1038:43:freechips.rocketchip.system.DefaultRV32Config.fir@154191.10]
@@ -2793,12 +2765,6 @@ module CSRFile(
   assign _T_5195 = reg_pmp_0_cfg_l == 1'h0; // @[CSR.scala 939:60:freechips.rocketchip.system.DefaultRV32Config.fir@154373.6]
   assign _T_5196 = _T_859 & _T_5195; // @[CSR.scala 939:57:freechips.rocketchip.system.DefaultRV32Config.fir@154374.6]
   assign _T_5199 = wdata[7:0]; // @[:freechips.rocketchip.system.DefaultRV32Config.fir@154379.8 :freechips.rocketchip.system.DefaultRV32Config.fir@154381.8]
-  assign _T_5200 = _T_5199[0]; // @[CSR.scala 940:46:freechips.rocketchip.system.DefaultRV32Config.fir@154382.8]
-  assign _T_5201 = _T_5199[1]; // @[CSR.scala 940:46:freechips.rocketchip.system.DefaultRV32Config.fir@154384.8]
-  assign _T_5202 = _T_5199[2]; // @[CSR.scala 940:46:freechips.rocketchip.system.DefaultRV32Config.fir@154386.8]
-  assign _T_5203 = _T_5199[4:3]; // @[CSR.scala 940:46:freechips.rocketchip.system.DefaultRV32Config.fir@154388.8]
-  assign _T_5205 = _T_5199[7]; // @[CSR.scala 940:46:freechips.rocketchip.system.DefaultRV32Config.fir@154392.8]
-  assign _T_5206 = _T_5201 & _T_5200; // @[CSR.scala 943:31:freechips.rocketchip.system.DefaultRV32Config.fir@154395.8]
   assign _T_5207 = reg_pmp_1_cfg_a[1]; // @[PMP.scala 45:20:freechips.rocketchip.system.DefaultRV32Config.fir@154398.6]
   assign _T_5208 = _T_5207 == 1'h0; // @[PMP.scala 47:13:freechips.rocketchip.system.DefaultRV32Config.fir@154399.6]
   assign _T_5210 = _T_5208 & _T_293; // @[PMP.scala 47:20:freechips.rocketchip.system.DefaultRV32Config.fir@154401.6]
@@ -2811,12 +2777,6 @@ module CSRFile(
   assign _T_5216 = _T_859 & _T_5215; // @[CSR.scala 939:57:freechips.rocketchip.system.DefaultRV32Config.fir@154410.6]
   assign _T_5217 = wdata[31:8]; // @[CSR.scala 940:53:freechips.rocketchip.system.DefaultRV32Config.fir@154412.8]
   assign _T_5219 = _T_5217[7:0]; // @[:freechips.rocketchip.system.DefaultRV32Config.fir@154415.8 :freechips.rocketchip.system.DefaultRV32Config.fir@154417.8]
-  assign _T_5220 = _T_5219[0]; // @[CSR.scala 940:46:freechips.rocketchip.system.DefaultRV32Config.fir@154418.8]
-  assign _T_5221 = _T_5219[1]; // @[CSR.scala 940:46:freechips.rocketchip.system.DefaultRV32Config.fir@154420.8]
-  assign _T_5222 = _T_5219[2]; // @[CSR.scala 940:46:freechips.rocketchip.system.DefaultRV32Config.fir@154422.8]
-  assign _T_5223 = _T_5219[4:3]; // @[CSR.scala 940:46:freechips.rocketchip.system.DefaultRV32Config.fir@154424.8]
-  assign _T_5225 = _T_5219[7]; // @[CSR.scala 940:46:freechips.rocketchip.system.DefaultRV32Config.fir@154428.8]
-  assign _T_5226 = _T_5221 & _T_5220; // @[CSR.scala 943:31:freechips.rocketchip.system.DefaultRV32Config.fir@154431.8]
   assign _T_5227 = reg_pmp_2_cfg_a[1]; // @[PMP.scala 45:20:freechips.rocketchip.system.DefaultRV32Config.fir@154434.6]
   assign _T_5228 = _T_5227 == 1'h0; // @[PMP.scala 47:13:freechips.rocketchip.system.DefaultRV32Config.fir@154435.6]
   assign _T_5230 = _T_5228 & _T_302; // @[PMP.scala 47:20:freechips.rocketchip.system.DefaultRV32Config.fir@154437.6]
@@ -2829,12 +2789,6 @@ module CSRFile(
   assign _T_5236 = _T_859 & _T_5235; // @[CSR.scala 939:57:freechips.rocketchip.system.DefaultRV32Config.fir@154446.6]
   assign _T_5237 = wdata[31:16]; // @[CSR.scala 940:53:freechips.rocketchip.system.DefaultRV32Config.fir@154448.8]
   assign _T_5239 = _T_5237[7:0]; // @[:freechips.rocketchip.system.DefaultRV32Config.fir@154451.8 :freechips.rocketchip.system.DefaultRV32Config.fir@154453.8]
-  assign _T_5240 = _T_5239[0]; // @[CSR.scala 940:46:freechips.rocketchip.system.DefaultRV32Config.fir@154454.8]
-  assign _T_5241 = _T_5239[1]; // @[CSR.scala 940:46:freechips.rocketchip.system.DefaultRV32Config.fir@154456.8]
-  assign _T_5242 = _T_5239[2]; // @[CSR.scala 940:46:freechips.rocketchip.system.DefaultRV32Config.fir@154458.8]
-  assign _T_5243 = _T_5239[4:3]; // @[CSR.scala 940:46:freechips.rocketchip.system.DefaultRV32Config.fir@154460.8]
-  assign _T_5245 = _T_5239[7]; // @[CSR.scala 940:46:freechips.rocketchip.system.DefaultRV32Config.fir@154464.8]
-  assign _T_5246 = _T_5241 & _T_5240; // @[CSR.scala 943:31:freechips.rocketchip.system.DefaultRV32Config.fir@154467.8]
   assign _T_5247 = reg_pmp_3_cfg_a[1]; // @[PMP.scala 45:20:freechips.rocketchip.system.DefaultRV32Config.fir@154470.6]
   assign _T_5248 = _T_5247 == 1'h0; // @[PMP.scala 47:13:freechips.rocketchip.system.DefaultRV32Config.fir@154471.6]
   assign _T_5250 = _T_5248 & _T_311; // @[PMP.scala 47:20:freechips.rocketchip.system.DefaultRV32Config.fir@154473.6]
@@ -2846,12 +2800,6 @@ module CSRFile(
   assign _T_5255 = reg_pmp_3_cfg_l == 1'h0; // @[CSR.scala 939:60:freechips.rocketchip.system.DefaultRV32Config.fir@154481.6]
   assign _T_5256 = _T_859 & _T_5255; // @[CSR.scala 939:57:freechips.rocketchip.system.DefaultRV32Config.fir@154482.6]
   assign _T_5257 = wdata[31:24]; // @[CSR.scala 940:53:freechips.rocketchip.system.DefaultRV32Config.fir@154484.8]
-  assign _T_5260 = _T_5257[0]; // @[CSR.scala 940:46:freechips.rocketchip.system.DefaultRV32Config.fir@154490.8]
-  assign _T_5261 = _T_5257[1]; // @[CSR.scala 940:46:freechips.rocketchip.system.DefaultRV32Config.fir@154492.8]
-  assign _T_5262 = _T_5257[2]; // @[CSR.scala 940:46:freechips.rocketchip.system.DefaultRV32Config.fir@154494.8]
-  assign _T_5263 = _T_5257[4:3]; // @[CSR.scala 940:46:freechips.rocketchip.system.DefaultRV32Config.fir@154496.8]
-  assign _T_5265 = _T_5257[7]; // @[CSR.scala 940:46:freechips.rocketchip.system.DefaultRV32Config.fir@154500.8]
-  assign _T_5266 = _T_5261 & _T_5260; // @[CSR.scala 943:31:freechips.rocketchip.system.DefaultRV32Config.fir@154503.8]
   assign _T_5267 = reg_pmp_4_cfg_a[1]; // @[PMP.scala 45:20:freechips.rocketchip.system.DefaultRV32Config.fir@154506.6]
   assign _T_5268 = _T_5267 == 1'h0; // @[PMP.scala 47:13:freechips.rocketchip.system.DefaultRV32Config.fir@154507.6]
   assign _T_5270 = _T_5268 & _T_320; // @[PMP.scala 47:20:freechips.rocketchip.system.DefaultRV32Config.fir@154509.6]
@@ -3941,7 +3889,7 @@ end
     end else begin
       if (csr_wen) begin
         if (sel_dcsr) begin
-          reg_dcsr_ebreakm <= _T_4965;
+          reg_dcsr_ebreakm <= wdata[15];
         end
       end
     end
@@ -3950,7 +3898,7 @@ end
     end else begin
       if (csr_wen) begin
         if (sel_dcsr) begin
-          reg_dcsr_ebreaks <= _T_4963;
+          reg_dcsr_ebreaks <= wdata[13];
         end
       end
     end
@@ -3959,7 +3907,7 @@ end
     end else begin
       if (csr_wen) begin
         if (sel_dcsr) begin
-          reg_dcsr_ebreaku <= _T_4962;
+          reg_dcsr_ebreaku <= wdata[12];
         end
       end
     end
@@ -3970,7 +3918,7 @@ end
         if ((io_rw_addr[9] == 1'h0)) begin
           if (exception) begin
             if (trapToDebug) begin
-              reg_debug <= _GEN_38;
+              reg_debug <= (reg_debug == 1'h0) | reg_debug;
             end
           end
         end else begin
@@ -3979,7 +3927,7 @@ end
           end else begin
             if (exception) begin
               if (trapToDebug) begin
-                reg_debug <= _GEN_38;
+                reg_debug <= (reg_debug == 1'h0) | reg_debug;
               end
             end
           end
@@ -3987,18 +3935,18 @@ end
       end else begin
         if (exception) begin
           if (trapToDebug) begin
-            reg_debug <= _GEN_38;
+            reg_debug <= (reg_debug == 1'h0) | reg_debug;
           end
         end
       end
     end
     if (csr_wen) begin
-      if (_T_857) begin
+      if (sel_mideleg) begin
         reg_mideleg <= wdata;
       end
     end
     if (csr_wen) begin
-      if (_T_858) begin
+      if (sel_medeleg) begin
         reg_medeleg <= wdata;
       end
     end
@@ -4027,7 +3975,7 @@ end
       end
     end
     if (csr_wen) begin
-      if (_T_688) begin
+      if (sel_dpc) begin
         reg_dpc <= _T_4935;
       end else begin
         if (exception) begin
@@ -4048,7 +3996,7 @@ end
       end
     end
     if (csr_wen) begin
-      if (_T_689) begin
+      if (sel_dscratch0) begin
         reg_dscratch <= wdata;
       end
     end
@@ -4130,14 +4078,14 @@ end
       if (csr_wen) begin
         if (_T_5053) begin
           if (sel_tdata1) begin
-            reg_bp_0_control_r <= _T_5057;
+            reg_bp_0_control_r <= wdata[0];
           end
         end
       end
     end
     if (csr_wen) begin
       if (_T_5053) begin
-        if (_T_676) begin
+        if (sel_tdata2) begin
           reg_bp_0_address <= wdata;
         end
       end
@@ -4147,7 +4095,7 @@ end
     end else begin
       if (csr_wen) begin
         if (_T_5196) begin
-          reg_pmp_0_cfg_l <= _T_5205;
+          reg_pmp_0_cfg_l <= wdata[7];
         end
       end
     end
@@ -4156,23 +4104,23 @@ end
     end else begin
       if (csr_wen) begin
         if (_T_5196) begin
-          reg_pmp_0_cfg_a <= _T_5203;
+          reg_pmp_0_cfg_a <= wdata[4:3];
         end
       end
     end
     if (csr_wen) begin
       if (_T_5196) begin
-        reg_pmp_0_cfg_x <= _T_5202;
+        reg_pmp_0_cfg_x <= wdata[2];
       end
     end
     if (csr_wen) begin
       if (_T_5196) begin
-        reg_pmp_0_cfg_w <= _T_5206;
+        reg_pmp_0_cfg_w <= wdata[1] & wdata[0];
       end
     end
     if (csr_wen) begin
       if (_T_5196) begin
-        reg_pmp_0_cfg_r <= _T_5200;
+        reg_pmp_0_cfg_r <= wdata[0];
       end
     end
     reg_pmp_0_addr <= _GEN_408[29:0];
@@ -4181,7 +4129,7 @@ end
     end else begin
       if (csr_wen) begin
         if (_T_5216) begin
-          reg_pmp_1_cfg_l <= _T_5225;
+          reg_pmp_1_cfg_l <= wdata[15];
         end
       end
     end
@@ -4190,23 +4138,23 @@ end
     end else begin
       if (csr_wen) begin
         if (_T_5216) begin
-          reg_pmp_1_cfg_a <= _T_5223;
+          reg_pmp_1_cfg_a <= wdata[12:11];
         end
       end
     end
     if (csr_wen) begin
       if (_T_5216) begin
-        reg_pmp_1_cfg_x <= _T_5222;
+        reg_pmp_1_cfg_x <= wdata[10];
       end
     end
     if (csr_wen) begin
       if (_T_5216) begin
-        reg_pmp_1_cfg_w <= _T_5226;
+        reg_pmp_1_cfg_w <= wdata[9] & wdata[8];
       end
     end
     if (csr_wen) begin
       if (_T_5216) begin
-        reg_pmp_1_cfg_r <= _T_5220;
+        reg_pmp_1_cfg_r <= wdata[8];
       end
     end
     reg_pmp_1_addr <= _GEN_415[29:0];
@@ -4215,7 +4163,7 @@ end
     end else begin
       if (csr_wen) begin
         if (_T_5236) begin
-          reg_pmp_2_cfg_l <= _T_5245;
+          reg_pmp_2_cfg_l <= wdata[23];
         end
       end
     end
@@ -4224,23 +4172,23 @@ end
     end else begin
       if (csr_wen) begin
         if (_T_5236) begin
-          reg_pmp_2_cfg_a <= _T_5243;
+          reg_pmp_2_cfg_a <= wdata[20:19];
         end
       end
     end
     if (csr_wen) begin
       if (_T_5236) begin
-        reg_pmp_2_cfg_x <= _T_5242;
+        reg_pmp_2_cfg_x <= wdata[18];
       end
     end
     if (csr_wen) begin
       if (_T_5236) begin
-        reg_pmp_2_cfg_w <= _T_5246;
+        reg_pmp_2_cfg_w <= wdata[7] & wdata[16];
       end
     end
     if (csr_wen) begin
       if (_T_5236) begin
-        reg_pmp_2_cfg_r <= _T_5240;
+        reg_pmp_2_cfg_r <= wdata[16];
       end
     end
     reg_pmp_2_addr <= _GEN_422[29:0];
@@ -4249,7 +4197,7 @@ end
     end else begin
       if (csr_wen) begin
         if (_T_5256) begin
-          reg_pmp_3_cfg_l <= _T_5265;
+          reg_pmp_3_cfg_l <= wdata[31];
         end
       end
     end
@@ -4258,23 +4206,23 @@ end
     end else begin
       if (csr_wen) begin
         if (_T_5256) begin
-          reg_pmp_3_cfg_a <= _T_5263;
+          reg_pmp_3_cfg_a <= wdata[28:27];
         end
       end
     end
     if (csr_wen) begin
       if (_T_5256) begin
-        reg_pmp_3_cfg_x <= _T_5262;
+        reg_pmp_3_cfg_x <= wdata[26];
       end
     end
     if (csr_wen) begin
       if (_T_5256) begin
-        reg_pmp_3_cfg_w <= _T_5266;
+        reg_pmp_3_cfg_w <= wdata[25] & wdata[24];
       end
     end
     if (csr_wen) begin
       if (_T_5256) begin
-        reg_pmp_3_cfg_r <= _T_5260;
+        reg_pmp_3_cfg_r <= wdata[24];
       end
     end
     reg_pmp_3_addr <= _GEN_429[29:0];
@@ -4283,7 +4231,7 @@ end
     end else begin
       if (csr_wen) begin
         if (_T_5276) begin
-          reg_pmp_4_cfg_l <= _T_5205;
+          reg_pmp_4_cfg_l <= wdata[7];
         end
       end
     end
@@ -4292,23 +4240,23 @@ end
     end else begin
       if (csr_wen) begin
         if (_T_5276) begin
-          reg_pmp_4_cfg_a <= _T_5203;
+          reg_pmp_4_cfg_a <= wdata[4:3];
         end
       end
     end
     if (csr_wen) begin
       if (_T_5276) begin
-        reg_pmp_4_cfg_x <= _T_5202;
+        reg_pmp_4_cfg_x <= wdata[2];
       end
     end
     if (csr_wen) begin
       if (_T_5276) begin
-        reg_pmp_4_cfg_w <= _T_5206;
+        reg_pmp_4_cfg_w <= wdata[1] & wdata[0];
       end
     end
     if (csr_wen) begin
       if (_T_5276) begin
-        reg_pmp_4_cfg_r <= _T_5200;
+        reg_pmp_4_cfg_r <= wdata[0];
       end
     end
     reg_pmp_4_addr <= _GEN_436[29:0];
@@ -4317,7 +4265,7 @@ end
     end else begin
       if (csr_wen) begin
         if (_T_5296) begin
-          reg_pmp_5_cfg_l <= _T_5225;
+          reg_pmp_5_cfg_l <= wdata[15];
         end
       end
     end
@@ -4326,23 +4274,23 @@ end
     end else begin
       if (csr_wen) begin
         if (_T_5296) begin
-          reg_pmp_5_cfg_a <= _T_5223;
+          reg_pmp_5_cfg_a <= wdata[12:11];
         end
       end
     end
     if (csr_wen) begin
       if (_T_5296) begin
-        reg_pmp_5_cfg_x <= _T_5222;
+        reg_pmp_5_cfg_x <= wdata[10];
       end
     end
     if (csr_wen) begin
       if (_T_5296) begin
-        reg_pmp_5_cfg_w <= _T_5226;
+        reg_pmp_5_cfg_w <= wdata[9] & wdata[8];
       end
     end
     if (csr_wen) begin
       if (_T_5296) begin
-        reg_pmp_5_cfg_r <= _T_5220;
+        reg_pmp_5_cfg_r <= wdata[8];
       end
     end
     reg_pmp_5_addr <= _GEN_443[29:0];
@@ -4351,7 +4299,7 @@ end
     end else begin
       if (csr_wen) begin
         if (_T_5316) begin
-          reg_pmp_6_cfg_l <= _T_5245;
+          reg_pmp_6_cfg_l <= wdata[23];
         end
       end
     end
@@ -4360,23 +4308,23 @@ end
     end else begin
       if (csr_wen) begin
         if (_T_5316) begin
-          reg_pmp_6_cfg_a <= _T_5243;
+          reg_pmp_6_cfg_a <= wdata[20:19];
         end
       end
     end
     if (csr_wen) begin
       if (_T_5316) begin
-        reg_pmp_6_cfg_x <= _T_5242;
+        reg_pmp_6_cfg_x <= wdata[18];
       end
     end
     if (csr_wen) begin
       if (_T_5316) begin
-        reg_pmp_6_cfg_w <= _T_5246;
+        reg_pmp_6_cfg_w <= wdata[7] & wdata[16];
       end
     end
     if (csr_wen) begin
       if (_T_5316) begin
-        reg_pmp_6_cfg_r <= _T_5240;
+        reg_pmp_6_cfg_r <= wdata[16];
       end
     end
     reg_pmp_6_addr <= _GEN_450[29:0];
@@ -4385,7 +4333,7 @@ end
     end else begin
       if (csr_wen) begin
         if (_T_5336) begin
-          reg_pmp_7_cfg_l <= _T_5265;
+          reg_pmp_7_cfg_l <= wdata[31];
         end
       end
     end
@@ -4394,23 +4342,23 @@ end
     end else begin
       if (csr_wen) begin
         if (_T_5336) begin
-          reg_pmp_7_cfg_a <= _T_5263;
+          reg_pmp_7_cfg_a <= wdata[28:27];
         end
       end
     end
     if (csr_wen) begin
       if (_T_5336) begin
-        reg_pmp_7_cfg_x <= _T_5262;
+        reg_pmp_7_cfg_x <= wdata[26];
       end
     end
     if (csr_wen) begin
       if (_T_5336) begin
-        reg_pmp_7_cfg_w <= _T_5266;
+        reg_pmp_7_cfg_w <= wdata[25] & wdata[24];
       end
     end
     if (csr_wen) begin
       if (_T_5336) begin
-        reg_pmp_7_cfg_r <= _T_5260;
+        reg_pmp_7_cfg_r <= wdata[24];
       end
     end
     reg_pmp_7_addr <= _GEN_457[29:0];
@@ -4419,7 +4367,7 @@ end
         reg_mie <= _T_5045;
       end else begin
         if (_T_681) begin
-          reg_mie <= _T_4932;
+          reg_mie <= wdata & 32'haaa;
         end
       end
     end
@@ -4687,7 +4635,7 @@ end
         end
       end
     end
-    if (_T_1509) begin
+    if (reg_mstatus_mprv & (reg_debug == 1'h0)) begin
       _T_1511 <= reg_mstatus_mpp;
     end else begin
       _T_1511 <= reg_mstatus_prv;

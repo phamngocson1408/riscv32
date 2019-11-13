@@ -1,3 +1,4 @@
+`timescale 1ns / 10ps
 module MulDiv(
   input         clock,
   input         reset,
@@ -182,48 +183,48 @@ end
 
   always @(posedge clock) begin
     if (reset) begin
-      state <= 3'h0;
+      state <= #1 3'h0;
     end else begin
       if (io_req_fire) begin
         if (cmdMul) begin
-          state <= 3'h2;
+          state <= #1 3'h2;
         end else begin
           if (lhs_sign | rhs_sign) begin
-            state <= 3'h1;
+            state <= #1 3'h1;
           end else begin
-            state <= 3'h3;
+            state <= #1 3'h3;
           end
         end
       end else begin
         if (io_resp_fire | io_kill) begin
-          state <= 3'h0;
+          state <= #1 3'h0;
         end else begin
           if (s_div) begin
             if (count == 6'h20) begin
               if (neg_out) begin
-                state <= 3'h5;
+                state <= #1 3'h5;
               end else begin
-                state <= 3'h7;
+                state <= #1 3'h7;
               end
             end else begin
               if (s_mul) begin
                 if (count == 6'h3) begin
-                  state <= 3'h6;
+                  state <= #1 3'h6;
                 end else begin
                   if (s_neg_output) begin
-                    state <= 3'h7;
+                    state <= #1 3'h7;
                   end else begin
                     if (s_neg_inputs) begin
-                      state <= 3'h3;
+                      state <= #1 3'h3;
                     end
                   end
                 end
               end else begin
                 if (s_neg_output) begin
-                  state <= 3'h7;
+                  state <= #1 3'h7;
                 end else begin
                   if (s_neg_inputs) begin
-                    state <= 3'h3;
+                    state <= #1 3'h3;
                   end
                 end
               end
@@ -231,22 +232,22 @@ end
           end else begin
             if (s_mul) begin
               if (count == 6'h3) begin
-                state <= 3'h6;
+                state <= #1 3'h6;
               end else begin
                 if (s_neg_output) begin
-                  state <= 3'h7;
+                  state <= #1 3'h7;
                 end else begin
                   if (s_neg_inputs) begin
-                    state <= 3'h3;
+                    state <= #1 3'h3;
                   end
                 end
               end
             end else begin
               if (s_neg_output) begin
-                state <= 3'h7;
+                state <= #1 3'h7;
               end else begin
                 if (s_neg_inputs) begin
-                  state <= 3'h3;
+                  state <= #1 3'h3;
                 end
               end
             end
@@ -255,96 +256,96 @@ end
       end
     end
     if (io_req_fire) begin
-      req_tag <= io_req_bits_tag;
+      req_tag <= #1 io_req_bits_tag;
     end
     if (io_req_fire) begin
-      count <= 6'h0;
+      count <= #1 6'h0;
     end else begin
       if (s_div) begin
-        count <= _T_85;
+        count <= #1 _T_85;
       end else begin
         if (s_mul) begin
-          count <= _T_85;
+          count <= #1 _T_85;
         end
       end
     end
     if (io_req_fire) begin
       if (cmdHi) begin
-        neg_out <= lhs_sign;
+        neg_out <= #1 lhs_sign;
       end else begin
-        neg_out <= lhs_sign != rhs_sign;
+        neg_out <= #1 lhs_sign != rhs_sign;
       end
     end else begin
       if (s_div) begin
         if (_T_106) begin
-          neg_out <= 1'h0;
+          neg_out <= #1 1'h0;
         end
       end
     end
     if (io_req_fire) begin
-      isHi <= cmdHi;
+      isHi <= #1 cmdHi;
     end
     if (io_req_fire) begin
-      resHi <= 1'h0;
+      resHi <= #1 1'h0;
     end else begin
       if (s_div) begin
         if (count == 6'h20) begin
-          resHi <= isHi;
+          resHi <= #1 isHi;
         end else begin
           if (s_mul) begin
             if (count == 6'h3) begin
-              resHi <= isHi;
+              resHi <= #1 isHi;
             end else begin
               if (s_neg_output) begin
-                resHi <= 1'h0;
+                resHi <= #1 1'h0;
               end
             end
           end else begin
             if (s_neg_output) begin
-              resHi <= 1'h0;
+              resHi <= #1 1'h0;
             end
           end
         end
       end else begin
         if (s_mul) begin
           if (count == 6'h3) begin
-            resHi <= isHi;
+            resHi <= #1 isHi;
           end else begin
             if (s_neg_output) begin
-              resHi <= 1'h0;
+              resHi <= #1 1'h0;
             end
           end
         end else begin
           if (s_neg_output) begin
-            resHi <= 1'h0;
+            resHi <= #1 1'h0;
           end
         end
       end
     end
     if (io_req_fire) begin
-      divisor <= {rhs_sign,rhs_in};
+      divisor <= #1 {rhs_sign,rhs_in};
     end else begin
       if (s_neg_inputs) begin
         if (divisor[31]) begin
-          divisor <= subtractor;
+          divisor <= #1 subtractor;
         end
       end
     end
     if (io_req_fire) begin
-      remainder <= {{34'd0}, lhs_in};
+      remainder <= #1 {{34'd0}, lhs_in};
     end else begin
       if (s_div) begin
-        remainder <= {{1'd0}, _T_96};
+        remainder <= #1 {{1'd0}, _T_96};
       end else begin
         if (s_mul) begin
-          remainder <= _T_83;
+          remainder <= #1 _T_83;
         end else begin
           if (s_neg_output) begin
-            remainder <= {{34'd0}, negated_remainder};
+            remainder <= #1 {{34'd0}, negated_remainder};
           end else begin
             if (s_neg_inputs) begin
               if (remainder[31]) begin
-                remainder <= {{34'd0}, negated_remainder};
+                remainder <= #1 {{34'd0}, negated_remainder};
               end
             end
           end

@@ -12,6 +12,7 @@ default: all
 base_dir = $(abspath ..)
 generated_dir = $(abspath ./generated-src)
 riscv32_dir = $(abspath ./riscv32)
+include_dir = $(abspath ./riscv32/core_combine/include)
 mem_gen = $(VLSI_MEM_GEN)
 sim_dir = .
 output_dir = $(sim_dir)/output
@@ -30,6 +31,6 @@ all: $(simv)
 debug: $(simv_debug)
 
 clean:
-	rm -rf simv* csrc *.key DVE* *.h *.a *.daidir
+	rm -rf simv* csrc *.key DVE* *.h *.a *.daidir output
 
 .PHONY: default all debug clean

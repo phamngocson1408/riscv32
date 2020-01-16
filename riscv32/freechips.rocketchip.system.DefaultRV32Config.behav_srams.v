@@ -260,9 +260,9 @@ module mem_ext(
   assign R0_data = ram[reg_R0_addr];
   `endif
 
-  initial begin
-    $readmemh ( "/home/pnson89/RISCV/ROCKET/rocket-chip/vsim/rv32um-v-mul.hex" , ram );
-  end
+//  initial begin
+//    $readmemh ( "/home/pnson89/RISCV/ROCKET/rocket-chip/vsim/rv32um-v-mul.hex" , ram );
+//  end
 
 endmodule
 

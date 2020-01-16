@@ -1,499 +1,142 @@
-`define DEFINE_IO
-`ifdef DEFINE_IO
-module CSRFile (
- reset
-,clock
-,io_ungated_clock
-,io_interrupts_debug
-,io_interrupts_mtip
-,io_interrupts_msip
-,io_interrupts_meip
-,io_interrupts_seip
-,io_rw_addr
-,io_rw_cmd
-,io_rw_rdata
-,io_rw_wdata
-,io_decode_0_csr
-,io_decode_0_fp_illegal
-,io_decode_0_fp_csr
-,io_decode_0_read_illegal
-,io_decode_0_write_illegal
-,io_decode_0_write_flush
-,io_decode_0_system_illegal
-,io_csr_stall
-,io_eret
-,io_singleStep
-,io_status_debug
-,io_status_cease
-,io_status_isa
-,io_status_dprv
-,io_status_prv
-,io_status_sd
-,io_status_zero2
-,io_status_sxl
-,io_status_uxl
-,io_status_sd_rv32
-,io_status_zero1
-,io_status_vs
-,io_status_tsr
-,io_status_tw
-,io_status_tvm
-,io_status_mxr
-,io_status_sum
-,io_status_mprv
-,io_status_xs
-,io_status_fs
-,io_status_mpp
-,io_status_hpp
-,io_status_spp
-,io_status_mpie
-,io_status_hpie
-,io_status_spie
-,io_status_upie
-,io_status_mie
-,io_status_hie
-,io_status_sie
-,io_status_uie
-,io_ptbr_mode
-,io_ptbr_ppn
-,io_evec
-,io_exception
-,io_retire
-,io_cause
-,io_pc
-,io_tval
-,io_time
-,io_fcsr_rm
-,io_fcsr_flags_valid
-,io_fcsr_flags_bits
-,io_interrupt
-,io_interrupt_cause
-,io_bp_0_control_action
-,io_bp_0_control_tmatch
-,io_bp_0_control_m
-,io_bp_0_control_s
-,io_bp_0_control_u
-,io_bp_0_control_x
-,io_bp_0_control_w
-,io_bp_0_control_r
-,io_bp_0_address
-,io_pmp_0_cfg_l
-,io_pmp_0_cfg_a
-,io_pmp_0_cfg_x
-,io_pmp_0_cfg_w
-,io_pmp_0_cfg_r
-,io_pmp_0_addr
-,io_pmp_0_mask
-,io_pmp_1_cfg_l
-,io_pmp_1_cfg_a
-,io_pmp_1_cfg_x
-,io_pmp_1_cfg_w
-,io_pmp_1_cfg_r
-,io_pmp_1_addr
-,io_pmp_1_mask
-,io_pmp_2_cfg_l
-,io_pmp_2_cfg_a
-,io_pmp_2_cfg_x
-,io_pmp_2_cfg_w
-,io_pmp_2_cfg_r
-,io_pmp_2_addr
-,io_pmp_2_mask
-,io_pmp_3_cfg_l
-,io_pmp_3_cfg_a
-,io_pmp_3_cfg_x
-,io_pmp_3_cfg_w
-,io_pmp_3_cfg_r
-,io_pmp_3_addr
-,io_pmp_3_mask
-,io_pmp_4_cfg_l
-,io_pmp_4_cfg_a
-,io_pmp_4_cfg_x
-,io_pmp_4_cfg_w
-,io_pmp_4_cfg_r
-,io_pmp_4_addr
-,io_pmp_4_mask
-,io_pmp_5_cfg_l
-,io_pmp_5_cfg_a
-,io_pmp_5_cfg_x
-,io_pmp_5_cfg_w
-,io_pmp_5_cfg_r
-,io_pmp_5_addr
-,io_pmp_5_mask
-,io_pmp_6_cfg_l
-,io_pmp_6_cfg_a
-,io_pmp_6_cfg_x
-,io_pmp_6_cfg_w
-,io_pmp_6_cfg_r
-,io_pmp_6_addr
-,io_pmp_6_mask
-,io_pmp_7_cfg_l
-,io_pmp_7_cfg_a
-,io_pmp_7_cfg_x
-,io_pmp_7_cfg_w
-,io_pmp_7_cfg_r
-,io_pmp_7_addr
-,io_pmp_7_mask
-,io_inst_0
-,io_trace_0_valid
-,io_trace_0_iaddr
-,io_trace_0_insn
-,io_trace_0_exception
+module CSRFile(
+  input         clock,
+  input         reset,
+  input         io_ungated_clock,
+  input         io_interrupts_debug,
+  input         io_interrupts_mtip,
+  input         io_interrupts_msip,
+  input         io_interrupts_meip,
+  input         io_interrupts_seip,
+  input  [11:0] io_rw_addr,
+  input  [2:0]  io_rw_cmd,
+  output [31:0] io_rw_rdata,
+  input  [31:0] io_rw_wdata,
+  input  [11:0] io_decode_0_csr,
+  output        io_decode_0_fp_illegal,
+  output        io_decode_0_fp_csr,
+  output        io_decode_0_read_illegal,
+  output        io_decode_0_write_illegal,
+  output        io_decode_0_write_flush,
+  output        io_decode_0_system_illegal,
+  output        io_csr_stall,
+  output        io_eret,
+  output        io_singleStep,
+  output        io_status_debug,
+  output        io_status_cease,
+  output [31:0] io_status_isa,
+  output [1:0]  io_status_dprv,
+  output [1:0]  io_status_prv,
+  output        io_status_sd,
+  output [26:0] io_status_zero2,
+  output [1:0]  io_status_sxl,
+  output [1:0]  io_status_uxl,
+  output        io_status_sd_rv32,
+  output [5:0]  io_status_zero1,
+  output [1:0]  io_status_vs,
+  output        io_status_tsr,
+  output        io_status_tw,
+  output        io_status_tvm,
+  output        io_status_mxr,
+  output        io_status_sum,
+  output        io_status_mprv,
+  output [1:0]  io_status_xs,
+  output [1:0]  io_status_fs,
+  output [1:0]  io_status_mpp,
+  output [1:0]  io_status_hpp,
+  output        io_status_spp,
+  output        io_status_mpie,
+  output        io_status_hpie,
+  output        io_status_spie,
+  output        io_status_upie,
+  output        io_status_mie,
+  output        io_status_hie,
+  output        io_status_sie,
+  output        io_status_uie,
+  output        io_ptbr_mode,
+  output [21:0] io_ptbr_ppn,
+  output [31:0] io_evec,
+  input         io_exception,
+  input         io_retire,
+  input  [31:0] io_cause,
+  input  [31:0] io_pc,
+  input  [31:0] io_tval,
+  output [31:0] io_time,
+  output [2:0]  io_fcsr_rm,
+  input         io_fcsr_flags_valid,
+  input  [4:0]  io_fcsr_flags_bits,
+  output        io_interrupt,
+  output [31:0] io_interrupt_cause,
+  output        io_bp_0_control_action,
+  output [1:0]  io_bp_0_control_tmatch,
+  output        io_bp_0_control_m,
+  output        io_bp_0_control_s,
+  output        io_bp_0_control_u,
+  output        io_bp_0_control_x,
+  output        io_bp_0_control_w,
+  output        io_bp_0_control_r,
+  output [31:0] io_bp_0_address,
+  output        io_pmp_0_cfg_l,
+  output [1:0]  io_pmp_0_cfg_a,
+  output        io_pmp_0_cfg_x,
+  output        io_pmp_0_cfg_w,
+  output        io_pmp_0_cfg_r,
+  output [29:0] io_pmp_0_addr,
+  output [31:0] io_pmp_0_mask,
+  output        io_pmp_1_cfg_l,
+  output [1:0]  io_pmp_1_cfg_a,
+  output        io_pmp_1_cfg_x,
+  output        io_pmp_1_cfg_w,
+  output        io_pmp_1_cfg_r,
+  output [29:0] io_pmp_1_addr,
+  output [31:0] io_pmp_1_mask,
+  output        io_pmp_2_cfg_l,
+  output [1:0]  io_pmp_2_cfg_a,
+  output        io_pmp_2_cfg_x,
+  output        io_pmp_2_cfg_w,
+  output        io_pmp_2_cfg_r,
+  output [29:0] io_pmp_2_addr,
+  output [31:0] io_pmp_2_mask,
+  output        io_pmp_3_cfg_l, 
+  output [1:0]  io_pmp_3_cfg_a,
+  output        io_pmp_3_cfg_x,
+  output        io_pmp_3_cfg_w,
+  output        io_pmp_3_cfg_r,
+  output [29:0] io_pmp_3_addr,
+  output [31:0] io_pmp_3_mask,
+  output        io_pmp_4_cfg_l,
+  output [1:0]  io_pmp_4_cfg_a,
+  output        io_pmp_4_cfg_x,
+  output        io_pmp_4_cfg_w,
+  output        io_pmp_4_cfg_r,
+  output [29:0] io_pmp_4_addr,
+  output [31:0] io_pmp_4_mask,
+  output        io_pmp_5_cfg_l,
+  output [1:0]  io_pmp_5_cfg_a,
+  output        io_pmp_5_cfg_x,
+  output        io_pmp_5_cfg_w, 
+  output        io_pmp_5_cfg_r,
+  output [29:0] io_pmp_5_addr,
+  output [31:0] io_pmp_5_mask,
+  output        io_pmp_6_cfg_l,
+  output [1:0]  io_pmp_6_cfg_a,
+  output        io_pmp_6_cfg_x,
+  output        io_pmp_6_cfg_w,
+  output        io_pmp_6_cfg_r,
+  output [29:0] io_pmp_6_addr,
+  output [31:0] io_pmp_6_mask,
+  output        io_pmp_7_cfg_l,
+  output [1:0]  io_pmp_7_cfg_a,
+  output        io_pmp_7_cfg_x,
+  output        io_pmp_7_cfg_w,
+  output        io_pmp_7_cfg_r,
+  output [29:0] io_pmp_7_addr,
+  output [31:0] io_pmp_7_mask,
+  input  [31:0] io_inst_0,
+  output        io_trace_0_valid,
+  output [31:0] io_trace_0_iaddr,
+  output [31:0] io_trace_0_insn,
+  output        io_trace_0_exception
 );
-
-//********************************************************************
-// Parameters declaration
-//********************************************************************
-// RocketCoreParams
-parameter xLen = 32;
-parameter iLen = 32;
-parameter useBPWatch = 0;
-parameter nPMPs = 8;
-
-// HasCoreParameters
-parameter coreMaxAddrBits = 32;
-parameter vaddrBitsExtended = 32;	// ToDo: Recalculate
-parameter vaddrBits = 32;
-parameter paddrBits = 32;
-
-// CSR
-parameter CSR_ADDRSZ = 12;
-parameter CSR_SZ = 3;
-parameter CSR_I = 4;
-parameter CSR_W = 5;
-parameter CSR_S = 6;
-parameter CSR_C = 7;
-parameter CSR_debugIntCause = 14;
-parameter CSR_nCtr = 32;
-
-// PRV
-parameter PRV_SZ = 2;
-parameter PRV_U = 0;
-parameter PRV_S = 1;
-parameter PRV_H = 2;
-parameter PRV_M = 3;
-
-// PTBR
-parameter modeBits = 1;
-parameter maxASIdBits = 9;
-parameter maxPAddrBits = 34;
-parameter pgIdxBits = 12;
-
-// FPConstants
-parameter FPConstants_RM_SZ = 3;
-parameter FPConstants_FLAG_SZ = 5;
-
-//PMP
-parameter PMP_lgAlign = 2;
-
-// bpc
-parameter bpc_tType = 2;
-parameter bpc_maskMax = 4;
-
-parameter cause_misaligned_fetch = 'h0;
-parameter cause_fetch_access = 'h1;
-parameter cause_illegal_instruction = 'h2;
-parameter cause_breakpoint = 'h3;
-parameter cause_misaligned_load = 'h4;
-parameter cause_load_access = 'h5;
-parameter cause_misaligned_store = 'h6;
-parameter cause_store_access = 'h7;
-parameter cause_user_ecall = 'h8;
-parameter cause_supervisor_ecall = 'h9;
-parameter cause_hypervisor_ecall = 'ha;
-parameter cause_machine_ecall = 'hb;
-parameter cause_fetch_page_fault = 'hc;
-parameter cause_load_page_fault = 'hd;
-parameter cause_store_page_fault = 'hf;
-
-parameter delegable_interrupts = 32'h222;
-parameter delegable_exceptions = 32'hb15d;
-parameter supported_interrupts = 16'haaa;
-parameter delegable_counters = 32'h7;
-
-//********************************************************************
-// Input/Output declaration
-//********************************************************************
-input 						reset;
-input 						clock;
-input 						io_ungated_clock;
-input 						io_interrupts_debug;
-input 						io_interrupts_mtip;
-input 						io_interrupts_msip;
-input 						io_interrupts_meip;
-input 						io_interrupts_seip;
-input 	[CSR_ADDRSZ - 1:0]			io_rw_addr;
-input 	[CSR_SZ - 1:0]				io_rw_cmd;
-output	[xLen - 1:0]				io_rw_rdata;
-input	[xLen - 1:0]				io_rw_wdata;
-input	[CSR_ADDRSZ - 1:0]			io_decode_0_csr;
-output						io_decode_0_fp_illegal;
-output						io_decode_0_fp_csr;
-output						io_decode_0_read_illegal;
-output						io_decode_0_write_illegal;
-output						io_decode_0_write_flush;
-output						io_decode_0_system_illegal;
-output						io_csr_stall;
-output						io_eret;
-output						io_singleStep;
-output						io_status_debug;
-output						io_status_cease;
-output	[31:0]					io_status_isa;
-output	[PRV_SZ - 1:0]				io_status_dprv;
-output	[PRV_SZ - 1:0]				io_status_prv;
-output						io_status_sd;
-output	[26:0]					io_status_zero2;
-output	[1:0]					io_status_sxl;
-output	[1:0]					io_status_uxl;
-output						io_status_sd_rv32;
-output	[5:0]					io_status_zero1;
-output	[1:0]					io_status_vs;
-output						io_status_tsr;
-output						io_status_tw;
-output						io_status_tvm;
-output						io_status_mxr;
-output						io_status_sum;
-output						io_status_mprv;
-output	[1:0]					io_status_xs;
-output	[1:0]					io_status_fs;
-output	[1:0]					io_status_mpp;
-output	[1:0]					io_status_hpp;
-output						io_status_spp;
-output						io_status_mpie;
-output						io_status_hpie;
-output						io_status_spie;
-output						io_status_upie;
-output						io_status_mie;
-output						io_status_hie;
-output						io_status_sie;
-output						io_status_uie;
-output	[modeBits - 1:0]			io_ptbr_mode;
-output	[maxPAddrBits - pgIdxBits - 1:0]	io_ptbr_ppn;
-output	[vaddrBitsExtended - 1:0]		io_evec;
-input						io_exception;
-input						io_retire;	// ToDo: Add parameter
-input	[xLen - 1:0]				io_cause;
-input	[vaddrBitsExtended - 1:0]		io_pc;
-input	[vaddrBitsExtended - 1:0]		io_tval;
-output	[xLen - 1:0]				io_time;
-output	[FPConstants_RM_SZ - 1:0]		io_fcsr_rm;
-input						io_fcsr_flags_valid;
-input	[FPConstants_FLAG_SZ - 1:0]		io_fcsr_flags_bits;
-output						io_interrupt;
-output	[xLen - 1:0]				io_interrupt_cause;
-output						io_bp_0_control_action;		// ToDo: Recalculate with differrent useBPWatch
-output	[1:0]					io_bp_0_control_tmatch;
-output						io_bp_0_control_m;
-output						io_bp_0_control_s;
-output						io_bp_0_control_u;
-output						io_bp_0_control_x;
-output						io_bp_0_control_w;
-output						io_bp_0_control_r;
-output	[vaddrBits - 1:0]			io_bp_0_address;
-// ToDo: #io_pmp depends on nPMPs
-output						io_pmp_0_cfg_l;
-output	[1:0]					io_pmp_0_cfg_a;
-output						io_pmp_0_cfg_x;
-output						io_pmp_0_cfg_w;
-output						io_pmp_0_cfg_r;
-output	[paddrBits - PMP_lgAlign - 1:0]		io_pmp_0_addr;
-output	[paddrBits - 1:0]			io_pmp_0_mask;	// ToDo: Recalculate
-output						io_pmp_1_cfg_l;
-output	[1:0]					io_pmp_1_cfg_a;
-output						io_pmp_1_cfg_x;
-output						io_pmp_1_cfg_w;
-output						io_pmp_1_cfg_r;
-output	[paddrBits - PMP_lgAlign - 1:0]		io_pmp_1_addr;
-output	[paddrBits - 1:0]			io_pmp_1_mask;
-output						io_pmp_2_cfg_l;
-output	[1:0]					io_pmp_2_cfg_a;
-output						io_pmp_2_cfg_x;
-output						io_pmp_2_cfg_w;
-output						io_pmp_2_cfg_r;
-output	[paddrBits - PMP_lgAlign - 1:0]		io_pmp_2_addr;
-output	[paddrBits - 1:0]			io_pmp_2_mask;
-output						io_pmp_3_cfg_l;
-output	[1:0]					io_pmp_3_cfg_a;
-output						io_pmp_3_cfg_x;
-output						io_pmp_3_cfg_w;
-output						io_pmp_3_cfg_r;
-output	[paddrBits - PMP_lgAlign - 1:0]		io_pmp_3_addr;
-output	[paddrBits - 1:0]			io_pmp_3_mask;
-output						io_pmp_4_cfg_l;
-output	[1:0]					io_pmp_4_cfg_a;
-output						io_pmp_4_cfg_x;
-output						io_pmp_4_cfg_w;
-output						io_pmp_4_cfg_r;
-output	[paddrBits - PMP_lgAlign - 1:0]		io_pmp_4_addr;
-output	[paddrBits - 1:0]			io_pmp_4_mask;
-output						io_pmp_5_cfg_l;
-output	[1:0]					io_pmp_5_cfg_a;
-output						io_pmp_5_cfg_x;
-output						io_pmp_5_cfg_w;
-output						io_pmp_5_cfg_r;
-output	[paddrBits - PMP_lgAlign - 1:0]		io_pmp_5_addr;
-output	[paddrBits - 1:0]			io_pmp_5_mask;
-output						io_pmp_6_cfg_l;
-output	[1:0]					io_pmp_6_cfg_a;
-output						io_pmp_6_cfg_x;
-output						io_pmp_6_cfg_w;
-output						io_pmp_6_cfg_r;
-output	[paddrBits - PMP_lgAlign - 1:0]		io_pmp_6_addr;
-output	[paddrBits - 1:0]			io_pmp_6_mask;
-output						io_pmp_7_cfg_l;
-output	[1:0]					io_pmp_7_cfg_a;
-output						io_pmp_7_cfg_x;
-output						io_pmp_7_cfg_w;
-output						io_pmp_7_cfg_r;
-output	[paddrBits - PMP_lgAlign - 1:0]		io_pmp_7_addr;
-output	[paddrBits - 1:0]			io_pmp_7_mask;
-input	[iLen - 1:0]				io_inst_0;
-output						io_trace_0_valid;
-output	[coreMaxAddrBits - 1:0]			io_trace_0_iaddr;
-output	[iLen - 1:0]				io_trace_0_insn;
-output						io_trace_0_exception;
-`endif //DEFINE_IO
-
-`ifndef DEFINE_IO
-module CSRFile( // @[:freechips.rocketchip.system.DefaultRV32Config.fir@147560.2]
-  input         clock, // @[:freechips.rocketchip.system.DefaultRV32Config.fir@147561.4]
-  input         reset, // @[:freechips.rocketchip.system.DefaultRV32Config.fir@147562.4]
-  input         io_ungated_clock, // @[:freechips.rocketchip.system.DefaultRV32Config.fir@147563.4]
-  input         io_interrupts_debug, // @[:freechips.rocketchip.system.DefaultRV32Config.fir@147563.4]
-  input         io_interrupts_mtip, // @[:freechips.rocketchip.system.DefaultRV32Config.fir@147563.4]
-  input         io_interrupts_msip, // @[:freechips.rocketchip.system.DefaultRV32Config.fir@147563.4]
-  input         io_interrupts_meip, // @[:freechips.rocketchip.system.DefaultRV32Config.fir@147563.4]
-  input         io_interrupts_seip, // @[:freechips.rocketchip.system.DefaultRV32Config.fir@147563.4]
-  input  [11:0] io_rw_addr, // @[:freechips.rocketchip.system.DefaultRV32Config.fir@147563.4]
-  input  [2:0]  io_rw_cmd, // @[:freechips.rocketchip.system.DefaultRV32Config.fir@147563.4]
-  output [31:0] io_rw_rdata, // @[:freechips.rocketchip.system.DefaultRV32Config.fir@147563.4]
-  input  [31:0] io_rw_wdata, // @[:freechips.rocketchip.system.DefaultRV32Config.fir@147563.4]
-  input  [11:0] io_decode_0_csr, // @[:freechips.rocketchip.system.DefaultRV32Config.fir@147563.4]
-  output        io_decode_0_fp_illegal, // @[:freechips.rocketchip.system.DefaultRV32Config.fir@147563.4]
-  output        io_decode_0_fp_csr, // @[:freechips.rocketchip.system.DefaultRV32Config.fir@147563.4]
-  output        io_decode_0_read_illegal, // @[:freechips.rocketchip.system.DefaultRV32Config.fir@147563.4]
-  output        io_decode_0_write_illegal, // @[:freechips.rocketchip.system.DefaultRV32Config.fir@147563.4]
-  output        io_decode_0_write_flush, // @[:freechips.rocketchip.system.DefaultRV32Config.fir@147563.4]
-  output        io_decode_0_system_illegal, // @[:freechips.rocketchip.system.DefaultRV32Config.fir@147563.4]
-  output        io_csr_stall, // @[:freechips.rocketchip.system.DefaultRV32Config.fir@147563.4]
-  output        io_eret, // @[:freechips.rocketchip.system.DefaultRV32Config.fir@147563.4]
-  output        io_singleStep, // @[:freechips.rocketchip.system.DefaultRV32Config.fir@147563.4]
-  output        io_status_debug, // @[:freechips.rocketchip.system.DefaultRV32Config.fir@147563.4]
-  output        io_status_cease, // @[:freechips.rocketchip.system.DefaultRV32Config.fir@147563.4]
-  output [31:0] io_status_isa, // @[:freechips.rocketchip.system.DefaultRV32Config.fir@147563.4]
-  output [1:0]  io_status_dprv, // @[:freechips.rocketchip.system.DefaultRV32Config.fir@147563.4]
-  output [1:0]  io_status_prv, // @[:freechips.rocketchip.system.DefaultRV32Config.fir@147563.4]
-  output        io_status_sd, // @[:freechips.rocketchip.system.DefaultRV32Config.fir@147563.4]
-  output [26:0] io_status_zero2, // @[:freechips.rocketchip.system.DefaultRV32Config.fir@147563.4]
-  output [1:0]  io_status_sxl, // @[:freechips.rocketchip.system.DefaultRV32Config.fir@147563.4]
-  output [1:0]  io_status_uxl, // @[:freechips.rocketchip.system.DefaultRV32Config.fir@147563.4]
-  output        io_status_sd_rv32, // @[:freechips.rocketchip.system.DefaultRV32Config.fir@147563.4]
-  output [5:0]  io_status_zero1, // @[:freechips.rocketchip.system.DefaultRV32Config.fir@147563.4]
-  output [1:0]  io_status_vs, // @[:freechips.rocketchip.system.DefaultRV32Config.fir@147563.4]
-  output        io_status_tsr, // @[:freechips.rocketchip.system.DefaultRV32Config.fir@147563.4]
-  output        io_status_tw, // @[:freechips.rocketchip.system.DefaultRV32Config.fir@147563.4]
-  output        io_status_tvm, // @[:freechips.rocketchip.system.DefaultRV32Config.fir@147563.4]
-  output        io_status_mxr, // @[:freechips.rocketchip.system.DefaultRV32Config.fir@147563.4]
-  output        io_status_sum, // @[:freechips.rocketchip.system.DefaultRV32Config.fir@147563.4]
-  output        io_status_mprv, // @[:freechips.rocketchip.system.DefaultRV32Config.fir@147563.4]
-  output [1:0]  io_status_xs, // @[:freechips.rocketchip.system.DefaultRV32Config.fir@147563.4]
-  output [1:0]  io_status_fs, // @[:freechips.rocketchip.system.DefaultRV32Config.fir@147563.4]
-  output [1:0]  io_status_mpp, // @[:freechips.rocketchip.system.DefaultRV32Config.fir@147563.4]
-  output [1:0]  io_status_hpp, // @[:freechips.rocketchip.system.DefaultRV32Config.fir@147563.4]
-  output        io_status_spp, // @[:freechips.rocketchip.system.DefaultRV32Config.fir@147563.4]
-  output        io_status_mpie, // @[:freechips.rocketchip.system.DefaultRV32Config.fir@147563.4]
-  output        io_status_hpie, // @[:freechips.rocketchip.system.DefaultRV32Config.fir@147563.4]
-  output        io_status_spie, // @[:freechips.rocketchip.system.DefaultRV32Config.fir@147563.4]
-  output        io_status_upie, // @[:freechips.rocketchip.system.DefaultRV32Config.fir@147563.4]
-  output        io_status_mie, // @[:freechips.rocketchip.system.DefaultRV32Config.fir@147563.4]
-  output        io_status_hie, // @[:freechips.rocketchip.system.DefaultRV32Config.fir@147563.4]
-  output        io_status_sie, // @[:freechips.rocketchip.system.DefaultRV32Config.fir@147563.4]
-  output        io_status_uie, // @[:freechips.rocketchip.system.DefaultRV32Config.fir@147563.4]
-  output        io_ptbr_mode, // @[:freechips.rocketchip.system.DefaultRV32Config.fir@147563.4]
-  output [21:0] io_ptbr_ppn, // @[:freechips.rocketchip.system.DefaultRV32Config.fir@147563.4]
-  output [31:0] io_evec, // @[:freechips.rocketchip.system.DefaultRV32Config.fir@147563.4]
-  input         io_exception, // @[:freechips.rocketchip.system.DefaultRV32Config.fir@147563.4]
-  input         io_retire, // @[:freechips.rocketchip.system.DefaultRV32Config.fir@147563.4]
-  input  [31:0] io_cause, // @[:freechips.rocketchip.system.DefaultRV32Config.fir@147563.4]
-  input  [31:0] io_pc, // @[:freechips.rocketchip.system.DefaultRV32Config.fir@147563.4]
-  input  [31:0] io_tval, // @[:freechips.rocketchip.system.DefaultRV32Config.fir@147563.4]
-  output [31:0] io_time, // @[:freechips.rocketchip.system.DefaultRV32Config.fir@147563.4]
-  output [2:0]  io_fcsr_rm, // @[:freechips.rocketchip.system.DefaultRV32Config.fir@147563.4]
-  input         io_fcsr_flags_valid, // @[:freechips.rocketchip.system.DefaultRV32Config.fir@147563.4]
-  input  [4:0]  io_fcsr_flags_bits, // @[:freechips.rocketchip.system.DefaultRV32Config.fir@147563.4]
-  output        io_interrupt, // @[:freechips.rocketchip.system.DefaultRV32Config.fir@147563.4]
-  output [31:0] io_interrupt_cause, // @[:freechips.rocketchip.system.DefaultRV32Config.fir@147563.4]
-  output        io_bp_0_control_action, // @[:freechips.rocketchip.system.DefaultRV32Config.fir@147563.4]
-  output [1:0]  io_bp_0_control_tmatch, // @[:freechips.rocketchip.system.DefaultRV32Config.fir@147563.4]
-  output        io_bp_0_control_m, // @[:freechips.rocketchip.system.DefaultRV32Config.fir@147563.4]
-  output        io_bp_0_control_s, // @[:freechips.rocketchip.system.DefaultRV32Config.fir@147563.4]
-  output        io_bp_0_control_u, // @[:freechips.rocketchip.system.DefaultRV32Config.fir@147563.4]
-  output        io_bp_0_control_x, // @[:freechips.rocketchip.system.DefaultRV32Config.fir@147563.4]
-  output        io_bp_0_control_w, // @[:freechips.rocketchip.system.DefaultRV32Config.fir@147563.4]
-  output        io_bp_0_control_r, // @[:freechips.rocketchip.system.DefaultRV32Config.fir@147563.4]
-  output [31:0] io_bp_0_address, // @[:freechips.rocketchip.system.DefaultRV32Config.fir@147563.4]
-  output        io_pmp_0_cfg_l, // @[:freechips.rocketchip.system.DefaultRV32Config.fir@147563.4]
-  output [1:0]  io_pmp_0_cfg_a, // @[:freechips.rocketchip.system.DefaultRV32Config.fir@147563.4]
-  output        io_pmp_0_cfg_x, // @[:freechips.rocketchip.system.DefaultRV32Config.fir@147563.4]
-  output        io_pmp_0_cfg_w, // @[:freechips.rocketchip.system.DefaultRV32Config.fir@147563.4]
-  output        io_pmp_0_cfg_r, // @[:freechips.rocketchip.system.DefaultRV32Config.fir@147563.4]
-  output [29:0] io_pmp_0_addr, // @[:freechips.rocketchip.system.DefaultRV32Config.fir@147563.4]
-  output [31:0] io_pmp_0_mask, // @[:freechips.rocketchip.system.DefaultRV32Config.fir@147563.4]
-  output        io_pmp_1_cfg_l, // @[:freechips.rocketchip.system.DefaultRV32Config.fir@147563.4]
-  output [1:0]  io_pmp_1_cfg_a, // @[:freechips.rocketchip.system.DefaultRV32Config.fir@147563.4]
-  output        io_pmp_1_cfg_x, // @[:freechips.rocketchip.system.DefaultRV32Config.fir@147563.4]
-  output        io_pmp_1_cfg_w, // @[:freechips.rocketchip.system.DefaultRV32Config.fir@147563.4]
-  output        io_pmp_1_cfg_r, // @[:freechips.rocketchip.system.DefaultRV32Config.fir@147563.4]
-  output [29:0] io_pmp_1_addr, // @[:freechips.rocketchip.system.DefaultRV32Config.fir@147563.4]
-  output [31:0] io_pmp_1_mask, // @[:freechips.rocketchip.system.DefaultRV32Config.fir@147563.4]
-  output        io_pmp_2_cfg_l, // @[:freechips.rocketchip.system.DefaultRV32Config.fir@147563.4]
-  output [1:0]  io_pmp_2_cfg_a, // @[:freechips.rocketchip.system.DefaultRV32Config.fir@147563.4]
-  output        io_pmp_2_cfg_x, // @[:freechips.rocketchip.system.DefaultRV32Config.fir@147563.4]
-  output        io_pmp_2_cfg_w, // @[:freechips.rocketchip.system.DefaultRV32Config.fir@147563.4]
-  output        io_pmp_2_cfg_r, // @[:freechips.rocketchip.system.DefaultRV32Config.fir@147563.4]
-  output [29:0] io_pmp_2_addr, // @[:freechips.rocketchip.system.DefaultRV32Config.fir@147563.4]
-  output [31:0] io_pmp_2_mask, // @[:freechips.rocketchip.system.DefaultRV32Config.fir@147563.4]
-  output        io_pmp_3_cfg_l, // @[:freechips.rocketchip.system.DefaultRV32Config.fir@147563.4]
-  output [1:0]  io_pmp_3_cfg_a, // @[:freechips.rocketchip.system.DefaultRV32Config.fir@147563.4]
-  output        io_pmp_3_cfg_x, // @[:freechips.rocketchip.system.DefaultRV32Config.fir@147563.4]
-  output        io_pmp_3_cfg_w, // @[:freechips.rocketchip.system.DefaultRV32Config.fir@147563.4]
-  output        io_pmp_3_cfg_r, // @[:freechips.rocketchip.system.DefaultRV32Config.fir@147563.4]
-  output [29:0] io_pmp_3_addr, // @[:freechips.rocketchip.system.DefaultRV32Config.fir@147563.4]
-  output [31:0] io_pmp_3_mask, // @[:freechips.rocketchip.system.DefaultRV32Config.fir@147563.4]
-  output        io_pmp_4_cfg_l, // @[:freechips.rocketchip.system.DefaultRV32Config.fir@147563.4]
-  output [1:0]  io_pmp_4_cfg_a, // @[:freechips.rocketchip.system.DefaultRV32Config.fir@147563.4]
-  output        io_pmp_4_cfg_x, // @[:freechips.rocketchip.system.DefaultRV32Config.fir@147563.4]
-  output        io_pmp_4_cfg_w, // @[:freechips.rocketchip.system.DefaultRV32Config.fir@147563.4]
-  output        io_pmp_4_cfg_r, // @[:freechips.rocketchip.system.DefaultRV32Config.fir@147563.4]
-  output [29:0] io_pmp_4_addr, // @[:freechips.rocketchip.system.DefaultRV32Config.fir@147563.4]
-  output [31:0] io_pmp_4_mask, // @[:freechips.rocketchip.system.DefaultRV32Config.fir@147563.4]
-  output        io_pmp_5_cfg_l, // @[:freechips.rocketchip.system.DefaultRV32Config.fir@147563.4]
-  output [1:0]  io_pmp_5_cfg_a, // @[:freechips.rocketchip.system.DefaultRV32Config.fir@147563.4]
-  output        io_pmp_5_cfg_x, // @[:freechips.rocketchip.system.DefaultRV32Config.fir@147563.4]
-  output        io_pmp_5_cfg_w, // @[:freechips.rocketchip.system.DefaultRV32Config.fir@147563.4]
-  output        io_pmp_5_cfg_r, // @[:freechips.rocketchip.system.DefaultRV32Config.fir@147563.4]
-  output [29:0] io_pmp_5_addr, // @[:freechips.rocketchip.system.DefaultRV32Config.fir@147563.4]
-  output [31:0] io_pmp_5_mask, // @[:freechips.rocketchip.system.DefaultRV32Config.fir@147563.4]
-  output        io_pmp_6_cfg_l, // @[:freechips.rocketchip.system.DefaultRV32Config.fir@147563.4]
-  output [1:0]  io_pmp_6_cfg_a, // @[:freechips.rocketchip.system.DefaultRV32Config.fir@147563.4]
-  output        io_pmp_6_cfg_x, // @[:freechips.rocketchip.system.DefaultRV32Config.fir@147563.4]
-  output        io_pmp_6_cfg_w, // @[:freechips.rocketchip.system.DefaultRV32Config.fir@147563.4]
-  output        io_pmp_6_cfg_r, // @[:freechips.rocketchip.system.DefaultRV32Config.fir@147563.4]
-  output [29:0] io_pmp_6_addr, // @[:freechips.rocketchip.system.DefaultRV32Config.fir@147563.4]
-  output [31:0] io_pmp_6_mask, // @[:freechips.rocketchip.system.DefaultRV32Config.fir@147563.4]
-  output        io_pmp_7_cfg_l, // @[:freechips.rocketchip.system.DefaultRV32Config.fir@147563.4]
-  output [1:0]  io_pmp_7_cfg_a, // @[:freechips.rocketchip.system.DefaultRV32Config.fir@147563.4]
-  output        io_pmp_7_cfg_x, // @[:freechips.rocketchip.system.DefaultRV32Config.fir@147563.4]
-  output        io_pmp_7_cfg_w, // @[:freechips.rocketchip.system.DefaultRV32Config.fir@147563.4]
-  output        io_pmp_7_cfg_r, // @[:freechips.rocketchip.system.DefaultRV32Config.fir@147563.4]
-  output [29:0] io_pmp_7_addr, // @[:freechips.rocketchip.system.DefaultRV32Config.fir@147563.4]
-  output [31:0] io_pmp_7_mask, // @[:freechips.rocketchip.system.DefaultRV32Config.fir@147563.4]
-  input  [31:0] io_inst_0, // @[:freechips.rocketchip.system.DefaultRV32Config.fir@147563.4]
-  output        io_trace_0_valid, // @[:freechips.rocketchip.system.DefaultRV32Config.fir@147563.4]
-  output [31:0] io_trace_0_iaddr, // @[:freechips.rocketchip.system.DefaultRV32Config.fir@147563.4]
-  output [31:0] io_trace_0_insn, // @[:freechips.rocketchip.system.DefaultRV32Config.fir@147563.4]
-  output        io_trace_0_exception // @[:freechips.rocketchip.system.DefaultRV32Config.fir@147563.4]
-);
-`endif //DEFINE_IO
   reg [1:0] reg_mstatus_prv; // @[CSR.scala 295:24:freechips.rocketchip.system.DefaultRV32Config.fir@147640.4]
   reg [31:0] _RAND_0;
   reg  reg_mstatus_tsr; // @[CSR.scala 295:24:freechips.rocketchip.system.DefaultRV32Config.fir@147640.4]
@@ -1018,54 +661,54 @@ module CSRFile( // @[:freechips.rocketchip.system.DefaultRV32Config.fir@147560.2
   wire [7:0] _T_619; // @[package.scala 36:38:freechips.rocketchip.system.DefaultRV32Config.fir@148431.4]
   wire [15:0] _T_625; // @[Cat.scala 29:58:freechips.rocketchip.system.DefaultRV32Config.fir@148437.4]
   wire [31:0] _T_627; // @[Cat.scala 29:58:freechips.rocketchip.system.DefaultRV32Config.fir@148439.4]
-  wire  _T_675; // @[CSR.scala 566:73:freechips.rocketchip.system.DefaultRV32Config.fir@148491.4]
-  wire  _T_676; // @[CSR.scala 566:73:freechips.rocketchip.system.DefaultRV32Config.fir@148492.4]
-  wire  _T_677; // @[CSR.scala 566:73:freechips.rocketchip.system.DefaultRV32Config.fir@148493.4]
-  wire  _T_678; // @[CSR.scala 566:73:freechips.rocketchip.system.DefaultRV32Config.fir@148494.4]
-  wire  _T_679; // @[CSR.scala 566:73:freechips.rocketchip.system.DefaultRV32Config.fir@148495.4]
-  wire  _T_680; // @[CSR.scala 566:73:freechips.rocketchip.system.DefaultRV32Config.fir@148496.4]
-  wire  _T_681; // @[CSR.scala 566:73:freechips.rocketchip.system.DefaultRV32Config.fir@148497.4]
-  wire  _T_682; // @[CSR.scala 566:73:freechips.rocketchip.system.DefaultRV32Config.fir@148498.4]
-  wire  _T_683; // @[CSR.scala 566:73:freechips.rocketchip.system.DefaultRV32Config.fir@148499.4]
-  wire  _T_684; // @[CSR.scala 566:73:freechips.rocketchip.system.DefaultRV32Config.fir@148500.4]
-  wire  _T_685; // @[CSR.scala 566:73:freechips.rocketchip.system.DefaultRV32Config.fir@148501.4]
-  wire  _T_687; // @[CSR.scala 566:73:freechips.rocketchip.system.DefaultRV32Config.fir@148503.4]
-  wire  _T_688; // @[CSR.scala 566:73:freechips.rocketchip.system.DefaultRV32Config.fir@148504.4]
-  wire  _T_689; // @[CSR.scala 566:73:freechips.rocketchip.system.DefaultRV32Config.fir@148505.4]
-  wire  _T_690; // @[CSR.scala 566:73:freechips.rocketchip.system.DefaultRV32Config.fir@148506.4]
-  wire  _T_691; // @[CSR.scala 566:73:freechips.rocketchip.system.DefaultRV32Config.fir@148507.4]
-  wire  _T_692; // @[CSR.scala 566:73:freechips.rocketchip.system.DefaultRV32Config.fir@148508.4]
-  wire  _T_693; // @[CSR.scala 566:73:freechips.rocketchip.system.DefaultRV32Config.fir@148509.4]
-  wire  _T_694; // @[CSR.scala 566:73:freechips.rocketchip.system.DefaultRV32Config.fir@148510.4]
-  wire  _T_840; // @[CSR.scala 566:73:freechips.rocketchip.system.DefaultRV32Config.fir@148656.4]
+  wire  sel_tdata1; // @[CSR.scala 566:73:freechips.rocketchip.system.DefaultRV32Config.fir@148491.4]
+  wire  sel_tdata2; // @[CSR.scala 566:73:freechips.rocketchip.system.DefaultRV32Config.fir@148492.4]
+  wire  sel_misa; // @[CSR.scala 566:73:freechips.rocketchip.system.DefaultRV32Config.fir@148493.4]
+  wire  sel_mstatus; // @[CSR.scala 566:73:freechips.rocketchip.system.DefaultRV32Config.fir@148494.4]
+  wire  sel_mtvec; // @[CSR.scala 566:73:freechips.rocketchip.system.DefaultRV32Config.fir@148495.4]
+  wire  sel_mip; // @[CSR.scala 566:73:freechips.rocketchip.system.DefaultRV32Config.fir@148496.4]
+  wire  sel_mie; // @[CSR.scala 566:73:freechips.rocketchip.system.DefaultRV32Config.fir@148497.4]
+  wire  sel_mscratch; // @[CSR.scala 566:73:freechips.rocketchip.system.DefaultRV32Config.fir@148498.4]
+  wire  sel_mepc; // @[CSR.scala 566:73:freechips.rocketchip.system.DefaultRV32Config.fir@148499.4]
+  wire  sel_mtval; // @[CSR.scala 566:73:freechips.rocketchip.system.DefaultRV32Config.fir@148500.4]
+  wire  sel_mcause; // @[CSR.scala 566:73:freechips.rocketchip.system.DefaultRV32Config.fir@148501.4]
+  wire  sel_dcsr; // @[CSR.scala 566:73:freechips.rocketchip.system.DefaultRV32Config.fir@148503.4]
+  wire  sel_dpc; // @[CSR.scala 566:73:freechips.rocketchip.system.DefaultRV32Config.fir@148504.4]
+  wire  sel_dscratch; // @[CSR.scala 566:73:freechips.rocketchip.system.DefaultRV32Config.fir@148505.4]
+  wire  sel_fflags; // @[CSR.scala 566:73:freechips.rocketchip.system.DefaultRV32Config.fir@148506.4]
+  wire  sel_frm; // @[CSR.scala 566:73:freechips.rocketchip.system.DefaultRV32Config.fir@148507.4]
+  wire  sel_fcsr; // @[CSR.scala 566:73:freechips.rocketchip.system.DefaultRV32Config.fir@148508.4]
+  wire  sel_mcycle; // @[CSR.scala 566:73:freechips.rocketchip.system.DefaultRV32Config.fir@148509.4]
+  wire  sel_minstret; // @[CSR.scala 566:73:freechips.rocketchip.system.DefaultRV32Config.fir@148510.4]
+  wire  sel_mcounteren; // @[CSR.scala 566:73:freechips.rocketchip.system.DefaultRV32Config.fir@148656.4]
   wire  _T_841; // @[CSR.scala 566:73:freechips.rocketchip.system.DefaultRV32Config.fir@148657.4]
   wire  _T_842; // @[CSR.scala 566:73:freechips.rocketchip.system.DefaultRV32Config.fir@148658.4]
-  wire  _T_843; // @[CSR.scala 566:73:freechips.rocketchip.system.DefaultRV32Config.fir@148659.4]
-  wire  _T_844; // @[CSR.scala 566:73:freechips.rocketchip.system.DefaultRV32Config.fir@148660.4]
+  wire  sel_mcycleh; // @[CSR.scala 566:73:freechips.rocketchip.system.DefaultRV32Config.fir@148659.4]
+  wire  sel_minstreth; // @[CSR.scala 566:73:freechips.rocketchip.system.DefaultRV32Config.fir@148660.4]
   wire  _T_845; // @[CSR.scala 566:73:freechips.rocketchip.system.DefaultRV32Config.fir@148661.4]
   wire  _T_846; // @[CSR.scala 566:73:freechips.rocketchip.system.DefaultRV32Config.fir@148662.4]
-  wire  _T_847; // @[CSR.scala 566:73:freechips.rocketchip.system.DefaultRV32Config.fir@148663.4]
-  wire  _T_848; // @[CSR.scala 566:73:freechips.rocketchip.system.DefaultRV32Config.fir@148664.4]
-  wire  _T_849; // @[CSR.scala 566:73:freechips.rocketchip.system.DefaultRV32Config.fir@148665.4]
-  wire  _T_850; // @[CSR.scala 566:73:freechips.rocketchip.system.DefaultRV32Config.fir@148666.4]
-  wire  _T_851; // @[CSR.scala 566:73:freechips.rocketchip.system.DefaultRV32Config.fir@148667.4]
-  wire  _T_852; // @[CSR.scala 566:73:freechips.rocketchip.system.DefaultRV32Config.fir@148668.4]
-  wire  _T_853; // @[CSR.scala 566:73:freechips.rocketchip.system.DefaultRV32Config.fir@148669.4]
-  wire  _T_854; // @[CSR.scala 566:73:freechips.rocketchip.system.DefaultRV32Config.fir@148670.4]
-  wire  _T_855; // @[CSR.scala 566:73:freechips.rocketchip.system.DefaultRV32Config.fir@148671.4]
-  wire  _T_856; // @[CSR.scala 566:73:freechips.rocketchip.system.DefaultRV32Config.fir@148672.4]
-  wire  _T_857; // @[CSR.scala 566:73:freechips.rocketchip.system.DefaultRV32Config.fir@148673.4]
-  wire  _T_858; // @[CSR.scala 566:73:freechips.rocketchip.system.DefaultRV32Config.fir@148674.4]
-  wire  _T_859; // @[CSR.scala 566:73:freechips.rocketchip.system.DefaultRV32Config.fir@148675.4]
-  wire  _T_860; // @[CSR.scala 566:73:freechips.rocketchip.system.DefaultRV32Config.fir@148676.4]
-  wire  _T_863; // @[CSR.scala 566:73:freechips.rocketchip.system.DefaultRV32Config.fir@148679.4]
-  wire  _T_864; // @[CSR.scala 566:73:freechips.rocketchip.system.DefaultRV32Config.fir@148680.4]
-  wire  _T_865; // @[CSR.scala 566:73:freechips.rocketchip.system.DefaultRV32Config.fir@148681.4]
-  wire  _T_866; // @[CSR.scala 566:73:freechips.rocketchip.system.DefaultRV32Config.fir@148682.4]
-  wire  _T_867; // @[CSR.scala 566:73:freechips.rocketchip.system.DefaultRV32Config.fir@148683.4]
-  wire  _T_868; // @[CSR.scala 566:73:freechips.rocketchip.system.DefaultRV32Config.fir@148684.4]
-  wire  _T_869; // @[CSR.scala 566:73:freechips.rocketchip.system.DefaultRV32Config.fir@148685.4]
-  wire  _T_870; // @[CSR.scala 566:73:freechips.rocketchip.system.DefaultRV32Config.fir@148686.4]
+  wire  sel_sstatus; // @[CSR.scala 566:73:freechips.rocketchip.system.DefaultRV32Config.fir@148663.4]
+  wire  sel_sip; // @[CSR.scala 566:73:freechips.rocketchip.system.DefaultRV32Config.fir@148664.4]
+  wire  sel_sie; // @[CSR.scala 566:73:freechips.rocketchip.system.DefaultRV32Config.fir@148665.4]
+  wire  sel_sscratch; // @[CSR.scala 566:73:freechips.rocketchip.system.DefaultRV32Config.fir@148666.4]
+  wire  sel_scause; // @[CSR.scala 566:73:freechips.rocketchip.system.DefaultRV32Config.fir@148667.4]
+  wire  sel_stval; // @[CSR.scala 566:73:freechips.rocketchip.system.DefaultRV32Config.fir@148668.4]
+  wire  sel_satp; // @[CSR.scala 566:73:freechips.rocketchip.system.DefaultRV32Config.fir@148669.4]
+  wire  sel_sepc; // @[CSR.scala 566:73:freechips.rocketchip.system.DefaultRV32Config.fir@148670.4]
+  wire  sel_stvec; // @[CSR.scala 566:73:freechips.rocketchip.system.DefaultRV32Config.fir@148671.4]
+  wire  sel_scounteren; // @[CSR.scala 566:73:freechips.rocketchip.system.DefaultRV32Config.fir@148672.4]
+  wire  sel_mideleg; // @[CSR.scala 566:73:freechips.rocketchip.system.DefaultRV32Config.fir@148673.4]
+  wire  sel_medeleg; // @[CSR.scala 566:73:freechips.rocketchip.system.DefaultRV32Config.fir@148674.4]
+  wire  sel_pmp_cfg_0; // @[CSR.scala 566:73:freechips.rocketchip.system.DefaultRV32Config.fir@148675.4]
+  wire  sel_pmp_cfg_1; // @[CSR.scala 566:73:freechips.rocketchip.system.DefaultRV32Config.fir@148676.4]
+  wire  sel_pmp_addr_0; // @[CSR.scala 566:73:freechips.rocketchip.system.DefaultRV32Config.fir@148679.4]
+  wire  sel_pmp_addr_1; // @[CSR.scala 566:73:freechips.rocketchip.system.DefaultRV32Config.fir@148680.4]
+  wire  sel_pmp_addr_2; // @[CSR.scala 566:73:freechips.rocketchip.system.DefaultRV32Config.fir@148681.4]
+  wire  sel_pmp_addr_3; // @[CSR.scala 566:73:freechips.rocketchip.system.DefaultRV32Config.fir@148682.4]
+  wire  sel_pmp_addr_4; // @[CSR.scala 566:73:freechips.rocketchip.system.DefaultRV32Config.fir@148683.4]
+  wire  sel_pmp_addr_5; // @[CSR.scala 566:73:freechips.rocketchip.system.DefaultRV32Config.fir@148684.4]
+  wire  sel_pmp_addr_6; // @[CSR.scala 566:73:freechips.rocketchip.system.DefaultRV32Config.fir@148685.4]
+  wire  sel_pmp_addr_7; // @[CSR.scala 566:73:freechips.rocketchip.system.DefaultRV32Config.fir@148686.4]
   wire  _T_880; // @[CSR.scala 566:73:freechips.rocketchip.system.DefaultRV32Config.fir@148696.4]
   wire  _T_882; // @[CSR.scala 566:73:freechips.rocketchip.system.DefaultRV32Config.fir@148698.4]
   wire  _T_883; // @[CSR.scala 1038:13:freechips.rocketchip.system.DefaultRV32Config.fir@148699.4]
@@ -2001,226 +1644,321 @@ module CSRFile( // @[:freechips.rocketchip.system.DefaultRV32Config.fir@147560.2
   wire [31:0] _GEN_450; // @[CSR.scala 789:18:freechips.rocketchip.system.DefaultRV32Config.fir@153645.4]
   wire [31:0] _GEN_457; // @[CSR.scala 789:18:freechips.rocketchip.system.DefaultRV32Config.fir@153645.4]
   wire  _T_5401; // @[CSR.scala 1017:26:freechips.rocketchip.system.DefaultRV32Config.fir@154815.4]
+  wire [6:0] nextSmall;
+  wire [59:0] nextLarge;
+  reg [5:0] reg_cycle_small;
+  reg [57:0] reg_cycle_large;
+  wire [63:0] reg_cycle;
+  reg [57:0] reg_instret_large;
+  reg [5:0] reg_instret_small;
+  wire [6:0] nextInstretSmall;
+  wire [59:0] nextInstretLarge;
+  wire [63:0] reg_instret;
+  reg reg_mstatus_cease; //_T_1894
+  reg [1:0] reg_status_dprv; //_T_1511
+  wire [31:0] read_dp_control;
 
-`define ASSIGN_IO
-`ifdef ASSIGN_IO
 
-//parameter xLen = 32;
-//parameter delegable_interrupts = 32'h222;
-//parameter delegable_exceptions = 32'hb15d;
-//parameter supported_interrupts = 16'haaa;
-//parameter delegable_counters = 32'h7;
-//
+`define MY_ASSIGNMENT
+`ifdef MY_ASSIGNMENT
+  assign system_insn = io_rw_cmd == 3'h4;
 
-assign wdata = ((io_rw_cmd[1] ? io_rw_rdata : 32'h0) | io_rw_wdata) & ~((io_rw_cmd[1:0] == 2'h3)? io_rw_wdata : 32'h0);
-assign csr_wen = (io_rw_cmd == CSR_S | io_rw_cmd == CSR_C | io_rw_cmd == CSR_W);
-assign insn_cease = system_insn & (({io_rw_addr, 20'h0} & 32'h20200000) == 32'h20000000);
-assign new_prv = (insn_ret & !io_rw_addr[9]) ? {1'd0, reg_mstatus_spp}
-		: (insn_ret & io_rw_addr[9] & io_rw_addr[10]) ? reg_dcsr_prv
-		: (insn_ret & io_rw_addr[9] & !io_rw_addr[10]) ? reg_mstatus_mpp
-		: (exception & trapToDebug & !reg_debug) ? PRV_M
-		: (exception & !trapToDebug & delegate) ? PRV_S
-		: (exception & !trapToDebug & !delegate) ? PRV_M
+  assign insn_ret = system_insn & ((({io_rw_addr, 20'h0} & 32'h12400000) == 32'h10000000) | (({io_rw_addr, 20'h0} & 32'h40000000) == 32'h40000000));
+  assign insn_call = system_insn & (({io_rw_addr, 20'h0} & 32'h10100000) == 32'h0);
+  assign insn_break = system_insn & (({io_rw_addr, 20'h0} & 32'h10100000) == 32'h100000);
+
+  assign exception = insn_call || insn_break || io_exception;
+
+  assign _T_1458 = {{2'd0}, reg_mstatus_prv} + 4'h8;
+  assign cause = insn_call ? _T_1458
+		: insn_break ? 32'h3
+		: io_cause;
+  assign cause_lsbs = cause[7:0];
+  assign causeIsDebugInt = cause[31] && (cause_lsbs == 8'he);
+  assign causeIsDebugTrigger = (cause[31] == 1'b0) & (cause_lsbs == 8'he);
+  assign _T_1471 = {reg_dcsr_ebreakm,1'h0,reg_dcsr_ebreaks,reg_dcsr_ebreaku} >> reg_mstatus_prv;
+  assign causeIsDebugBreak = !cause[31] & insn_break & _T_1471[0];
+
+  assign trapToDebug = reg_singleStepped 
+			| causeIsDebugInt 
+			| causeIsDebugTrigger 
+			| causeIsDebugBreak 
+			| reg_debug;
+
+  assign read_mideleg = reg_mideleg & 32'h222;
+  assign read_medeleg = reg_medeleg & 32'hb15d;
+  assign read_mcounteren = reg_mcounteren & 32'h7;
+  assign read_scounteren = reg_scounteren & 32'h7;
+  assign read_mip = {4'h0,io_interrupts_meip,1'h0,mip_seip,1'h0,io_interrupts_mtip,1'h0,reg_mip_stip,1'h0,io_interrupts_msip,1'h0,reg_mip_ssip,1'h0} & 16'haaa;
+  assign _T_384 = {io_status_debug
+		,io_status_cease
+		,io_status_isa
+		,io_status_dprv
+		,io_status_prv
+		,io_status_sd
+		,io_status_zero2
+		,io_status_sxl
+		,io_status_uxl
+		,io_status_sd_rv32
+		,io_status_zero1
+		,io_status_vs
+		,io_status_tsr
+		,io_status_tw
+		,io_status_tvm
+		,io_status_mxr
+		,io_status_sum
+		,io_status_mprv
+		,io_status_xs
+		,io_status_fs
+		,io_status_mpp
+		,io_status_hpp
+		,io_status_spp
+		,io_status_mpie
+		,io_status_hpie
+		,io_status_spie
+		,io_status_upie
+		,io_status_mie
+		,io_status_hie
+		,io_status_sie
+		,io_status_uie};
+  assign read_mstatus = _T_384[31:0];
+  assign _T_386 = reg_mtvec[0] ? 7'h7e : 7'h2;
+  assign read_mtvec = reg_mtvec & (~ {{25'd0}, _T_386});
+  assign _T_391 = reg_stvec[0] ? 7'h7e : 7'h2;
+  assign read_stvec = reg_stvec & (~ {{25'd0}, _T_391});
+  assign read_fcsr = {{1'd0}, {1'd0}, reg_frm,reg_fflags};
+
+  assign _T_1483 = read_medeleg >> cause_lsbs;
+  assign _T_1481 = read_mideleg >> cause_lsbs;
+  assign _T_1485 = cause[31] ? _T_1481[0] : _T_1483[0];
+  assign delegate = (reg_mstatus_prv <= 2'h1) & _T_1485;
+
+  assign _GEN_42 = !reg_debug ? 2'h3 : reg_mstatus_prv;
+  assign _GEN_61 = trapToDebug ? _GEN_42 
+		: delegate ? 2'h1 
+		: 2'h3;
+  assign _GEN_102 = !io_rw_addr[9] ? {{1'd0}, reg_mstatus_spp} 
+		: io_rw_addr[10] ? reg_dcsr_prv 
+		: reg_mstatus_mpp;
+  assign new_prv = insn_ret ? _GEN_102 
+		: exception ? _GEN_61 
 		: reg_mstatus_prv;
-assign insn_wfi = system_insn & (({io_rw_addr, 20'h0} & 32'h32200000) == 32'h10000000);
 
-wire sel_satp		= io_rw_addr == 12'h180;
-wire sel_dcsr		= io_rw_addr == 12'h7b0;
-wire sel_mstatus	= io_rw_addr == 12'h300;
-wire sel_sstatus	= io_rw_addr == 12'h100;
-wire sel_tselect	= io_rw_addr == 12'h7a0;
-wire sel_tdata1		= io_rw_addr == 12'h7a1;
-wire sel_tdata2		= io_rw_addr == 12'h7a2;
-wire sel_misa		= io_rw_addr == 12'h301;
-wire sel_mtvec		= io_rw_addr == 12'h305;
-wire sel_mip		= io_rw_addr == 12'h344;
-wire sel_mie		= io_rw_addr == 12'h304;
-wire sel_mscratch	= io_rw_addr == 12'h340;
-wire sel_mepc		= io_rw_addr == 12'h341;
-wire sel_mtval		= io_rw_addr == 12'h343;
-wire sel_mcause		= io_rw_addr == 12'h342;
-wire sel_dpc		= io_rw_addr == 12'h7b1;
-wire sel_dscratch	= io_rw_addr == 12'h7b2;
-wire sel_fflags		= io_rw_addr == 12'h001;
-wire sel_frm		= io_rw_addr == 12'h002;
-wire sel_fcsr		= io_rw_addr == 12'h003;
-wire sel_mcycle		= io_rw_addr == 12'hb00;
-wire sel_minstret	= io_rw_addr == 12'hb02;
-wire sel_mcounteren	= io_rw_addr == 12'h306;
-wire sel_cycle		= io_rw_addr == 12'hc00;
-wire sel_instret	= io_rw_addr == 12'hc02;
-wire sel_mcycleh	= io_rw_addr == 12'hb80;
-wire sel_minstreth	= io_rw_addr == 12'hb82;
-wire sel_cycleh		= io_rw_addr == 12'hc80;
-wire sel_instreth	= io_rw_addr == 12'hc82;
-wire sel_sip		= io_rw_addr == 12'h144;
-wire sel_sie		= io_rw_addr == 12'h104;
-wire sel_sscratch	= io_rw_addr == 12'h140;
-wire sel_scause		= io_rw_addr == 12'h142;
-wire sel_stval		= io_rw_addr == 12'h143;
-wire sel_sepc		= io_rw_addr == 12'h141;
-wire sel_stvec		= io_rw_addr == 12'h105;
-wire sel_scounteren	= io_rw_addr == 12'h106;
-wire sel_mideleg	= io_rw_addr == 12'h303;
-wire sel_medeleg	= io_rw_addr == 12'h302;
-wire sel_pmp_cfg_0	= io_rw_addr == 12'h3a0;
-wire sel_pmp_cfg_1	= io_rw_addr == 12'h3a1;
-wire sel_pmp_addr_0	= io_rw_addr == 12'h3b0;
-wire sel_pmp_addr_1	= io_rw_addr == 12'h3b1;
-wire sel_pmp_addr_2	= io_rw_addr == 12'h3b2;
-wire sel_pmp_addr_3	= io_rw_addr == 12'h3b3;
-wire sel_pmp_addr_4	= io_rw_addr == 12'h3b4;
-wire sel_pmp_addr_5	= io_rw_addr == 12'h3b5;
-wire sel_pmp_addr_6	= io_rw_addr == 12'h3b6;
-wire sel_pmp_addr_7	= io_rw_addr == 12'h3b7;
+  assign mip_seip = reg_mip_seip | io_interrupts_seip;
 
-wire [31:0] read_SEPC = ~((~reg_sepc) | (reg_misa[2] ? 2'h1 : 2'h3));
-wire [31:0] read_DPC = ~((~reg_dpc) | (reg_misa[2] ? 2'h1 : 2'h3));
-wire [31:0] read_MEPC = ~((~reg_mepc) | (reg_misa[2] ? 2'h1 : 2'h3));
+  assign pending_interrupts = {{16'd0}, read_mip} & reg_mie;
 
-wire [63:0] reg_cycle;
-wire [63:0] reg_instret;
-wire [31:0] read_sstatus = {	io_status_sd_rv32
-			,8'h00
-			,1'b0
-			,1'b0
-			,1'b0
-			,io_status_mxr
-			,io_status_sum
-			,1'b0
-			,io_status_xs[1:0]
-			,io_status_fs[1:0]
-			,2'h0
-			,2'h0
-			,io_status_spp
-			,1'b0
-			,1'b0
-			,io_status_spie
-			,1'b0
-			,1'b0
-			,1'b0
-			,io_status_sie
-			,1'b0
-			};
+  assign d_interrupts = {io_interrupts_debug, 14'h0};
+  assign m_interrupts = ((reg_mstatus_prv <= 2'h1) | reg_mstatus_mie) ? (~ ((~ pending_interrupts) | read_mideleg)) : 32'h0;
+  assign s_interrupts = ((reg_mstatus_prv < 2'h1) | ((reg_mstatus_prv == 2'h1) & reg_mstatus_sie)) ? (pending_interrupts & read_mideleg) : 32'h0;
 
-wire [31:0] read_dp_control = {
-			4'h0,
-			reg_bp_0_control_dmode,
-			6'h00,
-			8'h00,
-			reg_bp_0_control_action,
-			1'b0,
-			2'h0,
-			reg_bp_0_control_tmatch[1:0],
-			reg_bp_0_control_m,
-			1'b0,
-			reg_bp_0_control_s,
-			reg_bp_0_control_u,
-			reg_bp_0_control_x,
-			reg_bp_0_control_w,
-			reg_bp_0_control_r};
-assign read_mtvec = reg_mtvec & ~(reg_mtvec[0] ? 32'h7e : 32'h2);
-assign read_stvec = reg_stvec & ~(reg_stvec[0] ? 32'h7e : 32'h2);
-assign read_mip = { 1'b0
-		,1'b0
-		,1'b0
-		,1'b0
-		,1'b0
-		,1'b0
-		,reg_mip_seip
-		,1'b0
-		,1'b0
-		,1'b0
-		,reg_mip_stip
-		,1'b0
-		,1'b0
-		,1'b0
-		,reg_mip_ssip
-		,1'b0 } & supported_interrupts;
-assign read_mcounteren = reg_mcounteren & delegable_counters;
-assign read_scounteren = reg_scounteren & delegable_counters;
-assign read_mideleg = reg_mideleg & delegable_interrupts;
-assign read_medeleg = reg_medeleg & delegable_exceptions;
+  assign anyInterrupt = (d_interrupts[14]
+			| d_interrupts[13]
+			| d_interrupts[12]
+			| d_interrupts[11]
+			| d_interrupts[3]
+			| d_interrupts[7]
+			| d_interrupts[9]
+			| d_interrupts[1]
+			| d_interrupts[5]
+			| d_interrupts[8]
+			| d_interrupts[0]
+			| d_interrupts[4]
+			| m_interrupts[15]
+			| m_interrupts[14]
+			| m_interrupts[13]
+			| m_interrupts[12]
+			| m_interrupts[11]
+			| m_interrupts[3]
+			| m_interrupts[7]
+			| m_interrupts[9]
+			| m_interrupts[1]
+			| m_interrupts[5]
+			| m_interrupts[8]
+			| m_interrupts[0]
+			| m_interrupts[4]
+			| s_interrupts[15]
+			| s_interrupts[14]
+			| s_interrupts[13]
+			| s_interrupts[12]
+			| s_interrupts[11]
+			| s_interrupts[3]
+			| s_interrupts[7]
+			| s_interrupts[9]
+			| s_interrupts[1]
+			| s_interrupts[5]
+			| s_interrupts[8]
+			| s_interrupts[0]
+			| s_interrupts[4]
+			);
 
-assign io_rw_rdata = (sel_tdata1) ? read_dp_control
-			: (sel_tdata2) ? reg_bp_0_address
-			: (sel_misa) ? reg_misa
-			: (sel_mstatus) ? {
-					 1'b0
-					,8'h00
-					,reg_mstatus_tsr
-					,reg_mstatus_tw
-					,reg_mstatus_tvm
-					,reg_mstatus_mxr
-					,reg_mstatus_sum
-					,reg_mstatus_mprv
-					,2'h0
-					,reg_mstatus_fs[1:0]
-					,reg_mstatus_mpp[1:0]
-					,2'h0
-					,reg_mstatus_spp
-					,reg_mstatus_mpie
-					,1'b0
-					,reg_mstatus_spie
-					,1'b0
-					,reg_mstatus_mie
-					,1'b0
-					,reg_mstatus_sie
-					,1'b0			
-					}
-			: (sel_mtvec) ? read_mtvec
-			: (sel_mip) ? {16'h00, read_mip[15:0]}
-			: (sel_mie) ? reg_mie
-			: (sel_mscratch) ? reg_mscratch
-			: (sel_mepc) ? read_MEPC
-			: (sel_mtval) ? reg_mtval
-			: (sel_mcause) ? reg_mcause
-			: (sel_dcsr) ? { 2'h0
-					,2'h0
-					,12'h00
-					,reg_dcsr_ebreakm
-					,1'b0
-					,reg_dcsr_ebreaks
-					,reg_dcsr_ebreaku
-					,1'b0
-					,1'b0
-					,1'b0
-					,reg_dcsr_cause[2:0]
-					,3'h0
-					,reg_dcsr_step
-					,reg_dcsr_prv[1:0]
-					}
-			: (sel_dpc) ? read_DPC
-			: (sel_dscratch) ? reg_dscratch
-			: (sel_fflags) ? {27'h00, reg_fflags[4:0]}
-			: (sel_frm) ? {29'h00, reg_frm[2:0]}
-			: (sel_fcsr) ? {24'h00, reg_frm[2:0], reg_fflags[4:0]}
-			: (sel_mcycle) ? reg_cycle[xLen - 1:0]
-			: (sel_minstret) ? reg_instret[xLen - 1:0]
-			: (sel_mcounteren) ? read_mcounteren
-			: (sel_cycle) ? reg_cycle[xLen - 1:0]
-			: (sel_instret) ? reg_instret[xLen - 1:0]
-			: (sel_mcycleh) ? reg_cycle[63:32]
-			: (sel_minstreth) ? reg_instret[63:32]
-			: (sel_cycleh) ? reg_cycle[63:32]
-			: (sel_instreth) ? reg_instret[63:32]
-			: (sel_sstatus) ? read_sstatus
-			: (sel_sip) ? {16'h00, read_mip} & read_mideleg
-			: (sel_sie) ? reg_mie & read_mideleg
-			: (sel_sscratch) ? reg_sscratch
-			: (sel_scause) ? reg_scause
-			: (sel_stval) ? reg_stval
-			: (sel_satp) ? {reg_satp_mode
-					,9'h000
-					,reg_satp_ppn[21:0]}
-			: (sel_sepc) ? read_SEPC
-			: (sel_stvec) ? read_stvec
-			: (sel_scounteren) ? read_scounteren
-			: (sel_mideleg) ? read_mideleg
-			: (sel_medeleg) ? read_medeleg
-			: 32'h00;
+  assign whichInterrupt = d_interrupts[14] ? 4'he
+			: d_interrupts[13] ? 4'hd
+			: d_interrupts[12] ? 4'hc
+			: d_interrupts[11] ? 4'hb
+			: d_interrupts[3] ? 4'h3
+			: d_interrupts[7] ? 4'h7
+			: d_interrupts[9] ? 4'h9
+			: d_interrupts[1] ? 4'h1
+			: d_interrupts[5] ? 4'h5
+			: d_interrupts[8] ? 4'h8
+			: d_interrupts[0] ? 4'h0
+			: d_interrupts[4] ? 4'h4
+			: m_interrupts[15] ? 4'hf
+			: m_interrupts[14] ? 4'he
+			: m_interrupts[13] ? 4'hd
+			: m_interrupts[12] ? 4'hc
+			: m_interrupts[11] ? 4'hb
+			: m_interrupts[3] ? 4'h3
+			: m_interrupts[7] ? 4'h7
+			: m_interrupts[9] ? 4'h9
+			: m_interrupts[1] ? 4'h1
+			: m_interrupts[5] ? 4'h5
+			: m_interrupts[8] ? 4'h8
+			: m_interrupts[0] ? 4'h0
+			: m_interrupts[4] ? 4'h4
+			: s_interrupts[15] ? 4'hf
+			: s_interrupts[14] ? 4'he
+			: s_interrupts[13] ? 4'hd
+			: s_interrupts[12] ? 4'hc
+			: s_interrupts[11] ? 4'hb
+			: s_interrupts[3] ? 4'h3
+			: s_interrupts[7] ? 4'h7
+			: s_interrupts[9] ? 4'h9
+			: s_interrupts[1] ? 4'h1
+			: s_interrupts[5] ? 4'h5
+			: s_interrupts[8] ? 4'h8
+			: s_interrupts[0] ? 4'h0
+			: 4'h4;
 
-wire decodeAny =  io_decode_0_csr == 12'h7a0
+  assign _T_884 = io_rw_cmd[1] ? io_rw_rdata : 32'h0;
+  assign _T_888 = (io_rw_cmd[1:0] == 2'h3) ? io_rw_wdata : 32'h0;
+  assign wdata = (_T_884 | io_rw_wdata) & (~ _T_888);
+
+  assign insn_cease = system_insn & (({io_rw_addr, 20'h0} & 32'h20200000) == 32'h20000000);
+  assign insn_wfi = system_insn & (({io_rw_addr, 20'h0} & 32'h32200000) == 32'h10000000);
+
+  assign _T_1477 = insn_break ? 12'h800 : 12'h808;
+  assign debugTVec = reg_debug ? _T_1477 : 12'h800;
+  assign _T_1486 = delegate ? read_stvec : read_mtvec;
+  assign notDebugTVec = (_T_1486[0] & cause[31] & (cause_lsbs[7:5] == 3'h0)) ? {_T_1486[31:7],cause[4:0], 2'h0} : {_T_1486[31:2], 2'h0};
+  assign tvec = trapToDebug ? {{20'd0}, debugTVec} : notDebugTVec;
+
+  assign epc = ~ ((~ io_pc) | 32'h1);
+
+  assign csr_wen = (io_rw_cmd == 3'h6) 
+		| (io_rw_cmd == 3'h7) 
+		| (io_rw_cmd == 3'h5);
+
+  assign read_dp_control = {4'h2,reg_bp_0_control_dmode,14'h400,reg_bp_0_control_action,1'h0,2'h0,reg_bp_0_control_tmatch,reg_bp_0_control_m,1'h0,reg_bp_0_control_s,reg_bp_0_control_u,reg_bp_0_control_x,reg_bp_0_control_w,reg_bp_0_control_r};
+
+  assign sel_tdata1 = io_rw_addr == 12'h7a1;
+  assign sel_tdata2 = io_rw_addr == 12'h7a2;
+  assign sel_misa = io_rw_addr == 12'h301;
+  assign sel_mstatus = io_rw_addr == 12'h300;
+  assign sel_mtvec = io_rw_addr == 12'h305;
+  assign sel_mip = io_rw_addr == 12'h344;
+  assign sel_mie = io_rw_addr == 12'h304;
+  assign sel_mscratch = io_rw_addr == 12'h340;
+  assign sel_mepc = io_rw_addr == 12'h341;
+  assign sel_mtval = io_rw_addr == 12'h343;
+  assign sel_mcause = io_rw_addr == 12'h342;
+  assign sel_dcsr = io_rw_addr == 12'h7b0;
+  assign sel_dpc = io_rw_addr == 12'h7b1;
+  assign sel_dscratch = io_rw_addr == 12'h7b2;
+  assign sel_fflags = io_rw_addr == 12'h1;
+  assign sel_frm = io_rw_addr == 12'h2;
+  assign sel_fcsr = io_rw_addr == 12'h3;
+  assign sel_mcycle = io_rw_addr == 12'hb00;
+  assign sel_minstret = io_rw_addr == 12'hb02;
+  assign sel_mcounteren = io_rw_addr == 12'h306;
+  assign _T_841 = io_rw_addr == 12'hc00;
+  assign _T_842 = io_rw_addr == 12'hc02;
+  assign sel_mcycleh = io_rw_addr == 12'hb80;
+  assign sel_minstreth = io_rw_addr == 12'hb82;
+  assign _T_845 = io_rw_addr == 12'hc80;
+  assign _T_846 = io_rw_addr == 12'hc82;
+  assign sel_sstatus = io_rw_addr == 12'h100;
+  assign sel_sip = io_rw_addr == 12'h144;
+  assign sel_sie = io_rw_addr == 12'h104;
+  assign sel_sscratch = io_rw_addr == 12'h140;
+  assign sel_scause = io_rw_addr == 12'h142;
+  assign sel_stval = io_rw_addr == 12'h143;
+  assign sel_satp = io_rw_addr == 12'h180;
+  assign sel_sepc = io_rw_addr == 12'h141;
+  assign sel_stvec = io_rw_addr == 12'h105;
+  assign sel_scounteren = io_rw_addr == 12'h106;
+  assign sel_mideleg = io_rw_addr == 12'h303;
+  assign sel_medeleg = io_rw_addr == 12'h302;
+  assign sel_pmp_cfg_0 = io_rw_addr == 12'h3a0;
+  assign sel_pmp_cfg_1 = io_rw_addr == 12'h3a1;
+  assign sel_pmp_addr_0 = io_rw_addr == 12'h3b0;
+  assign sel_pmp_addr_1 = io_rw_addr == 12'h3b1;
+  assign sel_pmp_addr_2 = io_rw_addr == 12'h3b2;
+  assign sel_pmp_addr_3 = io_rw_addr == 12'h3b3;
+  assign sel_pmp_addr_4 = io_rw_addr == 12'h3b4;
+  assign sel_pmp_addr_5 = io_rw_addr == 12'h3b5;
+  assign sel_pmp_addr_6 = io_rw_addr == 12'h3b6; 
+  assign sel_pmp_addr_7 = io_rw_addr == 12'h3b7;
+  assign _T_880 = io_rw_addr == 12'hf12;
+  assign _T_882 = io_rw_addr == 12'hf13;
+  assign _T_411 = reg_misa[2] ? 2'h1 : 2'h3;
+  assign _T_563 = {36'h0,2'h0,io_status_sd,29'h0,io_status_uxl,io_status_sd_rv32,6'h0,io_status_vs,2'h0,1'h0,io_status_mxr,io_status_sum,1'h0,io_status_xs,io_status_fs,4'h0,io_status_spp,1'h0,1'h0,io_status_spie,2'h0,1'h0,io_status_sie,1'h0};
+  assign io_rw_rdata = sel_tdata1 ? read_dp_control
+			: sel_tdata2 ? reg_bp_0_address
+			: sel_misa ? reg_misa
+			: sel_mstatus ? read_mstatus
+			: sel_mtvec ? read_mtvec
+			: sel_mip ? {{16'd0}, read_mip}
+			: sel_mie ? reg_mie
+			: sel_mscratch ? reg_mscratch
+			: sel_mepc ? (~ ((~ reg_mepc) | {{30'd0}, _T_411}))
+			: sel_mtval ? reg_mtval
+			: sel_mcause ? reg_mcause
+			: sel_dcsr ? {4'h4,12'h0,reg_dcsr_ebreakm,1'h0,reg_dcsr_ebreaks,reg_dcsr_ebreaku,2'h0,1'h0,reg_dcsr_cause,3'h0,reg_dcsr_step,reg_dcsr_prv}
+			: sel_dpc ? (~ ((~ reg_dpc) | {{30'd0}, _T_411}))
+			: sel_dscratch ? reg_dscratch
+			: sel_fflags ? {{27'd0}, reg_fflags}
+			: sel_frm ? {{29'd0}, reg_frm}
+			: sel_fcsr ? {{22'd0}, read_fcsr}
+			: sel_mcycle ? reg_cycle[31:0]
+			: sel_minstret ? reg_instret[31:0]
+			: sel_mcounteren ? read_mcounteren
+			: _T_841 ? reg_cycle[31:0]
+			: _T_842 ? reg_instret[31:0]
+			: sel_mcycleh ? reg_cycle[63:32]
+			: sel_minstreth ? reg_instret[63:32]
+			: _T_845 ? reg_cycle[63:32]
+			: _T_846 ? reg_instret[63:32]
+			: sel_sstatus ? _T_563[31:0]
+			: sel_sip ? ({{16'd0}, read_mip} & read_mideleg)
+			: sel_sie ? (reg_mie & read_mideleg)
+			: sel_sscratch ? reg_sscratch
+			: sel_scause ? reg_scause
+			: sel_stval ? reg_stval
+			: sel_satp ? {reg_satp_mode,9'h0,reg_satp_ppn}
+			: sel_sepc ? (~ ((~ reg_sepc) | {{30'd0}, _T_411}))
+			: sel_stvec ? read_stvec
+			: sel_scounteren ? read_scounteren
+			: sel_mideleg ? read_mideleg
+			: sel_medeleg ? read_medeleg
+			: sel_pmp_cfg_0 ? {reg_pmp_3_cfg_l,2'h0,reg_pmp_3_cfg_a,reg_pmp_3_cfg_x,reg_pmp_3_cfg_w,reg_pmp_3_cfg_r,reg_pmp_2_cfg_l,2'h0,reg_pmp_2_cfg_a,reg_pmp_2_cfg_x,reg_pmp_2_cfg_w,reg_pmp_2_cfg_r,reg_pmp_1_cfg_l,2'h0,reg_pmp_1_cfg_a,reg_pmp_1_cfg_x,reg_pmp_1_cfg_w,reg_pmp_1_cfg_r,reg_pmp_0_cfg_l,2'h0,reg_pmp_0_cfg_a,reg_pmp_0_cfg_x,reg_pmp_0_cfg_w,reg_pmp_0_cfg_r}
+			: sel_pmp_cfg_1 ? {reg_pmp_7_cfg_l,2'h0,reg_pmp_7_cfg_a,reg_pmp_7_cfg_x,reg_pmp_7_cfg_w,reg_pmp_7_cfg_r,reg_pmp_6_cfg_l,2'h0,reg_pmp_6_cfg_a,reg_pmp_6_cfg_x,reg_pmp_6_cfg_w,reg_pmp_6_cfg_r,reg_pmp_5_cfg_l,2'h0,reg_pmp_5_cfg_a,reg_pmp_5_cfg_x,reg_pmp_5_cfg_w,reg_pmp_5_cfg_r,reg_pmp_4_cfg_l,2'h0,reg_pmp_4_cfg_a,reg_pmp_4_cfg_x,reg_pmp_4_cfg_w,reg_pmp_4_cfg_r}
+			: sel_pmp_addr_0 ? {2'h0, reg_pmp_0_addr}
+			: sel_pmp_addr_1 ? {2'h0, reg_pmp_1_addr}
+			: sel_pmp_addr_2 ? {2'h0, reg_pmp_2_addr}
+			: sel_pmp_addr_3 ? {2'h0, reg_pmp_3_addr}
+			: sel_pmp_addr_4 ? {2'h0, reg_pmp_4_addr}
+			: sel_pmp_addr_5 ? {2'h0, reg_pmp_5_addr}
+			: sel_pmp_addr_6 ? {2'h0, reg_pmp_6_addr}
+			: sel_pmp_addr_7 ? {2'h0, reg_pmp_7_addr}
+			: _T_880 ? 32'h1
+			: _T_882 ? 32'h20181004
+			: 32'h0;
+
+  assign io_decode_0_fp_illegal = (io_status_fs == 2'h0) | !reg_misa[5];
+
+  wire decodeAny =  io_decode_0_csr == 12'h7a0
 		| io_decode_0_csr == 12'h7a1
 		| io_decode_0_csr == 12'h7a2
 		| io_decode_0_csr == 12'h301
@@ -2429,394 +2167,2276 @@ wire decodeAny =  io_decode_0_csr == 12'h7a0
 		| io_decode_0_csr == 12'hf12
 		| io_decode_0_csr == 12'hf11
 		| io_decode_0_csr == 12'hf13;
-
-//parameter PRV_S = 1;
-wire [31:0] read_mcounteren_counter_addr = read_mcounteren >> io_decode_0_csr[4:0];
-wire [31:0] read_scounteren_counter_addr = read_scounteren >> io_decode_0_csr[4:0];
-wire allow_sfence_vma = reg_mstatus_prv > PRV_S | !reg_mstatus_tvm;
-wire allow_counter = (reg_mstatus_prv > PRV_S | read_mcounteren_counter_addr[0]) & (reg_mstatus_prv >= PRV_S | read_scounteren_counter_addr[0]);
-wire allow_wfi = reg_mstatus_prv > PRV_S | !reg_mstatus_tw;
-wire allow_sret = reg_mstatus_prv > PRV_S | !reg_mstatus_tsr;
-wire is_sfence = ({io_decode_0_csr, 20'h0} & 32'h42000000) == 32'h2000000;
-wire is_ret = (({io_decode_0_csr, 20'h0} & 32'h40000000) == 32'h40000000) | (({io_decode_0_csr, 20'h0} & 32'h12400000) == 32'h10000000);
-wire is_wfi = ({io_decode_0_csr, 20'h0} & 32'h32200000) == 32'h10000000;
-
-assign io_decode_0_fp_illegal = (io_status_fs == 2'h0) | !reg_misa[5];
-assign io_decode_0_fp_csr = (io_decode_0_csr & 12'h900) == 12'h0;
-assign io_decode_0_read_illegal = (reg_mstatus_prv < io_decode_0_csr[9:8])
+  wire allow_sfence_vma = (reg_mstatus_prv > 2'h1) | !reg_mstatus_tvm;
+  wire [31:0] read_mcounteren_counter_addr = read_mcounteren >> io_decode_0_csr[4:0];
+  wire [31:0] read_scounteren_counter_addr = read_scounteren >> io_decode_0_csr[4:0];
+  wire allow_counter = ((reg_mstatus_prv > 2'h1) | read_mcounteren_counter_addr[0]) & ((reg_mstatus_prv >= 2'h1) | read_scounteren_counter_addr[0]);
+  wire allow_wfi = (reg_mstatus_prv > 2'h1) | !reg_mstatus_tw;
+  wire allow_sret = (reg_mstatus_prv > 2'h1) | !reg_mstatus_tsr;
+  assign io_decode_0_read_illegal = (reg_mstatus_prv < io_decode_0_csr[9:8])
 				| !decodeAny
 				| (io_decode_0_csr == 12'h180) & !allow_sfence_vma
 				| ((io_decode_0_csr >= 12'hc00 & io_decode_0_csr < 12'hc20) | (io_decode_0_csr >= 12'hc80 & io_decode_0_csr < 12'hca0)) & (!allow_counter)
 				| ((io_decode_0_csr & 12'hc10) == 12'h410) & (!reg_debug)
 				| io_decode_0_fp_csr & io_decode_0_fp_illegal;
-assign io_decode_0_write_illegal = io_decode_0_csr[11:10] == 2'h3;
-assign io_decode_0_write_flush = !((io_decode_0_csr >= 12'h340 & io_decode_0_csr <= 12'h343) | (io_decode_0_csr >= 12'h140 & io_decode_0_csr <= 12'h143));
-assign io_decode_0_system_illegal = reg_mstatus_prv < io_decode_0_csr[9:8]
+
+  assign io_decode_0_fp_csr = (io_decode_0_csr & 12'h900) == 12'h0;
+  assign io_decode_0_write_illegal = io_decode_0_csr[11:10] == 2'h3;
+  assign io_decode_0_write_flush = (((io_decode_0_csr >= 12'h340) & (io_decode_0_csr <= 12'h343)) | ((io_decode_0_csr >= 12'h140) & (io_decode_0_csr <= 12'h143))) == 1'h0;
+  wire is_sfence = ({io_decode_0_csr, 20'h0} & 32'h42000000) == 32'h2000000;
+  wire is_ret = (({io_decode_0_csr, 20'h0} & 32'h40000000) == 32'h40000000) | (({io_decode_0_csr, 20'h0} & 32'h12400000) == 32'h10000000);
+  wire is_wfi = ({io_decode_0_csr, 20'h0} & 32'h32200000) == 32'h10000000;
+  assign io_decode_0_system_illegal = reg_mstatus_prv < io_decode_0_csr[9:8]
 				| is_wfi & !allow_wfi
 				| is_ret & !allow_sret
 				| is_ret & io_decode_0_csr[10] & !reg_debug
 				| is_sfence & !allow_sfence_vma;
 
+  assign io_csr_stall = reg_wfi | io_status_cease;
 
-//parameter CSR_I = 4;
-assign system_insn = io_rw_cmd == CSR_I;
-assign insn_call = system_insn & (({io_rw_addr, 20'h0} & 32'h10100000) == 32'h0);
-assign insn_break = system_insn & (({io_rw_addr, 20'h0} & 32'h10100000) == 32'h100000);
-assign insn_ret = system_insn & ((({io_rw_addr, 20'h0} & 32'h12400000) == 32'h10000000) | (({io_rw_addr, 20'h0} & 32'h40000000) == 32'h40000000));
+  assign io_eret = insn_call | insn_break | insn_ret;
 
-assign io_csr_stall = reg_wfi | io_status_cease;
-assign io_eret = insn_call | insn_break | insn_ret;
-assign io_singleStep = reg_dcsr_step & !reg_debug;
-reg [1:0] reg_status_dprv;
-assign io_status_debug = reg_debug;
-reg 	reg_mstatus_cease; //_T_1894
-assign io_status_cease = reg_mstatus_cease;
-assign io_status_isa = reg_misa;
-assign io_status_dprv = reg_status_dprv;
-assign io_status_prv = reg_mstatus_prv;
-assign io_status_sd = io_status_fs == 2'h3 | io_status_xs == 2'h3 | io_status_vs == 2'h3;
-assign io_status_zero2 =  27'h0;
-assign io_status_sxl = 2'h1;
-assign io_status_uxl = 2'h1;
-assign io_status_sd_rv32 = io_status_sd;
-assign io_status_zero1 = 6'h0;
-assign io_status_vs = 2'h0;
-assign io_status_tsr = reg_mstatus_tsr;
-assign io_status_tw = reg_mstatus_tw;
-assign io_status_tvm = reg_mstatus_tvm;
-assign io_status_mxr = reg_mstatus_mxr;
-assign io_status_sum = reg_mstatus_sum;
-assign io_status_mprv = reg_mstatus_mprv;
-assign io_status_xs = 2'h0;
-assign io_status_fs = reg_mstatus_fs;
-assign io_status_mpp = reg_mstatus_mpp;
-assign io_status_hpp = 2'h0;
-assign io_status_spp = reg_mstatus_spp;
-assign io_status_mpie = reg_mstatus_mpie;
-assign io_status_hpie = 1'h0;
-assign io_status_spie = reg_mstatus_spie;
-assign io_status_upie = 1'h0;
-assign io_status_mie = reg_mstatus_mie;
-assign io_status_hie = 1'h0;
-assign io_status_sie = reg_mstatus_sie;
-assign io_status_uie = 1'h0;
+  assign io_singleStep = reg_dcsr_step & !reg_debug;
 
-assign io_ptbr_mode = reg_satp_mode;
-assign io_ptbr_ppn = reg_satp_ppn;
+  assign io_status_debug = reg_debug;
+  assign io_status_cease = reg_mstatus_cease;
+  assign io_status_isa = reg_misa;
+  assign io_status_dprv = reg_status_dprv;
+  assign io_status_prv = reg_mstatus_prv;
+  assign io_status_sd = (io_status_fs == 2'h3) | (io_status_xs == 2'h3) | (io_status_vs == 2'h3);
+  assign io_status_zero2 = 27'h0;
+  assign io_status_sxl = 2'h1;
+  assign io_status_uxl = 2'h1;
+  assign io_status_sd_rv32 = io_status_sd;
+  assign io_status_zero1 = 6'h0;
+  assign io_status_vs = 2'h0;
+  assign io_status_tsr = reg_mstatus_tsr;
+  assign io_status_tw = reg_mstatus_tw;
+  assign io_status_tvm = reg_mstatus_tvm;
+  assign io_status_mxr = reg_mstatus_mxr;
+  assign io_status_sum = reg_mstatus_sum;
+  assign io_status_mprv = reg_mstatus_mprv;
+  assign io_status_xs = 2'h0;
+  assign io_status_fs = reg_mstatus_fs;
+  assign io_status_mpp = reg_mstatus_mpp;
+  assign io_status_hpp = 2'h0;
+  assign io_status_spp = reg_mstatus_spp;
+  assign io_status_mpie = reg_mstatus_mpie;
+  assign io_status_hpie = 1'h0;
+  assign io_status_spie = reg_mstatus_spie;
+  assign io_status_upie = 1'h0;
+  assign io_status_mie = reg_mstatus_mie;
+  assign io_status_hie = 1'h0;
+  assign io_status_sie = reg_mstatus_sie;
+  assign io_status_uie = 1'h0;
 
+  assign io_ptbr_mode = reg_satp_mode;
+  assign io_ptbr_ppn = reg_satp_ppn;
 
-//parameter cause_breakpoint = 'h3;
-//parameter cause_user_ecall = 'h8;
-assign cause = (insn_call) ? reg_mstatus_prv + cause_user_ecall
-		: (insn_break) ? cause_breakpoint
-		: io_cause;
+  assign _GEN_103 = !io_rw_addr[9] ? (~ ((~ reg_sepc) | {{30'd0}, _T_411})) 
+			: io_rw_addr[10] ? ~ ((~ reg_dpc) | {{30'd0}, _T_411}) 
+			: ~ ((~ reg_mepc) | {{30'd0}, _T_411});
+  assign io_evec = insn_ret ? _GEN_103 : tvec;
 
-assign cause_lsbs = cause[7:0];
-assign delegate = (reg_mstatus_prv <= PRV_S) & (cause[xLen - 1] ? read_mideleg[cause_lsbs] : read_medeleg[cause_lsbs]);
+  assign io_time = reg_cycle[31:0];
 
-wire [31:0] base = delegate ? read_stvec : read_mtvec; 
-wire [6:0] interruptOffset = cause[4:0] << 2;
-wire [31:0] interruptVec = {base >> 7, interruptOffset};
-wire doVector = base[0] & cause[xLen - 1] & ((cause_lsbs >> 5) == 0);
-assign debugTVec = (reg_debug) ? ((insn_break) ? 'h800 : 'h808) : 'h800;
-assign notDebugTVec = doVector ? interruptVec : (base >> 2) << 2;
+  assign io_fcsr_rm = reg_frm;
 
-assign causeIsDebugInt = cause[xLen - 1] && (cause_lsbs == CSR_debugIntCause);
-assign causeIsDebugTrigger = (cause[xLen - 1] == 1'b0) & (cause_lsbs == 8'he);
-wire [3:0] dcsr_ebreak = {reg_dcsr_ebreakm, 1'b0, reg_dcsr_ebreaks, reg_dcsr_ebreaku};
-assign causeIsDebugBreak = (cause[xLen - 1] == 1'b0) & insn_break & dcsr_ebreak[reg_mstatus_prv];
-assign trapToDebug = reg_singleStepped | causeIsDebugInt | causeIsDebugTrigger | causeIsDebugBreak | reg_debug;
+  assign io_interrupt = ((anyInterrupt & !io_singleStep) | reg_singleStepped) & !(reg_debug | io_status_cease);
+  assign io_interrupt_cause = 32'h80000000 + {{28'd0}, whichInterrupt};
 
-assign io_evec = (insn_ret) ? (!io_rw_addr[9] ? read_SEPC
-				: io_rw_addr[10] ? read_DPC 
-				: read_MEPC)
-		:(trapToDebug) ?  debugTVec : notDebugTVec;
+  wire [30:0] base_0 = {reg_pmp_0_addr, reg_pmp_0_cfg_a[0]};
+  wire [33:0] base_0_cat = {base_0 & ~(base_0 + 1), 2'h3};
+  wire [30:0] base_1 = {reg_pmp_1_addr, reg_pmp_1_cfg_a[0]};
+  wire [33:0] base_1_cat = {base_1 & ~(base_1 + 1), 2'h3};
+  wire [30:0] base_2 = {reg_pmp_2_addr, reg_pmp_2_cfg_a[0]};
+  wire [33:0] base_2_cat = {base_2 & ~(base_2 + 1), 2'h3};
+  wire [30:0] base_3 = {reg_pmp_3_addr, reg_pmp_3_cfg_a[0]};
+  wire [33:0] base_3_cat = {base_3 & ~(base_3 + 1), 2'h3};
+  wire [30:0] base_4 = {reg_pmp_4_addr, reg_pmp_4_cfg_a[0]};
+  wire [33:0] base_4_cat = {base_4 & ~(base_4 + 1), 2'h3};
+  wire [30:0] base_5 = {reg_pmp_5_addr, reg_pmp_5_cfg_a[0]};
+  wire [33:0] base_5_cat = {base_5 & ~(base_5 + 1), 2'h3};
+  wire [30:0] base_6 = {reg_pmp_6_addr, reg_pmp_6_cfg_a[0]};
+  wire [33:0] base_6_cat = {base_6 & ~(base_6 + 1), 2'h3};
+  wire [30:0] base_7 = {reg_pmp_7_addr, reg_pmp_7_cfg_a[0]};
+  wire [33:0] base_7_cat = {base_7 & ~(base_7 + 1), 2'h3};
 
-assign io_time = reg_cycle[31:0];
-assign io_fcsr_rm = reg_frm;
+  assign io_bp_0_control_action = reg_bp_0_control_action;
+  assign io_bp_0_control_tmatch = reg_bp_0_control_tmatch;
+  assign io_bp_0_control_m = reg_bp_0_control_m;
+  assign io_bp_0_control_s = reg_bp_0_control_s;
+  assign io_bp_0_control_u = reg_bp_0_control_u;
+  assign io_bp_0_control_x = reg_bp_0_control_x;
+  assign io_bp_0_control_w = reg_bp_0_control_w;
+  assign io_bp_0_control_r = reg_bp_0_control_r;
+  assign io_bp_0_address = reg_bp_0_address;
+  assign io_pmp_0_cfg_l = reg_pmp_0_cfg_l;
+  assign io_pmp_0_cfg_a = reg_pmp_0_cfg_a;
+  assign io_pmp_0_cfg_x = reg_pmp_0_cfg_x;
+  assign io_pmp_0_cfg_w = reg_pmp_0_cfg_w;
+  assign io_pmp_0_cfg_r = reg_pmp_0_cfg_r;
+  assign io_pmp_0_addr = reg_pmp_0_addr; 
+  assign io_pmp_0_mask = base_0_cat[31:0];
+  assign io_pmp_1_cfg_l = reg_pmp_1_cfg_l;
+  assign io_pmp_1_cfg_a = reg_pmp_1_cfg_a;
+  assign io_pmp_1_cfg_x = reg_pmp_1_cfg_x;
+  assign io_pmp_1_cfg_w = reg_pmp_1_cfg_w;
+  assign io_pmp_1_cfg_r = reg_pmp_1_cfg_r;
+  assign io_pmp_1_addr = reg_pmp_1_addr;
+  assign io_pmp_1_mask = base_1_cat[31:0];
+  assign io_pmp_2_cfg_l = reg_pmp_2_cfg_l;
+  assign io_pmp_2_cfg_a = reg_pmp_2_cfg_a;
+  assign io_pmp_2_cfg_x = reg_pmp_2_cfg_x;
+  assign io_pmp_2_cfg_w = reg_pmp_2_cfg_w;
+  assign io_pmp_2_cfg_r = reg_pmp_2_cfg_r;
+  assign io_pmp_2_addr = reg_pmp_2_addr;
+  assign io_pmp_2_mask = base_2_cat[31:0];
+  assign io_pmp_3_cfg_l = reg_pmp_3_cfg_l;
+  assign io_pmp_3_cfg_a = reg_pmp_3_cfg_a; 
+  assign io_pmp_3_cfg_x = reg_pmp_3_cfg_x;
+  assign io_pmp_3_cfg_w = reg_pmp_3_cfg_w;
+  assign io_pmp_3_cfg_r = reg_pmp_3_cfg_r;
+  assign io_pmp_3_addr = reg_pmp_3_addr;
+  assign io_pmp_3_mask = base_3_cat[31:0];
+  assign io_pmp_4_cfg_l = reg_pmp_4_cfg_l;
+  assign io_pmp_4_cfg_a = reg_pmp_4_cfg_a;
+  assign io_pmp_4_cfg_x = reg_pmp_4_cfg_x;
+  assign io_pmp_4_cfg_w = reg_pmp_4_cfg_w;
+  assign io_pmp_4_cfg_r = reg_pmp_4_cfg_r; 
+  assign io_pmp_4_addr = reg_pmp_4_addr;
+  assign io_pmp_4_mask = base_4_cat[31:0];
+  assign io_pmp_5_cfg_l = reg_pmp_5_cfg_l;
+  assign io_pmp_5_cfg_a = reg_pmp_5_cfg_a;
+  assign io_pmp_5_cfg_x = reg_pmp_5_cfg_x;
+  assign io_pmp_5_cfg_w = reg_pmp_5_cfg_w;
+  assign io_pmp_5_cfg_r = reg_pmp_5_cfg_r;
+  assign io_pmp_5_addr = reg_pmp_5_addr;
+  assign io_pmp_5_mask = base_5_cat[31:0];
+  assign io_pmp_6_cfg_l = reg_pmp_6_cfg_l;
+  assign io_pmp_6_cfg_a = reg_pmp_6_cfg_a;
+  assign io_pmp_6_cfg_x = reg_pmp_6_cfg_x;
+  assign io_pmp_6_cfg_w = reg_pmp_6_cfg_w;
+  assign io_pmp_6_cfg_r = reg_pmp_6_cfg_r;
+  assign io_pmp_6_addr = reg_pmp_6_addr;
+  assign io_pmp_6_mask = base_6_cat[31:0];
+  assign io_pmp_7_cfg_l = reg_pmp_7_cfg_l;
+  assign io_pmp_7_cfg_a = reg_pmp_7_cfg_a;
+  assign io_pmp_7_cfg_x = reg_pmp_7_cfg_x;
+  assign io_pmp_7_cfg_w = reg_pmp_7_cfg_w;
+  assign io_pmp_7_cfg_r = reg_pmp_7_cfg_r;
+  assign io_pmp_7_addr = reg_pmp_7_addr;
+  assign io_pmp_7_mask = base_7_cat[31:0];
 
-assign pending_interrupts = {16'h00, read_mip} & reg_mie;
-assign d_interrupts = {io_interrupts_debug, 14'h00};
-assign m_interrupts = (reg_mstatus_prv <= PRV_S | reg_mstatus_mie) ? ~(~(pending_interrupts) | read_mideleg) : 32'h00;
-assign s_interrupts = (reg_mstatus_prv < PRV_S | (reg_mstatus_prv == PRV_S & reg_mstatus_sie)) ? pending_interrupts & read_mideleg : 32'h00;
-assign anyInterrupt = (	  d_interrupts[14]
-			| d_interrupts[13]
-			| d_interrupts[12]
-			| d_interrupts[11]
-			| d_interrupts[3]
-			| d_interrupts[7]
-			| d_interrupts[9]
-			| d_interrupts[1]
-			| d_interrupts[5]
-			| d_interrupts[8]
-			| d_interrupts[0]
-			| d_interrupts[4]
-			| m_interrupts[15]
-			| m_interrupts[14]
-			| m_interrupts[13]
-			| m_interrupts[12]
-			| m_interrupts[11]
-			| m_interrupts[3]
-			| m_interrupts[7]
-			| m_interrupts[9]
-			| m_interrupts[1]
-			| m_interrupts[5]
-			| m_interrupts[8]
-			| m_interrupts[0]
-			| m_interrupts[4]
-			| s_interrupts[15]
-			| s_interrupts[14]
-			| s_interrupts[13]
-			| s_interrupts[12]
-			| s_interrupts[11]
-			| s_interrupts[3]
-			| s_interrupts[7]
-			| s_interrupts[9]
-			| s_interrupts[1]
-			| s_interrupts[5]
-			| s_interrupts[8]
-			| s_interrupts[0]
-			| s_interrupts[4]
-			);
-assign whichInterrupt = d_interrupts[14] ? 4'he
-			: d_interrupts[13] ? 4'hd
-			: d_interrupts[12] ? 4'hc
-			: d_interrupts[11] ? 4'hb
-			: d_interrupts[3] ? 4'h3
-			: d_interrupts[7] ? 4'h7
-			: d_interrupts[9] ? 4'h9
-			: d_interrupts[1] ? 4'h1
-			: d_interrupts[5] ? 4'h5
-			: d_interrupts[8] ? 4'h8
-			: d_interrupts[0] ? 4'h0
-			: d_interrupts[4] ? 4'h4
-			: m_interrupts[15] ? 4'hf
-			: m_interrupts[14] ? 4'he
-			: m_interrupts[13] ? 4'hd
-			: m_interrupts[12] ? 4'hc
-			: m_interrupts[11] ? 4'hb
-			: m_interrupts[3] ? 4'h3
-			: m_interrupts[7] ? 4'h7
-			: m_interrupts[9] ? 4'h9
-			: m_interrupts[1] ? 4'h1
-			: m_interrupts[5] ? 4'h5
-			: m_interrupts[8] ? 4'h8
-			: m_interrupts[0] ? 4'h0
-			: m_interrupts[4] ? 4'h4
-			: s_interrupts[15] ? 4'hf
-			: s_interrupts[14] ? 4'he
-			: s_interrupts[13] ? 4'hd
-			: s_interrupts[12] ? 4'hc
-			: s_interrupts[11] ? 4'hb
-			: s_interrupts[3] ? 4'h3
-			: s_interrupts[7] ? 4'h7
-			: s_interrupts[9] ? 4'h9
-			: s_interrupts[1] ? 4'h1
-			: s_interrupts[5] ? 4'h5
-			: s_interrupts[8] ? 4'h8
-			: s_interrupts[0] ? 4'h0
-			: 4'h4;
+  assign io_trace_0_valid = (io_retire > 1'h0) | io_trace_0_exception;
+  assign io_trace_0_iaddr = io_pc;
+  assign io_trace_0_insn = io_inst_0;
+  assign io_trace_0_exception = insn_call | insn_break | io_exception;
 
-assign io_interrupt = (anyInterrupt & !io_singleStep | reg_singleStepped) & !(reg_debug | io_status_cease);
-assign io_interrupt_cause = 32'h8000_0000 + {28'h00, whichInterrupt};
-assign io_bp_0_control_action = reg_bp_0_control_action;
-assign io_bp_0_control_tmatch = reg_bp_0_control_tmatch;
-assign io_bp_0_control_m = reg_bp_0_control_m;
-assign io_bp_0_control_s = reg_bp_0_control_s;
-assign io_bp_0_control_u = reg_bp_0_control_u;
-assign io_bp_0_control_x = reg_bp_0_control_x;
-assign io_bp_0_control_w = reg_bp_0_control_w;
-assign io_bp_0_control_r = reg_bp_0_control_r;
-assign io_bp_0_address = reg_bp_0_address;
+// MSTATUS register
+always @(posedge clock) begin
+	if (reset) begin
+		reg_mstatus_cease	<=  1'b0;
+		reg_mstatus_prv		<=  2'h3;
+		reg_mstatus_tsr		<=  1'h0;
+		reg_mstatus_tw		<=  1'h0;
+		reg_mstatus_tvm		<=  1'h0;
+		reg_mstatus_mxr		<=  1'h0;
+		reg_mstatus_sum		<=  1'h0;
+		reg_mstatus_mprv	<=  1'h0;
+		reg_mstatus_fs		<=  2'h0;
+	end
+	else begin
+		if (new_prv == 2'h2) reg_mstatus_prv <= 2'h0;
+		else if (insn_ret & !io_rw_addr[9]) reg_mstatus_prv <= {1'd0, reg_mstatus_spp};
+		else if (insn_ret & io_rw_addr[9] & io_rw_addr[10]) reg_mstatus_prv <= reg_dcsr_prv;
+		else if (insn_ret & io_rw_addr[9] & !io_rw_addr[10]) reg_mstatus_prv <= reg_mstatus_mpp;
+		else if (exception & trapToDebug & !reg_debug) reg_mstatus_prv <= 2'h3;
+		else if (exception & !trapToDebug & delegate) reg_mstatus_prv <= 2'h1;
+		else if (exception & !trapToDebug & !delegate) reg_mstatus_prv <= 2'h3;
 
+		if (csr_wen & sel_sstatus) begin
+			reg_mstatus_mxr <=  wdata[19];
+			reg_mstatus_sum <=  wdata[18];
+			if (wdata[14:13] != 2'h0) reg_mstatus_fs <= 2'h3;
+			else reg_mstatus_fs <= 2'h0;
+		end
+		else if (csr_wen & sel_mstatus) begin
+			reg_mstatus_mprv <=  wdata[17];
+			reg_mstatus_mxr <=  wdata[19];
+			reg_mstatus_sum <=  wdata[18];
+			reg_mstatus_tw <=  wdata[21];
+			reg_mstatus_tvm <=  wdata[20];
+			reg_mstatus_tsr <=  wdata[22];
+			if (wdata[14:13] != 2'h0) reg_mstatus_fs <= 2'h3;
+			else reg_mstatus_fs <= 2'h0;
+		end 
+		if (insn_cease) reg_mstatus_cease <= 1;
+	end
+end 
 
-wire [30:0]		base_0;
-wire [30:0]		base_1;
-wire [30:0]		base_2;
-wire [30:0]		base_3;
-wire [30:0]		base_4;
-wire [30:0]		base_5;
-wire [30:0]		base_6;
-wire [30:0]		base_7;
-wire [32:0]		base_0_cat;
-wire [32:0]		base_1_cat;
-wire [32:0]		base_2_cat;
-wire [32:0]		base_3_cat;
-wire [32:0]		base_4_cat;
-wire [32:0]		base_5_cat;
-wire [32:0]		base_6_cat;
-wire [32:0]		base_7_cat;
-assign base_0 = {reg_pmp_0_addr, reg_pmp_0_cfg_a[0]};
-assign base_0_cat = {base_0 & ~(base_0 + 1), 2'h3};
-assign base_1 = {reg_pmp_1_addr, reg_pmp_1_cfg_a[0]};
-assign base_1_cat = {base_1 & ~(base_1 + 1), 2'h3};
-assign base_2 = {reg_pmp_2_addr, reg_pmp_2_cfg_a[0]};
-assign base_2_cat = {base_2 & ~(base_2 + 1), 2'h3};
-assign base_3 = {reg_pmp_3_addr, reg_pmp_3_cfg_a[0]};
-assign base_3_cat = {base_3 & ~(base_3 + 1), 2'h3};
-assign base_4 = {reg_pmp_4_addr, reg_pmp_4_cfg_a[0]};
-assign base_4_cat = {base_4 & ~(base_4 + 1), 2'h3};
-assign base_5 = {reg_pmp_5_addr, reg_pmp_5_cfg_a[0]};
-assign base_5_cat = {base_5 & ~(base_5 + 1), 2'h3};
-assign base_6 = {reg_pmp_6_addr, reg_pmp_6_cfg_a[0]};
-assign base_6_cat = {base_6 & ~(base_6 + 1), 2'h3};
-assign base_7 = {reg_pmp_7_addr, reg_pmp_7_cfg_a[0]};
-assign base_7_cat = {base_7 & ~(base_7 + 1), 2'h3};
+// MSTATUS register
+always @(posedge clock) begin
+	if (reset) begin
+		reg_mstatus_spp		<=  1'h0;
+		reg_mstatus_spie	<=  1'h0;
+		reg_mstatus_sie		<=  1'h0;
+	end
+	else begin
+		if (csr_wen & (sel_sstatus | sel_mstatus)) begin
+			reg_mstatus_sie <=  wdata[1];
+			reg_mstatus_spie <=  wdata[5];
+			reg_mstatus_spp <=  wdata[8];
+		end
+		else if (insn_ret & !io_rw_addr[9]) begin
+			reg_mstatus_sie <=  reg_mstatus_spie;
+			reg_mstatus_spie <=  1'h1;
+			reg_mstatus_spp <=  1'h0;
+		end
+		else if (exception & !trapToDebug & delegate) begin
+			reg_mstatus_spie <=  reg_mstatus_sie;
+			reg_mstatus_spp <=  reg_mstatus_prv[0];
+			reg_mstatus_sie <=  1'h0;
+		end
+	end
+end
 
-assign io_pmp_0_cfg_l = reg_pmp_0_cfg_l;
-assign io_pmp_0_cfg_a = reg_pmp_0_cfg_a;
-assign io_pmp_0_cfg_x = reg_pmp_0_cfg_x;
-assign io_pmp_0_cfg_w = reg_pmp_0_cfg_w;
-assign io_pmp_0_cfg_r = reg_pmp_0_cfg_r;
-assign io_pmp_0_addr = reg_pmp_0_addr;
-assign io_pmp_0_mask = base_0_cat[31:0];
-assign io_pmp_1_cfg_l = reg_pmp_1_cfg_l;
-assign io_pmp_1_cfg_a = reg_pmp_1_cfg_a;
-assign io_pmp_1_cfg_x = reg_pmp_1_cfg_x;
-assign io_pmp_1_cfg_w = reg_pmp_1_cfg_w;
-assign io_pmp_1_cfg_r = reg_pmp_1_cfg_r;
-assign io_pmp_1_addr = reg_pmp_1_addr;
-assign io_pmp_1_mask = base_1_cat[31:0];
-assign io_pmp_2_cfg_l = reg_pmp_2_cfg_l;
-assign io_pmp_2_cfg_a = reg_pmp_2_cfg_a;
-assign io_pmp_2_cfg_x = reg_pmp_2_cfg_x;
-assign io_pmp_2_cfg_w = reg_pmp_2_cfg_w;
-assign io_pmp_2_cfg_r = reg_pmp_2_cfg_r;
-assign io_pmp_2_addr = reg_pmp_2_addr;
-assign io_pmp_2_mask = base_2_cat[31:0];
-assign io_pmp_3_cfg_l = reg_pmp_3_cfg_l;
-assign io_pmp_3_cfg_a = reg_pmp_3_cfg_a;
-assign io_pmp_3_cfg_x = reg_pmp_3_cfg_x;
-assign io_pmp_3_cfg_w = reg_pmp_3_cfg_w;
-assign io_pmp_3_cfg_r = reg_pmp_3_cfg_r;
-assign io_pmp_3_addr = reg_pmp_3_addr;
-assign io_pmp_3_mask = base_3_cat[31:0];
-assign io_pmp_4_cfg_l = reg_pmp_4_cfg_l;
-assign io_pmp_4_cfg_a = reg_pmp_4_cfg_a;
-assign io_pmp_4_cfg_x = reg_pmp_4_cfg_x;
-assign io_pmp_4_cfg_w = reg_pmp_4_cfg_w;
-assign io_pmp_4_cfg_r = reg_pmp_4_cfg_r;
-assign io_pmp_4_addr = reg_pmp_4_addr;
-assign io_pmp_4_mask = base_4_cat[31:0];
-assign io_pmp_5_cfg_l = reg_pmp_5_cfg_l;
-assign io_pmp_5_cfg_a = reg_pmp_5_cfg_a;
-assign io_pmp_5_cfg_x = reg_pmp_5_cfg_x;
-assign io_pmp_5_cfg_w = reg_pmp_5_cfg_w;
-assign io_pmp_5_cfg_r = reg_pmp_5_cfg_r;
-assign io_pmp_5_addr = reg_pmp_5_addr;
-assign io_pmp_5_mask = base_5_cat[31:0];
-assign io_pmp_6_cfg_l = reg_pmp_6_cfg_l;
-assign io_pmp_6_cfg_a = reg_pmp_6_cfg_a;
-assign io_pmp_6_cfg_x = reg_pmp_6_cfg_x;
-assign io_pmp_6_cfg_w = reg_pmp_6_cfg_w;
-assign io_pmp_6_cfg_r = reg_pmp_6_cfg_r;
-assign io_pmp_6_addr = reg_pmp_6_addr;
-assign io_pmp_6_mask = base_6_cat[31:0];
-assign io_pmp_7_cfg_l = reg_pmp_7_cfg_l;
-assign io_pmp_7_cfg_a = reg_pmp_7_cfg_a;
-assign io_pmp_7_cfg_x = reg_pmp_7_cfg_x;
-assign io_pmp_7_cfg_w = reg_pmp_7_cfg_w;
-assign io_pmp_7_cfg_r = reg_pmp_7_cfg_r;
-assign io_pmp_7_addr = reg_pmp_7_addr;
-assign io_pmp_7_mask = base_7_cat[31:0];
+// MSTATUS register
+always @(posedge clock) begin
+	if (reset) begin
+		reg_mstatus_mpp		<=  2'h3;
+		reg_mstatus_mpie	<=  1'h0;
+		reg_mstatus_mie		<=  1'h0;
+	end
+	else begin
+		if (csr_wen & sel_mstatus) begin
+			reg_mstatus_mie <=  wdata[3];
+			reg_mstatus_mpie <=  wdata[7];
+			reg_mstatus_mpp <=  (wdata[12:11] == 2'h2) ? 2'h0 : wdata[12:11];
+		end
+		else if (insn_ret & io_rw_addr[9] & !io_rw_addr[10]) begin
+			reg_mstatus_mie <=  reg_mstatus_mpie;
+			reg_mstatus_mpie <=  1'h1;
+			reg_mstatus_mpp <=  2'h0;
+		end
+		else if (exception & !trapToDebug & !delegate) begin
+			reg_mstatus_mpie <=  reg_mstatus_mie;
+			reg_mstatus_mpp <=  reg_mstatus_prv;
+			reg_mstatus_mie <=  1'h0;
+		end
+	end
+end
 
-assign io_trace_0_valid = io_retire > 1'h0 | io_trace_0_exception;
-assign io_trace_0_iaddr = io_pc;
-assign io_trace_0_insn = io_pc;
+// DCSR register
+always @(posedge clock) begin
+	if (reset) begin
+		reg_dcsr_ebreakm	<= 1'h0;
+		reg_dcsr_ebreaks	<= 1'h0;
+		reg_dcsr_ebreaku	<= 1'h0;
+		reg_dcsr_cause		<= 3'h0;
+		reg_dcsr_step		<= 1'h0;
+		reg_dcsr_prv		<= 2'h3;
+	end
+	else if (csr_wen & sel_dcsr) begin
+		reg_dcsr_step <= wdata[2]; 
+		reg_dcsr_ebreakm <= wdata[15]; 
+		reg_dcsr_ebreaks <= wdata[13]; 
+		reg_dcsr_ebreaku <= wdata[12]; 
+		if (wdata[1:0] == 2'h2) reg_dcsr_prv <= 2'h0;
+		else reg_dcsr_prv <= wdata[1:0];
+	end
+	else if (exception & trapToDebug & !reg_debug) begin
+		reg_dcsr_cause <= reg_singleStepped ? 3'h4
+				: causeIsDebugInt ? 3'h3
+				: causeIsDebugTrigger ? 3'h2
+				: 3'h1;
+		reg_dcsr_prv <= reg_mstatus_prv;
+	end
+end
 
+// reg_debug
+always @(posedge clock) begin
+	if (reset) reg_debug <= 1'h0;
+	else if (insn_ret & io_rw_addr[9] & io_rw_addr[10]) reg_debug <= 1'h0;
+	else if (exception & trapToDebug) reg_debug <= (reg_debug == 1'h0) | reg_debug;
+end	
 
-assign exception = insn_call || insn_break || io_exception;
-assign io_trace_0_exception = exception;
+// WFI register
+always @(posedge io_ungated_clock) begin
+	if (reset) reg_wfi <= 1'h0;
+	else if ((pending_interrupts != 32'h00) | io_interrupts_debug | exception) reg_wfi <= 1'h0;
+	else if (insn_wfi & !io_singleStep & !reg_debug) reg_wfi <= 1'h1;
+end
 
-`endif //ASSIGN_IO
+// reg_misa register
+parameter isaMask = 32'h1025;
+always @(posedge clock) begin
+	if (reset)
+		reg_misa <= 32'h40941125;
+	else if (csr_wen & sel_misa) begin
+		if (!io_pc[1] | wdata[2]) begin
+			reg_misa <= (~(~wdata | { 28'd0, !wdata[5] , 3'h0}) & isaMask) | (reg_misa & ~isaMask); 
+		end
+	end
+end
 
-`ifndef ASSIGN_IO
-//  assign system_insn = io_rw_cmd == 3'h4; // @[CSR.scala 569:31:freechips.rocketchip.system.DefaultRV32Config.fir@148707.4]
+// reg_singleStepped
+always @(posedge clock) begin
+	if (reset) reg_singleStepped <= 1'h0;
+	else if (!io_singleStep) reg_singleStepped <= 1'h0;
+	else if (io_retire || exception) reg_singleStepped <= 1'h1;
+end	
+
+// reg_satp
+always @(posedge clock) begin
+	if (reset) begin
+		reg_satp_mode <= 1'h0;
+		reg_satp_ppn <= 22'h00;
+	end
+	else if (csr_wen) begin
+		if (sel_satp) begin
+			reg_satp_mode <= wdata[31];
+			reg_satp_ppn <= {2'd0, wdata[19:0]};
+		end
+	end
+end
+
+wire [31:0] newBPC = ((io_rw_cmd[1] ? read_dp_control : 32'h00) | io_rw_wdata) & (~((io_rw_cmd[1:0] == 2'h3) ? io_rw_wdata : 32'h00));
+wire dMode = newBPC[27] & reg_debug;
+// reg_bp
+always @(posedge clock) begin
+	if (reset) begin
+		reg_bp_0_control_dmode <= 1'h0;
+		reg_bp_0_control_action <= 1'h0;
+		reg_bp_0_control_tmatch <= 2'h0;
+		reg_bp_0_control_m <= 1'h0;
+		reg_bp_0_control_s <= 1'h0;
+		reg_bp_0_control_u <= 1'h0;
+		reg_bp_0_control_x <= 1'h0;
+		reg_bp_0_control_w <= 1'h0;
+		reg_bp_0_control_r <= 1'h0;
+		reg_bp_0_address <= 32'h00;
+	end
+	else begin
+		if (csr_wen & (!reg_bp_0_control_dmode | reg_debug) & sel_tdata1) begin
+			reg_bp_0_control_dmode <= dMode;
+			reg_bp_0_control_tmatch <= wdata[8:7];
+			reg_bp_0_control_m <= wdata[6];
+			reg_bp_0_control_s <= wdata[4];
+			reg_bp_0_control_u <= wdata[3];
+			reg_bp_0_control_x <= wdata[2];
+			reg_bp_0_control_w <= wdata[1];
+			reg_bp_0_control_r <= wdata[0];				
+			reg_bp_0_control_action <= (dMode & newBPC[12]);
+		end 
+		if (csr_wen & (!reg_bp_0_control_dmode | reg_debug) & sel_tdata2)
+			reg_bp_0_address <= wdata;
+	end
+end
+
+// reg_mtvec
+// reg_mie
+// reg_mscratch
+// reg_sscratch
+// reg_stvec
+// reg_mcounteren
+// reg_scounteren
+parameter supported_interrupts = 16'haaa;
+always @(posedge clock) begin
+	if (reset) begin
+		reg_mtvec <= 32'h00;
+		reg_stvec <= 32'h00;
+		reg_mie <= 32'h00;
+		reg_mscratch <= 32'h00;
+		reg_sscratch <= 32'h00;
+		reg_mcounteren <= 32'h00;
+		reg_scounteren <= 32'h00;
+	end
+	else if (csr_wen) begin
+		if (sel_mtvec) reg_mtvec <= wdata;
+		if (sel_stvec) reg_stvec <= wdata;
+		if (sel_sie) reg_mie <= (reg_mie & ~(read_mideleg)) | (wdata & read_mideleg);
+		else if (sel_mie) reg_mie <= wdata & {16'h00, supported_interrupts};
+		if (sel_mscratch) reg_mscratch <= wdata;
+		if (sel_sscratch) reg_sscratch <= wdata;
+		if (sel_mcounteren) reg_mcounteren <= wdata;
+		if (sel_scounteren) reg_scounteren <= wdata;
+	end
+end
+
+// reg_mip
+wire [15:0] new_mip = ((io_rw_cmd[1] ? {4'h0,2'h0,reg_mip_seip,1'h0,2'h0,reg_mip_stip,1'h0,2'h0,reg_mip_ssip,1'h0} : 16'h00) | io_rw_wdata[15:0]) & (~((io_rw_cmd[1:0] == 2'h3) ? io_rw_wdata[15:0] : 16'h00));
+always @(posedge clock) begin
+	if (reset) begin
+		reg_mip_seip <= 1'h0;
+		reg_mip_stip <= 1'h0;
+		reg_mip_ssip <= 1'h0;
+	end
+	else if (csr_wen) begin
+		if (sel_mip) begin
+			reg_mip_stip <= new_mip[5];
+			reg_mip_seip <= new_mip[9];
+		end
+
+		if (sel_sip) begin
+			reg_mip_ssip <= (read_mip[1] & ~(read_mideleg[1])) | (wdata[1] & read_mideleg[1]);
+			//reg_mip_ssip <= _T_5017;
+		end
+		else if (sel_mip) begin
+			reg_mip_ssip <= new_mip[1];
+		end
+	end
+end
+
+// reg_dpc
+// reg_dscratch
+// reg_mideleg
+// reg_medeleg
+// reg_sepc
+// reg_mepc
+// reg_mcause
+// reg_mtval
+// reg_scause
+// reg_stval
+// reg_fflags
+// reg_frm
+always @(posedge clock) begin
+	if (reset) begin
+		reg_dpc <= 32'h00;
+		reg_dscratch <= 32'h00;
+		reg_mideleg <= 32'h00;
+		reg_medeleg <= 32'h00;
+		reg_sepc <= 32'h00;
+		reg_mepc <= 32'h00;
+		reg_mcause <= 32'h00;
+		reg_mtval <= 32'h00;
+		reg_scause <= 32'h00;
+		reg_stval <= 32'h00;
+		reg_fflags <= 5'h0;
+		reg_frm <= 3'h0;
+	end
+	else begin
+		if (csr_wen & sel_dpc) reg_dpc <= ~((~ wdata) | 32'h1);
+		else if (exception & trapToDebug & !reg_debug) reg_dpc <= epc;
+
+		if (csr_wen & sel_dscratch) reg_dscratch <= wdata;
+		if (csr_wen & sel_mideleg) reg_mideleg <= wdata;
+		if (csr_wen & sel_medeleg) reg_medeleg <= wdata;
+
+		if (csr_wen & sel_sepc) reg_sepc <= ~((~ wdata) | 32'h1);
+		else if (exception & delegate) reg_sepc <= epc;
+
+		if (csr_wen & sel_mepc) reg_mepc <= ~((~ wdata) | 32'h1);
+		else if (exception & !trapToDebug & !delegate) reg_mepc <= epc;
+
+		if (csr_wen & sel_mcause) reg_mcause <= wdata & 32'h8000000f;
+		else if (exception & !trapToDebug & !delegate) reg_mcause <= cause;
+
+		if (csr_wen & sel_mtval) reg_mtval <= wdata;
+		else if (exception & !trapToDebug & !delegate) reg_mtval <= io_tval;
+
+		if (csr_wen & sel_scause) reg_scause <= wdata & 32'h8000001f;
+		else if (exception & !trapToDebug & delegate) reg_scause <= cause;
+
+		if (csr_wen & sel_stval) reg_stval <= wdata;
+		else if (exception & !trapToDebug & delegate) reg_stval <= io_tval;
+
+		if (csr_wen & (sel_fflags | sel_fcsr)) reg_fflags <= wdata[4:0];
+		else if (io_fcsr_flags_valid) reg_fflags <= reg_fflags | io_fcsr_flags_bits;
+
+		if (csr_wen & sel_fcsr) reg_frm <= wdata[7:5];
+		else if (csr_wen & sel_frm) reg_frm <= wdata[2:0];
+	end
+end
+
+// reg_pmp
+always @(posedge clock) begin
+	if (reset) begin
+		reg_pmp_0_cfg_l <= 1'h0;
+		reg_pmp_0_cfg_a <= 2'h0;
+		reg_pmp_0_cfg_x <= 1'h0;
+		reg_pmp_0_cfg_w <= 1'h0;
+		reg_pmp_0_cfg_r <= 1'h0;
+		reg_pmp_1_cfg_l <= 1'h0;
+		reg_pmp_1_cfg_a <= 2'h0;
+		reg_pmp_1_cfg_x <= 1'h0;
+		reg_pmp_1_cfg_w <= 1'h0;
+		reg_pmp_1_cfg_r <= 1'h0;
+		reg_pmp_2_cfg_l <= 1'h0;
+		reg_pmp_2_cfg_a <= 2'h0;
+		reg_pmp_2_cfg_x <= 1'h0;
+		reg_pmp_2_cfg_w <= 1'h0;
+		reg_pmp_2_cfg_r <= 1'h0;
+		reg_pmp_3_cfg_l <= 1'h0;
+		reg_pmp_3_cfg_a <= 2'h0;
+		reg_pmp_3_cfg_x <= 1'h0;
+		reg_pmp_3_cfg_w <= 1'h0;
+		reg_pmp_3_cfg_r <= 1'h0;
+		reg_pmp_4_cfg_l <= 1'h0;
+		reg_pmp_4_cfg_a <= 2'h0;
+		reg_pmp_4_cfg_x <= 1'h0;
+		reg_pmp_4_cfg_w <= 1'h0;
+		reg_pmp_4_cfg_r <= 1'h0;
+		reg_pmp_5_cfg_l <= 1'h0;
+		reg_pmp_5_cfg_a <= 2'h0;
+		reg_pmp_5_cfg_x <= 1'h0;
+		reg_pmp_5_cfg_w <= 1'h0;
+		reg_pmp_5_cfg_r <= 1'h0;
+		reg_pmp_6_cfg_l <= 1'h0;
+		reg_pmp_6_cfg_a <= 2'h0;
+		reg_pmp_6_cfg_x <= 1'h0;
+		reg_pmp_6_cfg_w <= 1'h0;
+		reg_pmp_6_cfg_r <= 1'h0;
+		reg_pmp_7_cfg_l <= 1'h0;
+		reg_pmp_7_cfg_a <= 2'h0;
+		reg_pmp_7_cfg_x <= 1'h0;
+		reg_pmp_7_cfg_w <= 1'h0;
+		reg_pmp_7_cfg_r <= 1'h0;
+	end
+	if (csr_wen) begin
+		if (sel_pmp_cfg_0 & !reg_pmp_0_cfg_l) begin
+			reg_pmp_0_cfg_l <= wdata[7];
+			reg_pmp_0_cfg_a <= wdata[4:3];
+			reg_pmp_0_cfg_x <= wdata[2];
+			reg_pmp_0_cfg_w <= wdata[1] & wdata[0];
+			reg_pmp_0_cfg_r <= wdata[0];
+		end
+		if (sel_pmp_cfg_0 & !reg_pmp_1_cfg_l) begin
+			reg_pmp_1_cfg_l <= wdata[15];
+			reg_pmp_1_cfg_a <= wdata[12:11];
+			reg_pmp_1_cfg_x <= wdata[10];
+			reg_pmp_1_cfg_w <= wdata[9] & wdata[8];
+			reg_pmp_1_cfg_r <= wdata[8];
+		end
+		if (sel_pmp_cfg_0 & !reg_pmp_2_cfg_l) begin
+			reg_pmp_2_cfg_l <= wdata[23];
+			reg_pmp_2_cfg_a <= wdata[20:19];
+			reg_pmp_2_cfg_x <= wdata[18];
+			reg_pmp_2_cfg_w <= wdata[17] & wdata[16];
+			reg_pmp_2_cfg_r <= wdata[16];
+		end
+		if (sel_pmp_cfg_0 & !reg_pmp_3_cfg_l) begin
+			reg_pmp_3_cfg_l <= wdata[31];
+			reg_pmp_3_cfg_a <= wdata[28:27];
+			reg_pmp_3_cfg_x <= wdata[26];
+			reg_pmp_3_cfg_w <= wdata[25] & wdata[24];
+			reg_pmp_3_cfg_r <= wdata[24];
+		end
+		if (sel_pmp_cfg_1 & !reg_pmp_4_cfg_l) begin
+			reg_pmp_4_cfg_l <= wdata[7];
+			reg_pmp_4_cfg_a <= wdata[4:3];
+			reg_pmp_4_cfg_x <= wdata[2];
+			reg_pmp_4_cfg_w <= wdata[1] & wdata[0];
+			reg_pmp_4_cfg_r <= wdata[0];
+		end
+		if (sel_pmp_cfg_1 & !reg_pmp_5_cfg_l) begin
+			reg_pmp_5_cfg_l <= wdata[15];
+			reg_pmp_5_cfg_a <= wdata[12:11];
+			reg_pmp_5_cfg_x <= wdata[10];
+			reg_pmp_5_cfg_w <= wdata[9] & wdata[8];
+			reg_pmp_5_cfg_r <= wdata[8];
+		end
+		if (sel_pmp_cfg_1 & !reg_pmp_6_cfg_l) begin
+			reg_pmp_6_cfg_l <= wdata[23];
+			reg_pmp_6_cfg_a <= wdata[20:19];
+			reg_pmp_6_cfg_x <= wdata[18];
+			reg_pmp_6_cfg_w <= wdata[17] & wdata[16];
+			reg_pmp_6_cfg_r <= wdata[16];
+		end
+		if (sel_pmp_cfg_1 & !reg_pmp_7_cfg_l) begin
+			reg_pmp_7_cfg_l <= wdata[31];
+			reg_pmp_7_cfg_a <= wdata[28:27];
+			reg_pmp_7_cfg_x <= wdata[26];
+			reg_pmp_7_cfg_w <= wdata[25] & wdata[24];
+			reg_pmp_7_cfg_r <= wdata[24];
+		end
+		if (sel_pmp_addr_0 & !(reg_pmp_0_cfg_l | (reg_pmp_1_cfg_l & ( !reg_pmp_1_cfg_a[1] & reg_pmp_1_cfg_a[0])))) begin
+			reg_pmp_0_addr <= wdata[29:0];
+		end 
+		if (sel_pmp_addr_1 & !(reg_pmp_1_cfg_l | (reg_pmp_2_cfg_l & ( !reg_pmp_2_cfg_a[1] & reg_pmp_2_cfg_a[0])))) begin
+			reg_pmp_1_addr <= wdata[29:0];
+		end 
+		if (sel_pmp_addr_2 & !(reg_pmp_2_cfg_l | (reg_pmp_3_cfg_l & ( !reg_pmp_3_cfg_a[1] & reg_pmp_3_cfg_a[0])))) begin
+			reg_pmp_2_addr <= wdata[29:0];
+		end 
+		if (sel_pmp_addr_3 & !(reg_pmp_3_cfg_l | (reg_pmp_4_cfg_l & ( !reg_pmp_4_cfg_a[1] & reg_pmp_4_cfg_a[0])))) begin
+			reg_pmp_3_addr <= wdata[29:0];
+		end 
+		if (sel_pmp_addr_4 & !(reg_pmp_4_cfg_l | (reg_pmp_5_cfg_l & ( !reg_pmp_5_cfg_a[1] & reg_pmp_5_cfg_a[0])))) begin
+			reg_pmp_4_addr <= wdata[29:0];
+		end 
+		if (sel_pmp_addr_5 & !(reg_pmp_5_cfg_l | (reg_pmp_6_cfg_l & ( !reg_pmp_6_cfg_a[1] & reg_pmp_6_cfg_a[0])))) begin
+			reg_pmp_5_addr <= wdata[29:0];
+		end 
+		if (sel_pmp_addr_6 & !(reg_pmp_6_cfg_l | (reg_pmp_7_cfg_l & ( !reg_pmp_7_cfg_a[1] & reg_pmp_7_cfg_a[0])))) begin
+			reg_pmp_6_addr <= wdata[29:0];
+		end 
+		if (sel_pmp_addr_7 & !(reg_pmp_7_cfg_l | (reg_pmp_7_cfg_l & ( !reg_pmp_7_cfg_a[1] & reg_pmp_7_cfg_a[0])))) begin
+			reg_pmp_7_addr <= wdata[29:0];
+		end 
+	end
+end
+
+// reg_cycle
+assign nextSmall = (io_csr_stall == 1'h0) ? (reg_cycle_small + 6'd1) : {1'b0, reg_cycle_small};
+assign nextLarge = reg_cycle_large + 58'd1;
+assign reg_cycle = {reg_cycle_large, reg_cycle_small};
+//assign _T_100 = {reg_cycle_large, reg_cycle_small}; 
+always @(posedge io_ungated_clock) begin
+	if (reset) begin
+		reg_cycle_small <= 6'h00;
+		reg_cycle_large <= 58'h00;
+	end
+	else begin
+		if (csr_wen & sel_mcycle) begin
+			reg_cycle_small <= wdata[5:0];
+			reg_cycle_large <= {reg_cycle[63:32], wdata[31:6]};
+		end
+		else
+			reg_cycle_small <= nextSmall[5:0];
+		
+		if (csr_wen & sel_mcycleh) begin
+			reg_cycle_large <= {wdata[31:0], reg_cycle[31:6]};
+		end
+		else if (nextSmall[6])
+			reg_cycle_large <= nextLarge;
+	end
+end
+
+// reg_instret register
+assign nextInstretSmall = (io_retire) ? (reg_instret_small + 6'd1) : {1'b0, reg_instret_small};
+assign nextInstretLarge = reg_instret_large + 58'd1;
+assign reg_instret = {reg_instret_large, reg_instret_small}; 
+always @(posedge clock) begin
+	if (reset) begin
+		reg_instret_small <= 6'h00;
+		reg_instret_large <= 58'h00;
+	end
+	else begin
+		if (csr_wen & sel_minstret) begin
+			reg_instret_small <= wdata[5:0];
+			reg_instret_large <= {reg_instret[63:32], wdata[31:6]};
+		end
+		else
+			reg_instret_small <= nextInstretSmall[5:0];
+		
+		if (csr_wen & sel_minstreth) begin
+			reg_instret_large <= {wdata[31:0], reg_instret[31:6]};
+		end
+		else if (nextInstretSmall[6])
+			reg_instret_large <= nextInstretLarge;
+	end
+end
+
+always @(posedge clock) begin
+	if (reset) begin
+		reg_mstatus_cease <= 1'h0;
+	end
+	else begin
+		if (insn_cease) reg_mstatus_cease <= 1'h1;
+	end
+end
+
+// reg_status_dprv
+always @(posedge clock) begin
+	if (reset) reg_status_dprv <= 0;
+	else if (reg_mstatus_mprv & !reg_debug) reg_status_dprv <= reg_mstatus_mpp;
+	else reg_status_dprv <= reg_mstatus_prv;
+end
+
+`ifndef SYNTHESIS
+  assign _T_1522 = (((insn_ret + insn_call + insn_break + io_exception) <= 3'h1) | reset) == 1'h0;
+  assign _T_1544 = (!reg_singleStepped | !io_retire | reset) == 1'h0;
+`endif // SYNTHESIS
+always @(posedge clock) begin
+    `ifndef SYNTHESIS
+    `ifdef PRINTF_COND
+      if (`PRINTF_COND) begin
+    `endif
+        if (_T_1522) begin
+          $fwrite(32'h80000002,"Assertion failed: these conditions must be mutually exclusive\n    at CSR.scala:654 assert(PopCount(insn_ret :: insn_call :: insn_break :: io.exception :: Nil) <= 1, \"these conditions must be mutually exclusive\")\n");
+        end
+    `ifdef PRINTF_COND
+      end
+    `endif
+    `endif // SYNTHESIS
+    `ifndef SYNTHESIS
+    `ifdef STOP_COND
+      if (`STOP_COND) begin
+    `endif
+        if (_T_1522) begin
+          $fatal;
+        end
+    `ifdef STOP_COND
+      end
+    `endif
+    `endif // SYNTHESIS
+    `ifndef SYNTHESIS
+    `ifdef PRINTF_COND
+      if (`PRINTF_COND) begin
+    `endif
+        if (_T_1544) begin
+          $fwrite(32'h80000002,"Assertion failed\n    at CSR.scala:662 assert(!reg_singleStepped || io.retire === UInt(0))\n");
+        end
+    `ifdef PRINTF_COND
+      end
+    `endif
+    `endif // SYNTHESIS
+    `ifndef SYNTHESIS
+    `ifdef STOP_COND
+      if (`STOP_COND) begin
+    `endif
+        if (_T_1544) begin
+          $fatal;
+        end
+    `ifdef STOP_COND
+      end
+    `endif
+    `endif // SYNTHESIS
+end
+
+`endif // MY_ASSIGNMENT
+
+`ifndef MY_ASSIGNMENT
+  assign system_insn = io_rw_cmd == 3'h4; // @[CSR.scala 569:31:freechips.rocketchip.system.DefaultRV32Config.fir@148707.4]
+
+  assign insn_ret = system_insn & _T_902; // @[CSR.scala 581:95:freechips.rocketchip.system.DefaultRV32Config.fir@148735.4]
+  assign insn_call = system_insn & _T_892; // @[CSR.scala 581:95:freechips.rocketchip.system.DefaultRV32Config.fir@148731.4]
+  assign insn_break = system_insn & _T_895; // @[CSR.scala 581:95:freechips.rocketchip.system.DefaultRV32Config.fir@148733.4]
+
+  assign exception = _T_1512 | io_exception; // @[CSR.scala 653:43:freechips.rocketchip.system.DefaultRV32Config.fir@149368.4]
+
+  assign _T_1458 = _GEN_494 + 4'h8; // @[CSR.scala 617:36:freechips.rocketchip.system.DefaultRV32Config.fir@149290.4]
+  assign cause = insn_call ? {{28'd0}, _T_1458} : _T_1459; // @[CSR.scala 617:8:freechips.rocketchip.system.DefaultRV32Config.fir@149292.4]
+  assign cause_lsbs = cause[7:0]; // @[CSR.scala 619:25:freechips.rocketchip.system.DefaultRV32Config.fir@149293.4]
+  assign causeIsDebugInt = _T_1460 & _T_1461; // @[CSR.scala 620:39:freechips.rocketchip.system.DefaultRV32Config.fir@149296.4]
+  assign causeIsDebugTrigger = _T_1463 & _T_1461; // @[CSR.scala 621:44:freechips.rocketchip.system.DefaultRV32Config.fir@149300.4]
+  assign _T_1471 = _T_1470 >> reg_mstatus_prv; // @[CSR.scala 622:134:freechips.rocketchip.system.DefaultRV32Config.fir@149307.4]
+  assign causeIsDebugBreak = _T_1467 & _T_1472; // @[CSR.scala 622:56:freechips.rocketchip.system.DefaultRV32Config.fir@149309.4]
+
+  assign trapToDebug = _T_1475 | reg_debug; // @[CSR.scala 623:123:freechips.rocketchip.system.DefaultRV32Config.fir@149313.4]
+
+  assign read_mideleg = reg_mideleg & 32'h222; // @[CSR.scala 356:28:freechips.rocketchip.system.DefaultRV32Config.fir@147750.4]
+  assign read_medeleg = reg_medeleg & 32'hb15d; // @[CSR.scala 360:28:freechips.rocketchip.system.DefaultRV32Config.fir@147753.4]
+  assign read_mcounteren = reg_mcounteren & 32'h7; // @[CSR.scala 376:30:freechips.rocketchip.system.DefaultRV32Config.fir@147762.4]
+  assign read_scounteren = reg_scounteren & 32'h7; // @[CSR.scala 380:28:freechips.rocketchip.system.DefaultRV32Config.fir@147765.4]
+  assign read_mip = _T_116 & 16'haaa; // @[CSR.scala 412:29:freechips.rocketchip.system.DefaultRV32Config.fir@147823.4]
+  assign _T_384 = {io_status_debug,io_status_cease,io_status_isa,io_status_dprv,io_status_prv,io_status_sd,io_status_zero2,io_status_sxl,_T_375,_T_368}; // @[CSR.scala 441:38:freechips.rocketchip.system.DefaultRV32Config.fir@148134.4]
+  assign read_mstatus = _T_384[31:0]; // @[CSR.scala 441:40:freechips.rocketchip.system.DefaultRV32Config.fir@148135.4]
+  assign _T_386 = _T_385 ? 7'h7e : 7'h2; // @[CSR.scala 1061:39:freechips.rocketchip.system.DefaultRV32Config.fir@148137.4]
+  assign read_mtvec = reg_mtvec & _T_389; // @[package.scala 131:35:freechips.rocketchip.system.DefaultRV32Config.fir@148141.4]
+  assign _T_391 = _T_390 ? 7'h7e : 7'h2; // @[CSR.scala 1061:39:freechips.rocketchip.system.DefaultRV32Config.fir@148143.4]
+  assign read_stvec = reg_stvec & _T_394; // @[package.scala 131:35:freechips.rocketchip.system.DefaultRV32Config.fir@148147.4]
+  assign read_fcsr = {{1'd0}, _T_434}; // @[CSR.scala 465:78:freechips.rocketchip.system.DefaultRV32Config.fir@148189.4]
+
+  assign _T_1483 = read_medeleg >> cause_lsbs; // @[CSR.scala 625:120:freechips.rocketchip.system.DefaultRV32Config.fir@149322.4]
+  assign _T_1481 = read_mideleg >> cause_lsbs; // @[CSR.scala 625:94:freechips.rocketchip.system.DefaultRV32Config.fir@149320.4]
+  assign _T_1485 = _T_1460 ? _T_1482 : _T_1484; // @[CSR.scala 625:66:freechips.rocketchip.system.DefaultRV32Config.fir@149324.4]
+  assign delegate = _T_1478 & _T_1485; // @[CSR.scala 625:60:freechips.rocketchip.system.DefaultRV32Config.fir@149325.4]
+
+  assign _GEN_42 = _T_1547 ? 2'h3 : reg_mstatus_prv; // @[CSR.scala 670:25:freechips.rocketchip.system.DefaultRV32Config.fir@149434.8]
+  assign _GEN_61 = trapToDebug ? _GEN_42 : _GEN_50; // @[CSR.scala 669:24:freechips.rocketchip.system.DefaultRV32Config.fir@149432.6]
+  assign _GEN_102 = _T_1872 ? {{1'd0}, reg_mstatus_spp} : _GEN_93; // @[CSR.scala 718:44:freechips.rocketchip.system.DefaultRV32Config.fir@149791.6]
+  assign new_prv = insn_ret ? _GEN_102 : _GEN_79; // @[CSR.scala 717:19:freechips.rocketchip.system.DefaultRV32Config.fir@149787.4]
+
+  assign mip_seip = reg_mip_seip | io_interrupts_seip; // @[CSR.scala 410:57:freechips.rocketchip.system.DefaultRV32Config.fir@147805.4]
+
+  assign pending_interrupts = _GEN_497 & reg_mie; // @[CSR.scala 415:56:freechips.rocketchip.system.DefaultRV32Config.fir@147824.4]
+
+  assign d_interrupts = {io_interrupts_debug, 14'h0}; // @[CSR.scala 416:42:freechips.rocketchip.system.DefaultRV32Config.fir@147826.4]
+  assign m_interrupts = _T_119 ? _T_122 : 32'h0; // @[CSR.scala 417:25:freechips.rocketchip.system.DefaultRV32Config.fir@147832.4]
+  assign s_interrupts = _T_126 ? _T_127 : 32'h0; // @[CSR.scala 418:25:freechips.rocketchip.system.DefaultRV32Config.fir@147838.4]
+
+  assign anyInterrupt = _T_201 | _T_165; // @[CSR.scala 1032:90:freechips.rocketchip.system.DefaultRV32Config.fir@147913.4]
+
+  assign whichInterrupt = _T_128 ? 4'he : _T_275; // @[Mux.scala 47:69:freechips.rocketchip.system.DefaultRV32Config.fir@147988.4]
+
+  assign _T_884 = _T_883 ? io_rw_rdata : 32'h0; // @[CSR.scala 1038:9:freechips.rocketchip.system.DefaultRV32Config.fir@148700.4]
+  assign _T_888 = _T_887 ? io_rw_wdata : 32'h0; // @[CSR.scala 1038:49:freechips.rocketchip.system.DefaultRV32Config.fir@148704.4]
+  assign wdata = _T_885 & _T_889; // @[CSR.scala 1038:43:freechips.rocketchip.system.DefaultRV32Config.fir@148706.4]
+
+  assign insn_cease = system_insn & _T_904; // @[CSR.scala 581:95:freechips.rocketchip.system.DefaultRV32Config.fir@148737.4]
+  assign insn_wfi = system_insn & _T_907; // @[CSR.scala 581:95:freechips.rocketchip.system.DefaultRV32Config.fir@148739.4]
+
+  assign _T_1477 = insn_break ? 12'h800 : 12'h808; // @[CSR.scala 624:37:freechips.rocketchip.system.DefaultRV32Config.fir@149315.4]
+  assign debugTVec = reg_debug ? _T_1477 : 12'h800; // @[CSR.scala 624:22:freechips.rocketchip.system.DefaultRV32Config.fir@149316.4]
+  assign _T_1486 = delegate ? read_stvec : read_mtvec; // @[CSR.scala 632:19:freechips.rocketchip.system.DefaultRV32Config.fir@149326.4]
+  assign notDebugTVec = _T_1496 ? _T_1490 : _T_1498; // @[CSR.scala 636:8:freechips.rocketchip.system.DefaultRV32Config.fir@149339.4]
+  assign tvec = trapToDebug ? {{20'd0}, debugTVec} : notDebugTVec; // @[CSR.scala 638:17:freechips.rocketchip.system.DefaultRV32Config.fir@149340.4]
+
+  assign epc = ~ _T_1546; // @[CSR.scala 1059:26:freechips.rocketchip.system.DefaultRV32Config.fir@149427.4]
+
+  assign csr_wen = _T_4825 | _T_2315; // @[package.scala 64:59:freechips.rocketchip.system.DefaultRV32Config.fir@153631.4]
+
+  assign sel_tdata1 = io_rw_addr == 12'h7a1; // @[CSR.scala 566:73:freechips.rocketchip.system.DefaultRV32Config.fir@148491.4]
+  assign sel_tdata2 = io_rw_addr == 12'h7a2; // @[CSR.scala 566:73:freechips.rocketchip.system.DefaultRV32Config.fir@148492.4]
+  assign sel_misa = io_rw_addr == 12'h301; // @[CSR.scala 566:73:freechips.rocketchip.system.DefaultRV32Config.fir@148493.4]
+  assign sel_mstatus = io_rw_addr == 12'h300; // @[CSR.scala 566:73:freechips.rocketchip.system.DefaultRV32Config.fir@148494.4]
+  assign sel_mtvec = io_rw_addr == 12'h305; // @[CSR.scala 566:73:freechips.rocketchip.system.DefaultRV32Config.fir@148495.4]
+  assign sel_mip = io_rw_addr == 12'h344; // @[CSR.scala 566:73:freechips.rocketchip.system.DefaultRV32Config.fir@148496.4]
+  assign sel_mie = io_rw_addr == 12'h304; // @[CSR.scala 566:73:freechips.rocketchip.system.DefaultRV32Config.fir@148497.4]
+  assign sel_mscratch = io_rw_addr == 12'h340; // @[CSR.scala 566:73:freechips.rocketchip.system.DefaultRV32Config.fir@148498.4]
+  assign sel_mepc = io_rw_addr == 12'h341; // @[CSR.scala 566:73:freechips.rocketchip.system.DefaultRV32Config.fir@148499.4]
+  assign sel_mtval = io_rw_addr == 12'h343; // @[CSR.scala 566:73:freechips.rocketchip.system.DefaultRV32Config.fir@148500.4]
+  assign sel_mcause = io_rw_addr == 12'h342; // @[CSR.scala 566:73:freechips.rocketchip.system.DefaultRV32Config.fir@148501.4]
+  assign sel_dcsr = io_rw_addr == 12'h7b0; // @[CSR.scala 566:73:freechips.rocketchip.system.DefaultRV32Config.fir@148503.4]
+  assign sel_dpc = io_rw_addr == 12'h7b1; // @[CSR.scala 566:73:freechips.rocketchip.system.DefaultRV32Config.fir@148504.4]
+  assign sel_dscratch = io_rw_addr == 12'h7b2; // @[CSR.scala 566:73:freechips.rocketchip.system.DefaultRV32Config.fir@148505.4]
+  assign sel_fflags = io_rw_addr == 12'h1; // @[CSR.scala 566:73:freechips.rocketchip.system.DefaultRV32Config.fir@148506.4]
+  assign sel_frm = io_rw_addr == 12'h2; // @[CSR.scala 566:73:freechips.rocketchip.system.DefaultRV32Config.fir@148507.4]
+  assign sel_fcsr = io_rw_addr == 12'h3; // @[CSR.scala 566:73:freechips.rocketchip.system.DefaultRV32Config.fir@148508.4]
+  assign sel_mcycle = io_rw_addr == 12'hb00; // @[CSR.scala 566:73:freechips.rocketchip.system.DefaultRV32Config.fir@148509.4]
+  assign sel_minstret = io_rw_addr == 12'hb02; // @[CSR.scala 566:73:freechips.rocketchip.system.DefaultRV32Config.fir@148510.4]
+  assign sel_mcounteren = io_rw_addr == 12'h306; // @[CSR.scala 566:73:freechips.rocketchip.system.DefaultRV32Config.fir@148656.4]
+  assign _T_841 = io_rw_addr == 12'hc00; // @[CSR.scala 566:73:freechips.rocketchip.system.DefaultRV32Config.fir@148657.4]
+  assign _T_842 = io_rw_addr == 12'hc02; // @[CSR.scala 566:73:freechips.rocketchip.system.DefaultRV32Config.fir@148658.4]
+  assign sel_mcycleh = io_rw_addr == 12'hb80; // @[CSR.scala 566:73:freechips.rocketchip.system.DefaultRV32Config.fir@148659.4]
+  assign sel_minstreth = io_rw_addr == 12'hb82; // @[CSR.scala 566:73:freechips.rocketchip.system.DefaultRV32Config.fir@148660.4]
+  assign _T_845 = io_rw_addr == 12'hc80; // @[CSR.scala 566:73:freechips.rocketchip.system.DefaultRV32Config.fir@148661.4]
+  assign _T_846 = io_rw_addr == 12'hc82; // @[CSR.scala 566:73:freechips.rocketchip.system.DefaultRV32Config.fir@148662.4]
+  assign sel_sstatus = io_rw_addr == 12'h100; // @[CSR.scala 566:73:freechips.rocketchip.system.DefaultRV32Config.fir@148663.4]
+  assign sel_sip = io_rw_addr == 12'h144; // @[CSR.scala 566:73:freechips.rocketchip.system.DefaultRV32Config.fir@148664.4]
+  assign sel_sie = io_rw_addr == 12'h104; // @[CSR.scala 566:73:freechips.rocketchip.system.DefaultRV32Config.fir@148665.4]
+  assign sel_sscratch = io_rw_addr == 12'h140; // @[CSR.scala 566:73:freechips.rocketchip.system.DefaultRV32Config.fir@148666.4]
+  assign sel_scause = io_rw_addr == 12'h142; // @[CSR.scala 566:73:freechips.rocketchip.system.DefaultRV32Config.fir@148667.4]
+  assign sel_stval = io_rw_addr == 12'h143; // @[CSR.scala 566:73:freechips.rocketchip.system.DefaultRV32Config.fir@148668.4]
+  assign sel_satp = io_rw_addr == 12'h180; // @[CSR.scala 566:73:freechips.rocketchip.system.DefaultRV32Config.fir@148669.4]
+  assign sel_sepc = io_rw_addr == 12'h141; // @[CSR.scala 566:73:freechips.rocketchip.system.DefaultRV32Config.fir@148670.4]
+  assign sel_stvec = io_rw_addr == 12'h105; // @[CSR.scala 566:73:freechips.rocketchip.system.DefaultRV32Config.fir@148671.4]
+  assign sel_scounteren = io_rw_addr == 12'h106; // @[CSR.scala 566:73:freechips.rocketchip.system.DefaultRV32Config.fir@148672.4]
+  assign sel_mideleg = io_rw_addr == 12'h303; // @[CSR.scala 566:73:freechips.rocketchip.system.DefaultRV32Config.fir@148673.4]
+  assign sel_medeleg = io_rw_addr == 12'h302; // @[CSR.scala 566:73:freechips.rocketchip.system.DefaultRV32Config.fir@148674.4]
+  assign sel_pmp_cfg_0 = io_rw_addr == 12'h3a0; // @[CSR.scala 566:73:freechips.rocketchip.system.DefaultRV32Config.fir@148675.4]
+  assign sel_pmp_cfg_1 = io_rw_addr == 12'h3a1; // @[CSR.scala 566:73:freechips.rocketchip.system.DefaultRV32Config.fir@148676.4]
+  assign sel_pmp_addr_0 = io_rw_addr == 12'h3b0; // @[CSR.scala 566:73:freechips.rocketchip.system.DefaultRV32Config.fir@148679.4]
+  assign sel_pmp_addr_1 = io_rw_addr == 12'h3b1; // @[CSR.scala 566:73:freechips.rocketchip.system.DefaultRV32Config.fir@148680.4]
+  assign sel_pmp_addr_2 = io_rw_addr == 12'h3b2; // @[CSR.scala 566:73:freechips.rocketchip.system.DefaultRV32Config.fir@148681.4]
+  assign sel_pmp_addr_3 = io_rw_addr == 12'h3b3; // @[CSR.scala 566:73:freechips.rocketchip.system.DefaultRV32Config.fir@148682.4]
+  assign sel_pmp_addr_4 = io_rw_addr == 12'h3b4; // @[CSR.scala 566:73:freechips.rocketchip.system.DefaultRV32Config.fir@148683.4]
+  assign sel_pmp_addr_5 = io_rw_addr == 12'h3b5; // @[CSR.scala 566:73:freechips.rocketchip.system.DefaultRV32Config.fir@148684.4]
+  assign sel_pmp_addr_6 = io_rw_addr == 12'h3b6; // @[CSR.scala 566:73:freechips.rocketchip.system.DefaultRV32Config.fir@148685.4]
+  assign sel_pmp_addr_7 = io_rw_addr == 12'h3b7; // @[CSR.scala 566:73:freechips.rocketchip.system.DefaultRV32Config.fir@148686.4]
+  assign _T_880 = io_rw_addr == 12'hf12; // @[CSR.scala 566:73:freechips.rocketchip.system.DefaultRV32Config.fir@148696.4]
+  assign _T_882 = io_rw_addr == 12'hf13; // @[CSR.scala 566:73:freechips.rocketchip.system.DefaultRV32Config.fir@148698.4]
+  assign _T_411 = _T_410 ? 2'h1 : 2'h3; // @[CSR.scala 1060:36:freechips.rocketchip.system.DefaultRV32Config.fir@148164.4]
+  assign _T_563 = {36'h0,2'h0,io_status_sd,29'h0,_T_554,_T_547}; // @[CSR.scala 529:57:freechips.rocketchip.system.DefaultRV32Config.fir@148364.4]
+  assign io_rw_rdata = _T_2311[31:0]; // @[CSR.scala 747:15:freechips.rocketchip.system.DefaultRV32Config.fir@150270.4]
+
+  assign io_decode_0_fp_illegal = _T_969 | _T_971; // @[CSR.scala 596:23:freechips.rocketchip.system.DefaultRV32Config.fir@148797.4]
+  assign io_decode_0_read_illegal = _T_1426 | _T_1429; // @[CSR.scala 600:25:freechips.rocketchip.system.DefaultRV32Config.fir@149259.4]
+  assign io_decode_0_fp_csr = _T_977 == 12'h0; // @[CSR.scala 598:19:freechips.rocketchip.system.DefaultRV32Config.fir@148807.4]
+  assign io_decode_0_write_illegal = _T_1431 == 2'h3; // @[CSR.scala 607:26:freechips.rocketchip.system.DefaultRV32Config.fir@149262.4]
+  assign io_decode_0_write_flush = _T_1439 == 1'h0; // @[CSR.scala 608:24:freechips.rocketchip.system.DefaultRV32Config.fir@149271.4]
+  assign io_decode_0_system_illegal = _T_1453 | _T_1455; // @[CSR.scala 609:27:freechips.rocketchip.system.DefaultRV32Config.fir@149288.4]
+
+  assign io_csr_stall = reg_wfi | io_status_cease; // @[CSR.scala 738:16:freechips.rocketchip.system.DefaultRV32Config.fir@149833.4]
+  assign io_eret = _T_1512 | insn_ret; // @[CSR.scala 641:11:freechips.rocketchip.system.DefaultRV32Config.fir@149345.4]
+  assign io_singleStep = reg_dcsr_step & _T_1547; // @[CSR.scala 642:17:freechips.rocketchip.system.DefaultRV32Config.fir@149348.4]
+  assign io_status_debug = reg_debug; // @[CSR.scala 643:13:freechips.rocketchip.system.DefaultRV32Config.fir@149349.4 CSR.scala 645:19:freechips.rocketchip.system.DefaultRV32Config.fir@149356.4]
+  assign io_status_cease = _T_1894; // @[CSR.scala 643:13:freechips.rocketchip.system.DefaultRV32Config.fir@149349.4 CSR.scala 739:19:freechips.rocketchip.system.DefaultRV32Config.fir@149838.4]
+  assign io_status_isa = reg_misa; // @[CSR.scala 643:13:freechips.rocketchip.system.DefaultRV32Config.fir@149349.4 CSR.scala 646:17:freechips.rocketchip.system.DefaultRV32Config.fir@149357.4]
+  assign io_status_dprv = _T_1511; // @[CSR.scala 643:13:freechips.rocketchip.system.DefaultRV32Config.fir@149349.4 CSR.scala 649:18:freechips.rocketchip.system.DefaultRV32Config.fir@149365.4]
+  assign io_status_prv = reg_mstatus_prv; // @[CSR.scala 643:13:freechips.rocketchip.system.DefaultRV32Config.fir@149349.4]
+  assign io_status_sd = _T_1505 | _T_1506; // @[CSR.scala 643:13:freechips.rocketchip.system.DefaultRV32Config.fir@149349.4 CSR.scala 644:16:freechips.rocketchip.system.DefaultRV32Config.fir@149355.4]
+  assign io_status_zero2 = 27'h0; // @[CSR.scala 643:13:freechips.rocketchip.system.DefaultRV32Config.fir@149349.4]
+  assign io_status_sxl = 2'h1; // @[CSR.scala 643:13:freechips.rocketchip.system.DefaultRV32Config.fir@149349.4 CSR.scala 648:17:freechips.rocketchip.system.DefaultRV32Config.fir@149359.4]
+  assign io_status_uxl = 2'h1; // @[CSR.scala 643:13:freechips.rocketchip.system.DefaultRV32Config.fir@149349.4 CSR.scala 647:17:freechips.rocketchip.system.DefaultRV32Config.fir@149358.4]
+  assign io_status_sd_rv32 = io_status_sd; // @[CSR.scala 643:13:freechips.rocketchip.system.DefaultRV32Config.fir@149349.4 CSR.scala 651:23:freechips.rocketchip.system.DefaultRV32Config.fir@149366.4]
+  assign io_status_zero1 = 6'h0; // @[CSR.scala 643:13:freechips.rocketchip.system.DefaultRV32Config.fir@149349.4]
+  assign io_status_vs = 2'h0; // @[CSR.scala 643:13:freechips.rocketchip.system.DefaultRV32Config.fir@149349.4]
+  assign io_status_tsr = reg_mstatus_tsr; // @[CSR.scala 643:13:freechips.rocketchip.system.DefaultRV32Config.fir@149349.4]
+  assign io_status_tw = reg_mstatus_tw; // @[CSR.scala 643:13:freechips.rocketchip.system.DefaultRV32Config.fir@149349.4]
+  assign io_status_tvm = reg_mstatus_tvm; // @[CSR.scala 643:13:freechips.rocketchip.system.DefaultRV32Config.fir@149349.4]
+  assign io_status_mxr = reg_mstatus_mxr; // @[CSR.scala 643:13:freechips.rocketchip.system.DefaultRV32Config.fir@149349.4]
+  assign io_status_sum = reg_mstatus_sum; // @[CSR.scala 643:13:freechips.rocketchip.system.DefaultRV32Config.fir@149349.4]
+  assign io_status_mprv = reg_mstatus_mprv; // @[CSR.scala 643:13:freechips.rocketchip.system.DefaultRV32Config.fir@149349.4]
+  assign io_status_xs = 2'h0; // @[CSR.scala 643:13:freechips.rocketchip.system.DefaultRV32Config.fir@149349.4]
+  assign io_status_fs = reg_mstatus_fs; // @[CSR.scala 643:13:freechips.rocketchip.system.DefaultRV32Config.fir@149349.4]
+  assign io_status_mpp = reg_mstatus_mpp; // @[CSR.scala 643:13:freechips.rocketchip.system.DefaultRV32Config.fir@149349.4]
+  assign io_status_hpp = 2'h0; // @[CSR.scala 643:13:freechips.rocketchip.system.DefaultRV32Config.fir@149349.4]
+  assign io_status_spp = reg_mstatus_spp; // @[CSR.scala 643:13:freechips.rocketchip.system.DefaultRV32Config.fir@149349.4]
+  assign io_status_mpie = reg_mstatus_mpie; // @[CSR.scala 643:13:freechips.rocketchip.system.DefaultRV32Config.fir@149349.4]
+  assign io_status_hpie = 1'h0; // @[CSR.scala 643:13:freechips.rocketchip.system.DefaultRV32Config.fir@149349.4]
+  assign io_status_spie = reg_mstatus_spie; // @[CSR.scala 643:13:freechips.rocketchip.system.DefaultRV32Config.fir@149349.4]
+  assign io_status_upie = 1'h0; // @[CSR.scala 643:13:freechips.rocketchip.system.DefaultRV32Config.fir@149349.4]
+  assign io_status_mie = reg_mstatus_mie; // @[CSR.scala 643:13:freechips.rocketchip.system.DefaultRV32Config.fir@149349.4]
+  assign io_status_hie = 1'h0; // @[CSR.scala 643:13:freechips.rocketchip.system.DefaultRV32Config.fir@149349.4]
+  assign io_status_sie = reg_mstatus_sie; // @[CSR.scala 643:13:freechips.rocketchip.system.DefaultRV32Config.fir@149349.4]
+  assign io_status_uie = 1'h0; // @[CSR.scala 643:13:freechips.rocketchip.system.DefaultRV32Config.fir@149349.4]
+
+  assign io_ptbr_mode = reg_satp_mode; // @[CSR.scala 640:11:freechips.rocketchip.system.DefaultRV32Config.fir@149342.4]
+  assign io_ptbr_ppn = reg_satp_ppn; // @[CSR.scala 640:11:freechips.rocketchip.system.DefaultRV32Config.fir@149342.4]
+
+  assign _GEN_103 = _T_1872 ? _T_571 : _GEN_95; // @[CSR.scala 718:44:freechips.rocketchip.system.DefaultRV32Config.fir@149791.6]
+  assign io_evec = insn_ret ? _GEN_103 : tvec; // @[CSR.scala 639:11:freechips.rocketchip.system.DefaultRV32Config.fir@149341.4 CSR.scala 723:15:freechips.rocketchip.system.DefaultRV32Config.fir@149801.8 CSR.scala 727:15:freechips.rocketchip.system.DefaultRV32Config.fir@149814.10 CSR.scala 733:15:freechips.rocketchip.system.DefaultRV32Config.fir@149828.10]
+
+  assign io_time = _T_100[31:0]; // @[CSR.scala 737:11:freechips.rocketchip.system.DefaultRV32Config.fir@149831.4]
+
+  assign io_fcsr_rm = reg_frm; // @[CSR.scala 774:14:freechips.rocketchip.system.DefaultRV32Config.fir@153621.4]
+
+  assign io_interrupt = _T_279 & _T_281; // @[CSR.scala 422:16:freechips.rocketchip.system.DefaultRV32Config.fir@147997.4]
+  assign io_interrupt_cause = 32'h80000000 + _GEN_498; // @[CSR.scala 423:22:freechips.rocketchip.system.DefaultRV32Config.fir@147998.4]
+
+  assign io_bp_0_control_action = reg_bp_0_control_action; // @[CSR.scala 424:9:freechips.rocketchip.system.DefaultRV32Config.fir@147999.4]
+  assign io_bp_0_control_tmatch = reg_bp_0_control_tmatch; // @[CSR.scala 424:9:freechips.rocketchip.system.DefaultRV32Config.fir@147999.4]
+  assign io_bp_0_control_m = reg_bp_0_control_m; // @[CSR.scala 424:9:freechips.rocketchip.system.DefaultRV32Config.fir@147999.4]
+  assign io_bp_0_control_s = reg_bp_0_control_s; // @[CSR.scala 424:9:freechips.rocketchip.system.DefaultRV32Config.fir@147999.4]
+  assign io_bp_0_control_u = reg_bp_0_control_u; // @[CSR.scala 424:9:freechips.rocketchip.system.DefaultRV32Config.fir@147999.4]
+  assign io_bp_0_control_x = reg_bp_0_control_x; // @[CSR.scala 424:9:freechips.rocketchip.system.DefaultRV32Config.fir@147999.4]
+  assign io_bp_0_control_w = reg_bp_0_control_w; // @[CSR.scala 424:9:freechips.rocketchip.system.DefaultRV32Config.fir@147999.4]
+  assign io_bp_0_control_r = reg_bp_0_control_r; // @[CSR.scala 424:9:freechips.rocketchip.system.DefaultRV32Config.fir@147999.4]
+  assign io_bp_0_address = reg_bp_0_address; // @[CSR.scala 424:9:freechips.rocketchip.system.DefaultRV32Config.fir@147999.4]
+  assign io_pmp_0_cfg_l = reg_pmp_0_cfg_l; // @[CSR.scala 425:10:freechips.rocketchip.system.DefaultRV32Config.fir@148096.4]
+  assign io_pmp_0_cfg_a = reg_pmp_0_cfg_a; // @[CSR.scala 425:10:freechips.rocketchip.system.DefaultRV32Config.fir@148096.4]
+  assign io_pmp_0_cfg_x = reg_pmp_0_cfg_x; // @[CSR.scala 425:10:freechips.rocketchip.system.DefaultRV32Config.fir@148096.4]
+  assign io_pmp_0_cfg_w = reg_pmp_0_cfg_w; // @[CSR.scala 425:10:freechips.rocketchip.system.DefaultRV32Config.fir@148096.4]
+  assign io_pmp_0_cfg_r = reg_pmp_0_cfg_r; // @[CSR.scala 425:10:freechips.rocketchip.system.DefaultRV32Config.fir@148096.4]
+  assign io_pmp_0_addr = reg_pmp_0_addr; // @[CSR.scala 425:10:freechips.rocketchip.system.DefaultRV32Config.fir@148096.4]
+  assign io_pmp_0_mask = _T_291[31:0]; // @[CSR.scala 425:10:freechips.rocketchip.system.DefaultRV32Config.fir@148096.4]
+  assign io_pmp_1_cfg_l = reg_pmp_1_cfg_l; // @[CSR.scala 425:10:freechips.rocketchip.system.DefaultRV32Config.fir@148097.4]
+  assign io_pmp_1_cfg_a = reg_pmp_1_cfg_a; // @[CSR.scala 425:10:freechips.rocketchip.system.DefaultRV32Config.fir@148097.4]
+  assign io_pmp_1_cfg_x = reg_pmp_1_cfg_x; // @[CSR.scala 425:10:freechips.rocketchip.system.DefaultRV32Config.fir@148097.4]
+  assign io_pmp_1_cfg_w = reg_pmp_1_cfg_w; // @[CSR.scala 425:10:freechips.rocketchip.system.DefaultRV32Config.fir@148097.4]
+  assign io_pmp_1_cfg_r = reg_pmp_1_cfg_r; // @[CSR.scala 425:10:freechips.rocketchip.system.DefaultRV32Config.fir@148097.4]
+  assign io_pmp_1_addr = reg_pmp_1_addr; // @[CSR.scala 425:10:freechips.rocketchip.system.DefaultRV32Config.fir@148097.4]
+  assign io_pmp_1_mask = _T_300[31:0]; // @[CSR.scala 425:10:freechips.rocketchip.system.DefaultRV32Config.fir@148097.4]
+  assign io_pmp_2_cfg_l = reg_pmp_2_cfg_l; // @[CSR.scala 425:10:freechips.rocketchip.system.DefaultRV32Config.fir@148098.4]
+  assign io_pmp_2_cfg_a = reg_pmp_2_cfg_a; // @[CSR.scala 425:10:freechips.rocketchip.system.DefaultRV32Config.fir@148098.4]
+  assign io_pmp_2_cfg_x = reg_pmp_2_cfg_x; // @[CSR.scala 425:10:freechips.rocketchip.system.DefaultRV32Config.fir@148098.4]
+  assign io_pmp_2_cfg_w = reg_pmp_2_cfg_w; // @[CSR.scala 425:10:freechips.rocketchip.system.DefaultRV32Config.fir@148098.4]
+  assign io_pmp_2_cfg_r = reg_pmp_2_cfg_r; // @[CSR.scala 425:10:freechips.rocketchip.system.DefaultRV32Config.fir@148098.4]
+  assign io_pmp_2_addr = reg_pmp_2_addr; // @[CSR.scala 425:10:freechips.rocketchip.system.DefaultRV32Config.fir@148098.4]
+  assign io_pmp_2_mask = _T_309[31:0]; // @[CSR.scala 425:10:freechips.rocketchip.system.DefaultRV32Config.fir@148098.4]
+  assign io_pmp_3_cfg_l = reg_pmp_3_cfg_l; // @[CSR.scala 425:10:freechips.rocketchip.system.DefaultRV32Config.fir@148099.4]
+  assign io_pmp_3_cfg_a = reg_pmp_3_cfg_a; // @[CSR.scala 425:10:freechips.rocketchip.system.DefaultRV32Config.fir@148099.4]
+  assign io_pmp_3_cfg_x = reg_pmp_3_cfg_x; // @[CSR.scala 425:10:freechips.rocketchip.system.DefaultRV32Config.fir@148099.4]
+  assign io_pmp_3_cfg_w = reg_pmp_3_cfg_w; // @[CSR.scala 425:10:freechips.rocketchip.system.DefaultRV32Config.fir@148099.4]
+  assign io_pmp_3_cfg_r = reg_pmp_3_cfg_r; // @[CSR.scala 425:10:freechips.rocketchip.system.DefaultRV32Config.fir@148099.4]
+  assign io_pmp_3_addr = reg_pmp_3_addr; // @[CSR.scala 425:10:freechips.rocketchip.system.DefaultRV32Config.fir@148099.4]
+  assign io_pmp_3_mask = _T_318[31:0]; // @[CSR.scala 425:10:freechips.rocketchip.system.DefaultRV32Config.fir@148099.4]
+  assign io_pmp_4_cfg_l = reg_pmp_4_cfg_l; // @[CSR.scala 425:10:freechips.rocketchip.system.DefaultRV32Config.fir@148100.4]
+  assign io_pmp_4_cfg_a = reg_pmp_4_cfg_a; // @[CSR.scala 425:10:freechips.rocketchip.system.DefaultRV32Config.fir@148100.4]
+  assign io_pmp_4_cfg_x = reg_pmp_4_cfg_x; // @[CSR.scala 425:10:freechips.rocketchip.system.DefaultRV32Config.fir@148100.4]
+  assign io_pmp_4_cfg_w = reg_pmp_4_cfg_w; // @[CSR.scala 425:10:freechips.rocketchip.system.DefaultRV32Config.fir@148100.4]
+  assign io_pmp_4_cfg_r = reg_pmp_4_cfg_r; // @[CSR.scala 425:10:freechips.rocketchip.system.DefaultRV32Config.fir@148100.4]
+  assign io_pmp_4_addr = reg_pmp_4_addr; // @[CSR.scala 425:10:freechips.rocketchip.system.DefaultRV32Config.fir@148100.4]
+  assign io_pmp_4_mask = _T_327[31:0]; // @[CSR.scala 425:10:freechips.rocketchip.system.DefaultRV32Config.fir@148100.4]
+  assign io_pmp_5_cfg_l = reg_pmp_5_cfg_l; // @[CSR.scala 425:10:freechips.rocketchip.system.DefaultRV32Config.fir@148101.4]
+  assign io_pmp_5_cfg_a = reg_pmp_5_cfg_a; // @[CSR.scala 425:10:freechips.rocketchip.system.DefaultRV32Config.fir@148101.4]
+  assign io_pmp_5_cfg_x = reg_pmp_5_cfg_x; // @[CSR.scala 425:10:freechips.rocketchip.system.DefaultRV32Config.fir@148101.4]
+  assign io_pmp_5_cfg_w = reg_pmp_5_cfg_w; // @[CSR.scala 425:10:freechips.rocketchip.system.DefaultRV32Config.fir@148101.4]
+  assign io_pmp_5_cfg_r = reg_pmp_5_cfg_r; // @[CSR.scala 425:10:freechips.rocketchip.system.DefaultRV32Config.fir@148101.4]
+  assign io_pmp_5_addr = reg_pmp_5_addr; // @[CSR.scala 425:10:freechips.rocketchip.system.DefaultRV32Config.fir@148101.4]
+  assign io_pmp_5_mask = _T_336[31:0]; // @[CSR.scala 425:10:freechips.rocketchip.system.DefaultRV32Config.fir@148101.4]
+  assign io_pmp_6_cfg_l = reg_pmp_6_cfg_l; // @[CSR.scala 425:10:freechips.rocketchip.system.DefaultRV32Config.fir@148102.4]
+  assign io_pmp_6_cfg_a = reg_pmp_6_cfg_a; // @[CSR.scala 425:10:freechips.rocketchip.system.DefaultRV32Config.fir@148102.4]
+  assign io_pmp_6_cfg_x = reg_pmp_6_cfg_x; // @[CSR.scala 425:10:freechips.rocketchip.system.DefaultRV32Config.fir@148102.4]
+  assign io_pmp_6_cfg_w = reg_pmp_6_cfg_w; // @[CSR.scala 425:10:freechips.rocketchip.system.DefaultRV32Config.fir@148102.4]
+  assign io_pmp_6_cfg_r = reg_pmp_6_cfg_r; // @[CSR.scala 425:10:freechips.rocketchip.system.DefaultRV32Config.fir@148102.4]
+  assign io_pmp_6_addr = reg_pmp_6_addr; // @[CSR.scala 425:10:freechips.rocketchip.system.DefaultRV32Config.fir@148102.4]
+  assign io_pmp_6_mask = _T_345[31:0]; // @[CSR.scala 425:10:freechips.rocketchip.system.DefaultRV32Config.fir@148102.4]
+  assign io_pmp_7_cfg_l = reg_pmp_7_cfg_l; // @[CSR.scala 425:10:freechips.rocketchip.system.DefaultRV32Config.fir@148103.4]
+  assign io_pmp_7_cfg_a = reg_pmp_7_cfg_a; // @[CSR.scala 425:10:freechips.rocketchip.system.DefaultRV32Config.fir@148103.4]
+  assign io_pmp_7_cfg_x = reg_pmp_7_cfg_x; // @[CSR.scala 425:10:freechips.rocketchip.system.DefaultRV32Config.fir@148103.4]
+  assign io_pmp_7_cfg_w = reg_pmp_7_cfg_w; // @[CSR.scala 425:10:freechips.rocketchip.system.DefaultRV32Config.fir@148103.4]
+  assign io_pmp_7_cfg_r = reg_pmp_7_cfg_r; // @[CSR.scala 425:10:freechips.rocketchip.system.DefaultRV32Config.fir@148103.4]
+  assign io_pmp_7_addr = reg_pmp_7_addr; // @[CSR.scala 425:10:freechips.rocketchip.system.DefaultRV32Config.fir@148103.4]
+  assign io_pmp_7_mask = _T_354[31:0]; // @[CSR.scala 425:10:freechips.rocketchip.system.DefaultRV32Config.fir@148103.4]
+
+  assign io_trace_0_valid = _T_5401 | io_trace_0_exception; // @[CSR.scala 1017:13:freechips.rocketchip.system.DefaultRV32Config.fir@154817.4]
+  assign io_trace_0_iaddr = io_pc; // @[CSR.scala 1019:13:freechips.rocketchip.system.DefaultRV32Config.fir@154819.4]
+  assign io_trace_0_insn = io_inst_0; // @[CSR.scala 1018:12:freechips.rocketchip.system.DefaultRV32Config.fir@154818.4]
+  assign io_trace_0_exception = _T_1512 | io_exception; // @[CSR.scala 1016:17:freechips.rocketchip.system.DefaultRV32Config.fir@154814.4]
+
+always @(posedge clock) begin
+    if (reset) begin
+      reg_mstatus_prv <= 2'h3;
+    end else begin
+      if (_T_33) begin
+        reg_mstatus_prv <= 2'h0;
+      end else begin
+        if (insn_ret) begin
+          if (_T_1872) begin
+            reg_mstatus_prv <= {{1'd0}, reg_mstatus_spp};
+          end else begin
+            if (_T_1879) begin
+              reg_mstatus_prv <= reg_dcsr_prv;
+            end else begin
+              reg_mstatus_prv <= reg_mstatus_mpp;
+            end
+          end
+        end else begin
+          if (exception) begin
+            if (trapToDebug) begin
+              if (_T_1547) begin
+                reg_mstatus_prv <= 2'h3;
+              end
+            end else begin
+              if (delegate) begin
+                reg_mstatus_prv <= 2'h1;
+              end else begin
+                reg_mstatus_prv <= 2'h3;
+              end
+            end
+          end
+        end
+      end
+    end
+    if (reset) begin
+      reg_mstatus_tsr <= 1'h0;
+    end else begin
+      if (csr_wen) begin
+        if (sel_mstatus) begin
+          reg_mstatus_tsr <= _T_4858;
+        end
+      end
+    end
+    if (reset) begin
+      reg_mstatus_tw <= 1'h0;
+    end else begin
+      if (csr_wen) begin
+        if (sel_mstatus) begin
+          reg_mstatus_tw <= _T_4857;
+        end
+      end
+    end
+    if (reset) begin
+      reg_mstatus_tvm <= 1'h0;
+    end else begin
+      if (csr_wen) begin
+        if (sel_mstatus) begin
+          reg_mstatus_tvm <= _T_4856;
+        end
+      end
+    end
+    if (reset) begin
+      reg_mstatus_mxr <= 1'h0;
+    end else begin
+      if (csr_wen) begin
+        if (sel_sstatus) begin
+          reg_mstatus_mxr <= _T_4855;
+        end else begin
+          if (sel_mstatus) begin
+            reg_mstatus_mxr <= _T_4855;
+          end
+        end
+      end
+    end
+    if (reset) begin
+      reg_mstatus_sum <= 1'h0;
+    end else begin
+      if (csr_wen) begin
+        if (sel_sstatus) begin
+          reg_mstatus_sum <= _T_4854;
+        end else begin
+          if (sel_mstatus) begin
+            reg_mstatus_sum <= _T_4854;
+          end
+        end
+      end
+    end
+    if (reset) begin
+      reg_mstatus_mprv <= 1'h0;
+    end else begin
+      if (csr_wen) begin
+        if (sel_mstatus) begin
+          reg_mstatus_mprv <= _T_4853;
+        end
+      end
+    end
+    if (reset) begin
+      reg_mstatus_fs <= 2'h0;
+    end else begin
+      if (csr_wen) begin
+        if (sel_sstatus) begin
+          if (_T_4873) begin
+            reg_mstatus_fs <= 2'h3;
+          end else begin
+            reg_mstatus_fs <= 2'h0;
+          end
+        end else begin
+          if (sel_mstatus) begin
+            if (_T_4873) begin
+              reg_mstatus_fs <= 2'h3;
+            end else begin
+              reg_mstatus_fs <= 2'h0;
+            end
+          end
+        end
+      end
+    end
+    if (reset) begin
+      reg_mstatus_mpp <= 2'h3;
+    end else begin
+      if (csr_wen) begin
+        if (sel_mstatus) begin
+          if (_T_4871) begin
+            reg_mstatus_mpp <= 2'h0;
+          end else begin
+            reg_mstatus_mpp <= _T_4850;
+          end
+        end else begin
+          if (insn_ret) begin
+            if (_T_1872) begin
+              if (exception) begin
+                if (!(trapToDebug)) begin
+                  if (!(delegate)) begin
+                    reg_mstatus_mpp <= reg_mstatus_prv;
+                  end
+                end
+              end
+            end else begin
+              if (_T_1879) begin
+                if (exception) begin
+                  if (!(trapToDebug)) begin
+                    if (!(delegate)) begin
+                      reg_mstatus_mpp <= reg_mstatus_prv;
+                    end
+                  end
+                end
+              end else begin
+                reg_mstatus_mpp <= 2'h0;
+              end
+            end
+          end else begin
+            if (exception) begin
+              if (!(trapToDebug)) begin
+                if (!(delegate)) begin
+                  reg_mstatus_mpp <= reg_mstatus_prv;
+                end
+              end
+            end
+          end
+        end
+      end else begin
+        if (insn_ret) begin
+          if (_T_1872) begin
+            if (exception) begin
+              if (!(trapToDebug)) begin
+                if (!(delegate)) begin
+                  reg_mstatus_mpp <= reg_mstatus_prv;
+                end
+              end
+            end
+          end else begin
+            if (_T_1879) begin
+              reg_mstatus_mpp <= _GEN_91;
+            end else begin
+              reg_mstatus_mpp <= 2'h0;
+            end
+          end
+        end else begin
+          reg_mstatus_mpp <= _GEN_91;
+        end
+      end
+    end
+    if (reset) begin
+      reg_mstatus_spp <= 1'h0;
+    end else begin
+      reg_mstatus_spp <= _GEN_326[0];
+    end
+    if (reset) begin
+      reg_mstatus_mpie <= 1'h0;
+    end else begin
+      if (csr_wen) begin
+        if (sel_mstatus) begin
+          reg_mstatus_mpie <= _T_4847;
+        end else begin
+          if (insn_ret) begin
+            if (_T_1872) begin
+              if (exception) begin
+                if (!(trapToDebug)) begin
+                  if (!(delegate)) begin
+                    reg_mstatus_mpie <= reg_mstatus_mie;
+                  end
+                end
+              end
+            end else begin
+              if (_T_1879) begin
+                if (exception) begin
+                  if (!(trapToDebug)) begin
+                    if (!(delegate)) begin
+                      reg_mstatus_mpie <= reg_mstatus_mie;
+                    end
+                  end
+                end
+              end else begin
+                reg_mstatus_mpie <= 1'h1;
+              end
+            end
+          end else begin
+            if (exception) begin
+              if (!(trapToDebug)) begin
+                if (!(delegate)) begin
+                  reg_mstatus_mpie <= reg_mstatus_mie;
+                end
+              end
+            end
+          end
+        end
+      end else begin
+        if (insn_ret) begin
+          if (_T_1872) begin
+            if (exception) begin
+              if (!(trapToDebug)) begin
+                if (!(delegate)) begin
+                  reg_mstatus_mpie <= reg_mstatus_mie;
+                end
+              end
+            end
+          end else begin
+            if (_T_1879) begin
+              reg_mstatus_mpie <= _GEN_90;
+            end else begin
+              reg_mstatus_mpie <= 1'h1;
+            end
+          end
+        end else begin
+          reg_mstatus_mpie <= _GEN_90;
+        end
+      end
+    end
+    if (reset) begin
+      reg_mstatus_spie <= 1'h0;
+    end else begin
+      if (csr_wen) begin
+        if (sel_sstatus) begin
+          reg_mstatus_spie <= _T_4845;
+        end else begin
+          if (sel_mstatus) begin
+            reg_mstatus_spie <= _T_4845;
+          end else begin
+            if (insn_ret) begin
+              reg_mstatus_spie <= _GEN_100;
+            end else begin
+              if (exception) begin
+                if (!(trapToDebug)) begin
+                  if (delegate) begin
+                    reg_mstatus_spie <= reg_mstatus_sie;
+                  end
+                end
+              end
+            end
+          end
+        end
+      end else begin
+        if (insn_ret) begin
+          reg_mstatus_spie <= _GEN_100;
+        end else begin
+          if (exception) begin
+            if (!(trapToDebug)) begin
+              if (delegate) begin
+                reg_mstatus_spie <= reg_mstatus_sie;
+              end
+            end
+          end
+        end
+      end
+    end
+    if (reset) begin
+      reg_mstatus_mie <= 1'h0;
+    end else begin
+      if (csr_wen) begin
+        if (sel_mstatus) begin
+          reg_mstatus_mie <= _T_4843;
+        end else begin
+          if (insn_ret) begin
+            if (_T_1872) begin
+              if (exception) begin
+                if (!(trapToDebug)) begin
+                  reg_mstatus_mie <= _GEN_56;
+                end
+              end
+            end else begin
+              if (_T_1879) begin
+                if (exception) begin
+                  if (!(trapToDebug)) begin
+                    reg_mstatus_mie <= _GEN_56;
+                  end
+                end
+              end else begin
+                reg_mstatus_mie <= reg_mstatus_mpie;
+              end
+            end
+          end else begin
+            if (exception) begin
+              if (!(trapToDebug)) begin
+                reg_mstatus_mie <= _GEN_56;
+              end
+            end
+          end
+        end
+      end else begin
+        if (insn_ret) begin
+          if (_T_1872) begin
+            if (exception) begin
+              if (!(trapToDebug)) begin
+                reg_mstatus_mie <= _GEN_56;
+              end
+            end
+          end else begin
+            if (_T_1879) begin
+              reg_mstatus_mie <= _GEN_92;
+            end else begin
+              reg_mstatus_mie <= reg_mstatus_mpie;
+            end
+          end
+        end else begin
+          reg_mstatus_mie <= _GEN_92;
+        end
+      end
+    end
+    if (reset) begin
+      reg_mstatus_sie <= 1'h0;
+    end else begin
+      if (csr_wen) begin
+        if (sel_sstatus) begin
+          reg_mstatus_sie <= _T_4841;
+        end else begin
+          if (sel_mstatus) begin
+            reg_mstatus_sie <= _T_4841;
+          end else begin
+            if (insn_ret) begin
+              if (_T_1872) begin
+                reg_mstatus_sie <= reg_mstatus_spie;
+              end else begin
+                if (exception) begin
+                  if (!(trapToDebug)) begin
+                    if (delegate) begin
+                      reg_mstatus_sie <= 1'h0;
+                    end
+                  end
+                end
+              end
+            end else begin
+              if (exception) begin
+                if (!(trapToDebug)) begin
+                  if (delegate) begin
+                    reg_mstatus_sie <= 1'h0;
+                  end
+                end
+              end
+            end
+          end
+        end
+      end else begin
+        if (insn_ret) begin
+          if (_T_1872) begin
+            reg_mstatus_sie <= reg_mstatus_spie;
+          end else begin
+            if (exception) begin
+              if (!(trapToDebug)) begin
+                if (delegate) begin
+                  reg_mstatus_sie <= 1'h0;
+                end
+              end
+            end
+          end
+        end else begin
+          if (exception) begin
+            if (!(trapToDebug)) begin
+              if (delegate) begin
+                reg_mstatus_sie <= 1'h0;
+              end
+            end
+          end
+        end
+      end
+    end
+    if (reset) begin
+      reg_dcsr_prv <= 2'h3;
+    end else begin
+      if (csr_wen) begin
+        if (sel_dcsr) begin
+          if (_T_4969) begin
+            reg_dcsr_prv <= 2'h0;
+          end else begin
+            reg_dcsr_prv <= _T_4955;
+          end
+        end else begin
+          if (exception) begin
+            if (trapToDebug) begin
+              if (_T_1547) begin
+                reg_dcsr_prv <= reg_mstatus_prv;
+              end
+            end
+          end
+        end
+      end else begin
+        if (exception) begin
+          if (trapToDebug) begin
+            if (_T_1547) begin
+              reg_dcsr_prv <= reg_mstatus_prv;
+            end
+          end
+        end
+      end
+    end
+    if (reset) begin
+      reg_dcsr_ebreakm <= 1'h0;
+    end else begin
+      if (csr_wen) begin
+        if (sel_dcsr) begin
+          reg_dcsr_ebreakm <= _T_4965;
+        end
+      end
+    end
+    if (reset) begin
+      reg_dcsr_ebreaks <= 1'h0;
+    end else begin
+      if (csr_wen) begin
+        if (sel_dcsr) begin
+          reg_dcsr_ebreaks <= _T_4963;
+        end
+      end
+    end
+    if (reset) begin
+      reg_dcsr_ebreaku <= 1'h0;
+    end else begin
+      if (csr_wen) begin
+        if (sel_dcsr) begin
+          reg_dcsr_ebreaku <= _T_4962;
+        end
+      end
+    end
+    if (reset) begin
+      reg_dcsr_cause <= 3'h0;
+    end else begin
+      if (exception) begin
+        if (trapToDebug) begin
+          if (_T_1547) begin
+            if (reg_singleStepped) begin
+              reg_dcsr_cause <= 3'h4;
+            end else begin
+              reg_dcsr_cause <= {{1'd0}, _T_1549};
+            end
+          end
+        end
+      end
+    end
+    if (reset) begin
+      reg_dcsr_step <= 1'h0;
+    end else begin
+      if (csr_wen) begin
+        if (sel_dcsr) begin
+          reg_dcsr_step <= _T_4880;
+        end
+      end
+    end
+    if (reset) begin
+      reg_debug <= 1'h0;
+    end else begin
+      if (insn_ret) begin
+        if (_T_1872) begin
+          if (exception) begin
+            if (trapToDebug) begin
+              reg_debug <= _GEN_38;
+            end
+          end
+        end else begin
+          if (_T_1879) begin
+            reg_debug <= 1'h0;
+          end else begin
+            if (exception) begin
+              if (trapToDebug) begin
+                reg_debug <= _GEN_38;
+              end
+            end
+          end
+        end
+      end else begin
+        if (exception) begin
+          if (trapToDebug) begin
+            reg_debug <= _GEN_38;
+          end
+        end
+      end
+    end
+    if (reset) begin
+      reg_misa <= 32'h40941125;
+    end else begin
+      if (csr_wen) begin
+        if (sel_misa) begin
+          if (_T_4881) begin
+            reg_misa <= _T_4890;
+          end
+        end
+      end
+    end
+    if (_T_277) begin
+      reg_singleStepped <= 1'h0;
+    end else begin
+      reg_singleStepped <= _GEN_36;
+    end
+    if (csr_wen) begin
+      if (sel_satp) begin
+        if (_T_5039) begin
+          reg_satp_mode <= _T_5036;
+        end
+      end
+    end
+    if (csr_wen) begin
+      if (sel_satp) begin
+        if (_T_5039) begin
+          reg_satp_ppn <= {{2'd0}, _T_5041};
+        end
+      end
+    end
+    if (reset) begin
+      reg_bp_0_control_dmode <= 1'h0;
+    end else begin
+      if (csr_wen) begin
+        if (_T_5053) begin
+          if (sel_tdata1) begin
+            reg_bp_0_control_dmode <= _T_5111;
+          end
+        end
+      end
+    end
+    if (reset) begin
+      reg_bp_0_control_action <= 1'h0;
+    end else begin
+      if (csr_wen) begin
+        if (_T_5053) begin
+          if (sel_tdata1) begin
+            reg_bp_0_control_action <= _GEN_191;
+          end
+        end
+      end
+    end
+    if (csr_wen) begin
+      if (_T_5053) begin
+        if (sel_tdata1) begin
+          reg_bp_0_control_tmatch <= _T_5064;
+        end
+      end
+    end
+    if (csr_wen) begin
+      if (_T_5053) begin
+        if (sel_tdata1) begin
+          reg_bp_0_control_m <= _T_5063;
+        end
+      end
+    end
+    if (csr_wen) begin
+      if (_T_5053) begin
+        if (sel_tdata1) begin
+          reg_bp_0_control_s <= _T_5061;
+        end
+      end
+    end
+    if (csr_wen) begin
+      if (_T_5053) begin
+        if (sel_tdata1) begin
+          reg_bp_0_control_u <= _T_5060;
+        end
+      end
+    end
+    if (reset) begin
+      reg_bp_0_control_x <= 1'h0;
+    end else begin
+      if (csr_wen) begin
+        if (_T_5053) begin
+          if (sel_tdata1) begin
+            reg_bp_0_control_x <= _T_4880;
+          end
+        end
+      end
+    end
+    if (reset) begin
+      reg_bp_0_control_w <= 1'h0;
+    end else begin
+      if (csr_wen) begin
+        if (_T_5053) begin
+          if (sel_tdata1) begin
+            reg_bp_0_control_w <= _T_5058;
+          end
+        end
+      end
+    end
+    if (reset) begin
+      reg_bp_0_control_r <= 1'h0;
+    end else begin
+      if (csr_wen) begin
+        if (_T_5053) begin
+          if (sel_tdata1) begin
+            reg_bp_0_control_r <= _T_5057;
+          end
+        end
+      end
+    end
+    if (csr_wen) begin
+      if (_T_5053) begin
+        if (sel_tdata2) begin
+          reg_bp_0_address <= wdata;
+        end
+      end
+    end
+    if (reset) begin
+      reg_mtvec <= 32'h0;
+    end else begin
+      if (csr_wen) begin
+        if (sel_mtvec) begin
+          reg_mtvec <= wdata;
+        end
+      end
+    end
+    if (csr_wen) begin
+      if (sel_stvec) begin
+        reg_stvec <= wdata;
+      end
+    end
+    if (csr_wen) begin
+      if (sel_sie) begin
+        reg_mie <= _T_5045;
+      end else begin
+        if (sel_mie) begin
+          reg_mie <= _T_4932;
+        end
+      end
+    end
+    if (csr_wen) begin
+      if (sel_mscratch) begin
+        reg_mscratch <= wdata;
+      end
+    end
+    if (csr_wen) begin
+      if (sel_sscratch) begin
+        reg_sscratch <= wdata;
+      end
+    end
+    if (csr_wen) begin
+      if (sel_mcounteren) begin
+        reg_mcounteren <= wdata;
+      end
+    end
+    if (csr_wen) begin
+      if (sel_scounteren) begin
+        reg_scounteren <= wdata;
+      end
+    end
+    if (csr_wen) begin
+      if (sel_mip) begin
+        reg_mip_seip <= _T_4925;
+      end
+    end
+    if (csr_wen) begin
+      if (sel_mip) begin
+        reg_mip_stip <= _T_4921;
+      end
+    end
+    if (csr_wen) begin
+      if (sel_sip) begin
+        reg_mip_ssip <= _T_5017;
+      end else begin
+        if (sel_mip) begin
+          reg_mip_ssip <= _T_4917;
+        end
+      end
+    end
+    if (csr_wen) begin
+      if (sel_dpc) begin
+        reg_dpc <= _T_4935;
+      end else begin
+        if (exception) begin
+          if (trapToDebug) begin
+            if (_T_1547) begin
+              reg_dpc <= epc;
+            end
+          end
+        end
+      end
+    end else begin
+      if (exception) begin
+        if (trapToDebug) begin
+          if (_T_1547) begin
+            reg_dpc <= epc;
+          end
+        end
+      end
+    end
+    if (csr_wen) begin
+      if (sel_dscratch) begin
+        reg_dscratch <= wdata;
+      end
+    end
+    if (csr_wen) begin
+      if (sel_mideleg) begin
+        reg_mideleg <= wdata;
+      end
+    end
+    if (csr_wen) begin
+      if (sel_medeleg) begin
+        reg_medeleg <= wdata;
+      end
+    end
+    if (csr_wen) begin
+      if (sel_sepc) begin
+        reg_sepc <= _T_4935;
+      end else begin
+        if (exception) begin
+          if (!(trapToDebug)) begin
+            if (delegate) begin
+              reg_sepc <= epc;
+            end
+          end
+        end
+      end
+    end else begin
+      if (exception) begin
+        if (!(trapToDebug)) begin
+          if (delegate) begin
+            reg_sepc <= epc;
+          end
+        end
+      end
+    end
+    if (csr_wen) begin
+      if (sel_mepc) begin
+        reg_mepc <= _T_4935;
+      end else begin
+        if (exception) begin
+          if (!(trapToDebug)) begin
+            if (!(delegate)) begin
+              reg_mepc <= epc;
+            end
+          end
+        end
+      end
+    end else begin
+      if (exception) begin
+        if (!(trapToDebug)) begin
+          if (!(delegate)) begin
+            reg_mepc <= epc;
+          end
+        end
+      end
+    end
+    if (csr_wen) begin
+      if (sel_mcause) begin
+        reg_mcause <= _T_4936;
+      end else begin
+        if (exception) begin
+          if (!(trapToDebug)) begin
+            if (!(delegate)) begin
+              if (insn_call) begin
+                reg_mcause <= {{28'd0}, _T_1458};
+              end else begin
+                if (insn_break) begin
+                  reg_mcause <= 32'h3;
+                end else begin
+                  reg_mcause <= io_cause;
+                end
+              end
+            end
+          end
+        end
+      end
+    end else begin
+      if (exception) begin
+        if (!(trapToDebug)) begin
+          if (!(delegate)) begin
+            if (insn_call) begin
+              reg_mcause <= {{28'd0}, _T_1458};
+            end else begin
+              if (insn_break) begin
+                reg_mcause <= 32'h3;
+              end else begin
+                reg_mcause <= io_cause;
+              end
+            end
+          end
+        end
+      end
+    end
+    if (csr_wen) begin
+      if (sel_mtval) begin
+        reg_mtval <= wdata;
+      end else begin
+        if (exception) begin
+          if (!(trapToDebug)) begin
+            if (!(delegate)) begin
+              reg_mtval <= io_tval;
+            end
+          end
+        end
+      end
+    end else begin
+      if (exception) begin
+        if (!(trapToDebug)) begin
+          if (!(delegate)) begin
+            reg_mtval <= io_tval;
+          end
+        end
+      end
+    end
+    if (csr_wen) begin
+      if (sel_scause) begin
+        reg_scause <= _T_5049;
+      end else begin
+        if (exception) begin
+          if (!(trapToDebug)) begin
+            if (delegate) begin
+              if (insn_call) begin
+                reg_scause <= {{28'd0}, _T_1458};
+              end else begin
+                if (insn_break) begin
+                  reg_scause <= 32'h3;
+                end else begin
+                  reg_scause <= io_cause;
+                end
+              end
+            end
+          end
+        end
+      end
+    end else begin
+      if (exception) begin
+        if (!(trapToDebug)) begin
+          if (delegate) begin
+            if (insn_call) begin
+              reg_scause <= {{28'd0}, _T_1458};
+            end else begin
+              if (insn_break) begin
+                reg_scause <= 32'h3;
+              end else begin
+                reg_scause <= io_cause;
+              end
+            end
+          end
+        end
+      end
+    end
+    if (csr_wen) begin
+      if (sel_stval) begin
+        reg_stval <= wdata;
+      end else begin
+        if (exception) begin
+          if (!(trapToDebug)) begin
+            if (delegate) begin
+              reg_stval <= io_tval;
+            end
+          end
+        end
+      end
+    end else begin
+      if (exception) begin
+        if (!(trapToDebug)) begin
+          if (delegate) begin
+            reg_stval <= io_tval;
+          end
+        end
+      end
+    end
+    reg_fflags <= _GEN_349[4:0];
+    reg_frm <= _GEN_350[2:0];
+    if (reset) begin
+      reg_pmp_0_cfg_l <= 1'h0;
+    end else begin
+      if (csr_wen) begin
+        if (_T_5196) begin
+          reg_pmp_0_cfg_l <= _T_5205;
+        end
+      end
+    end
+    if (reset) begin
+      reg_pmp_0_cfg_a <= 2'h0;
+    end else begin
+      if (csr_wen) begin
+        if (_T_5196) begin
+          reg_pmp_0_cfg_a <= _T_5203;
+        end
+      end
+    end
+    if (csr_wen) begin
+      if (_T_5196) begin
+        reg_pmp_0_cfg_x <= _T_5202;
+      end
+    end
+    if (csr_wen) begin
+      if (_T_5196) begin
+        reg_pmp_0_cfg_w <= _T_5206;
+      end
+    end
+    if (csr_wen) begin
+      if (_T_5196) begin
+        reg_pmp_0_cfg_r <= _T_5200;
+      end
+    end
+    reg_pmp_0_addr <= _GEN_408[29:0];
+    if (reset) begin
+      reg_pmp_1_cfg_l <= 1'h0;
+    end else begin
+      if (csr_wen) begin
+        if (_T_5216) begin
+          reg_pmp_1_cfg_l <= _T_5225;
+        end
+      end
+    end
+    if (reset) begin
+      reg_pmp_1_cfg_a <= 2'h0;
+    end else begin
+      if (csr_wen) begin
+        if (_T_5216) begin
+          reg_pmp_1_cfg_a <= _T_5223;
+        end
+      end
+    end
+    if (csr_wen) begin
+      if (_T_5216) begin
+        reg_pmp_1_cfg_x <= _T_5222;
+      end
+    end
+    if (csr_wen) begin
+      if (_T_5216) begin
+        reg_pmp_1_cfg_w <= _T_5226;
+      end
+    end
+    if (csr_wen) begin
+      if (_T_5216) begin
+        reg_pmp_1_cfg_r <= _T_5220;
+      end
+    end
+    reg_pmp_1_addr <= _GEN_415[29:0];
+    if (reset) begin
+      reg_pmp_2_cfg_l <= 1'h0;
+    end else begin
+      if (csr_wen) begin
+        if (_T_5236) begin
+          reg_pmp_2_cfg_l <= _T_5245;
+        end
+      end
+    end
+    if (reset) begin
+      reg_pmp_2_cfg_a <= 2'h0;
+    end else begin
+      if (csr_wen) begin
+        if (_T_5236) begin
+          reg_pmp_2_cfg_a <= _T_5243;
+        end
+      end
+    end
+    if (csr_wen) begin
+      if (_T_5236) begin
+        reg_pmp_2_cfg_x <= _T_5242;
+      end
+    end
+    if (csr_wen) begin
+      if (_T_5236) begin
+        reg_pmp_2_cfg_w <= _T_5246;
+      end
+    end
+    if (csr_wen) begin
+      if (_T_5236) begin
+        reg_pmp_2_cfg_r <= _T_5240;
+      end
+    end
+    reg_pmp_2_addr <= _GEN_422[29:0];
+    if (reset) begin
+      reg_pmp_3_cfg_l <= 1'h0;
+    end else begin
+      if (csr_wen) begin
+        if (_T_5256) begin
+          reg_pmp_3_cfg_l <= _T_5265;
+        end
+      end
+    end
+    if (reset) begin
+      reg_pmp_3_cfg_a <= 2'h0;
+    end else begin
+      if (csr_wen) begin
+        if (_T_5256) begin
+          reg_pmp_3_cfg_a <= _T_5263;
+        end
+      end
+    end
+    if (csr_wen) begin
+      if (_T_5256) begin
+        reg_pmp_3_cfg_x <= _T_5262;
+      end
+    end
+    if (csr_wen) begin
+      if (_T_5256) begin
+        reg_pmp_3_cfg_w <= _T_5266;
+      end
+    end
+    if (csr_wen) begin
+      if (_T_5256) begin
+        reg_pmp_3_cfg_r <= _T_5260;
+      end
+    end
+    reg_pmp_3_addr <= _GEN_429[29:0];
+    if (reset) begin
+      reg_pmp_4_cfg_l <= 1'h0;
+    end else begin
+      if (csr_wen) begin
+        if (_T_5276) begin
+          reg_pmp_4_cfg_l <= _T_5205;
+        end
+      end
+    end
+    if (reset) begin
+      reg_pmp_4_cfg_a <= 2'h0;
+    end else begin
+      if (csr_wen) begin
+        if (_T_5276) begin
+          reg_pmp_4_cfg_a <= _T_5203;
+        end
+      end
+    end
+    if (csr_wen) begin
+      if (_T_5276) begin
+        reg_pmp_4_cfg_x <= _T_5202;
+      end
+    end
+    if (csr_wen) begin
+      if (_T_5276) begin
+        reg_pmp_4_cfg_w <= _T_5206;
+      end
+    end
+    if (csr_wen) begin
+      if (_T_5276) begin
+        reg_pmp_4_cfg_r <= _T_5200;
+      end
+    end
+    reg_pmp_4_addr <= _GEN_436[29:0];
+    if (reset) begin
+      reg_pmp_5_cfg_l <= 1'h0;
+    end else begin
+      if (csr_wen) begin
+        if (_T_5296) begin
+          reg_pmp_5_cfg_l <= _T_5225;
+        end
+      end
+    end
+    if (reset) begin
+      reg_pmp_5_cfg_a <= 2'h0;
+    end else begin
+      if (csr_wen) begin
+        if (_T_5296) begin
+          reg_pmp_5_cfg_a <= _T_5223;
+        end
+      end
+    end
+    if (csr_wen) begin
+      if (_T_5296) begin
+        reg_pmp_5_cfg_x <= _T_5222;
+      end
+    end
+    if (csr_wen) begin
+      if (_T_5296) begin
+        reg_pmp_5_cfg_w <= _T_5226;
+      end
+    end
+    if (csr_wen) begin
+      if (_T_5296) begin
+        reg_pmp_5_cfg_r <= _T_5220;
+      end
+    end
+    reg_pmp_5_addr <= _GEN_443[29:0];
+    if (reset) begin
+      reg_pmp_6_cfg_l <= 1'h0;
+    end else begin
+      if (csr_wen) begin
+        if (_T_5316) begin
+          reg_pmp_6_cfg_l <= _T_5245;
+        end
+      end
+    end
+    if (reset) begin
+      reg_pmp_6_cfg_a <= 2'h0;
+    end else begin
+      if (csr_wen) begin
+        if (_T_5316) begin
+          reg_pmp_6_cfg_a <= _T_5243;
+        end
+      end
+    end
+    if (csr_wen) begin
+      if (_T_5316) begin
+        reg_pmp_6_cfg_x <= _T_5242;
+      end
+    end
+    if (csr_wen) begin
+      if (_T_5316) begin
+        reg_pmp_6_cfg_w <= _T_5246;
+      end
+    end
+    if (csr_wen) begin
+      if (_T_5316) begin
+        reg_pmp_6_cfg_r <= _T_5240;
+      end
+    end
+    reg_pmp_6_addr <= _GEN_450[29:0];
+    if (reset) begin
+      reg_pmp_7_cfg_l <= 1'h0;
+    end else begin
+      if (csr_wen) begin
+        if (_T_5336) begin
+          reg_pmp_7_cfg_l <= _T_5265;
+        end
+      end
+    end
+    if (reset) begin
+      reg_pmp_7_cfg_a <= 2'h0;
+    end else begin
+      if (csr_wen) begin
+        if (_T_5336) begin
+          reg_pmp_7_cfg_a <= _T_5263;
+        end
+      end
+    end
+    if (csr_wen) begin
+      if (_T_5336) begin
+        reg_pmp_7_cfg_x <= _T_5262;
+      end
+    end
+    if (csr_wen) begin
+      if (_T_5336) begin
+        reg_pmp_7_cfg_w <= _T_5266;
+      end
+    end
+    if (csr_wen) begin
+      if (_T_5336) begin
+        reg_pmp_7_cfg_r <= _T_5260;
+      end
+    end
+    reg_pmp_7_addr <= _GEN_457[29:0];
+    `ifndef SYNTHESIS
+    `ifdef PRINTF_COND
+      if (`PRINTF_COND) begin
+    `endif
+        if (_T_1522) begin
+          $fwrite(32'h80000002,"Assertion failed: these conditions must be mutually exclusive\n    at CSR.scala:654 assert(PopCount(insn_ret :: insn_call :: insn_break :: io.exception :: Nil) <= 1, \"these conditions must be mutually exclusive\")\n"); // @[CSR.scala 654:9:freechips.rocketchip.system.DefaultRV32Config.fir@149380.6]
+        end
+    `ifdef PRINTF_COND
+      end
+    `endif
+    `endif // SYNTHESIS
+    `ifndef SYNTHESIS
+    `ifdef STOP_COND
+      if (`STOP_COND) begin
+    `endif
+        if (_T_1522) begin
+          $fatal; // @[CSR.scala 654:9:freechips.rocketchip.system.DefaultRV32Config.fir@149381.6]
+        end
+    `ifdef STOP_COND
+      end
+    `endif
+    `endif // SYNTHESIS
+    `ifndef SYNTHESIS
+    `ifdef PRINTF_COND
+      if (`PRINTF_COND) begin
+    `endif
+        if (_T_1544) begin
+          $fwrite(32'h80000002,"Assertion failed\n    at CSR.scala:662 assert(!reg_singleStepped || io.retire === UInt(0))\n"); // @[CSR.scala 662:9:freechips.rocketchip.system.DefaultRV32Config.fir@149422.6]
+        end
+    `ifdef PRINTF_COND
+      end
+    `endif
+    `endif // SYNTHESIS
+    `ifndef SYNTHESIS
+    `ifdef STOP_COND
+      if (`STOP_COND) begin
+    `endif
+        if (_T_1544) begin
+          $fatal; // @[CSR.scala 662:9:freechips.rocketchip.system.DefaultRV32Config.fir@149423.6]
+        end
+    `ifdef STOP_COND
+      end
+    `endif
+    `endif // SYNTHESIS
+end
+
+  assign _T_1522 = _T_1521 == 1'h0; // @[CSR.scala 654:9:freechips.rocketchip.system.DefaultRV32Config.fir@149378.4]
+  assign _T_1544 = _T_1543 == 1'h0; // @[CSR.scala 662:9:freechips.rocketchip.system.DefaultRV32Config.fir@149420.4]
+
+always @(posedge clock) begin
+    if (reset) begin
+      _T_1894 <= 1'h0;
+    end else begin
+      _T_1894 <= _GEN_117;
+    end
+end
+
+always @(posedge clock) begin
+    if (_T_1509) begin
+      _T_1511 <= reg_mstatus_mpp;
+    end else begin
+      _T_1511 <= reg_mstatus_prv;
+    end
+end
+
+always @(posedge io_ungated_clock) begin
+    if (reset) begin
+      reg_wfi <= 1'h0;
+    end else begin
+      if (_T_1529) begin
+        reg_wfi <= 1'h0;
+      end else begin
+        reg_wfi <= _GEN_34;
+      end
+    end
+end
+
+`endif // MY_ASSIGNMENT
+
+  assign _T_946 = reg_mstatus_prv > 2'h1; // @[CSR.scala 590:55:freechips.rocketchip.system.DefaultRV32Config.fir@148770.4]
   assign _T_890 = {io_rw_addr, 20'h0}; // @[CSR.scala 581:28:freechips.rocketchip.system.DefaultRV32Config.fir@148708.4]
   assign _T_897 = _T_890 & 32'h12400000; // @[Decode.scala 14:65:freechips.rocketchip.system.DefaultRV32Config.fir@148715.4]
   assign _T_898 = _T_897 == 32'h10000000; // @[Decode.scala 14:121:freechips.rocketchip.system.DefaultRV32Config.fir@148716.4]
   assign _T_899 = _T_890 & 32'h40000000; // @[Decode.scala 14:65:freechips.rocketchip.system.DefaultRV32Config.fir@148717.4]
   assign _T_900 = _T_899 == 32'h40000000; // @[Decode.scala 14:121:freechips.rocketchip.system.DefaultRV32Config.fir@148718.4]
   assign _T_902 = _T_898 | _T_900; // @[Decode.scala 15:30:freechips.rocketchip.system.DefaultRV32Config.fir@148720.4]
-//  assign insn_ret = system_insn & _T_902; // @[CSR.scala 581:95:freechips.rocketchip.system.DefaultRV32Config.fir@148735.4]
   assign _T_1871 = io_rw_addr[9]; // @[CSR.scala 718:39:freechips.rocketchip.system.DefaultRV32Config.fir@149788.6]
   assign _T_1872 = _T_1871 == 1'h0; // @[CSR.scala 718:28:freechips.rocketchip.system.DefaultRV32Config.fir@149789.6]
   assign _T_1879 = io_rw_addr[10]; // @[CSR.scala 724:47:freechips.rocketchip.system.DefaultRV32Config.fir@149804.8]
   assign _GEN_93 = _T_1879 ? reg_dcsr_prv : reg_mstatus_mpp; // @[CSR.scala 724:53:freechips.rocketchip.system.DefaultRV32Config.fir@149806.8]
-  assign _GEN_102 = _T_1872 ? {{1'd0}, reg_mstatus_spp} : _GEN_93; // @[CSR.scala 718:44:freechips.rocketchip.system.DefaultRV32Config.fir@149791.6]
   assign _T_891 = _T_890 & 32'h10100000; // @[Decode.scala 14:65:freechips.rocketchip.system.DefaultRV32Config.fir@148709.4]
   assign _T_892 = _T_891 == 32'h0; // @[Decode.scala 14:121:freechips.rocketchip.system.DefaultRV32Config.fir@148710.4]
-//  assign insn_call = system_insn & _T_892; // @[CSR.scala 581:95:freechips.rocketchip.system.DefaultRV32Config.fir@148731.4]
   assign _T_895 = _T_891 == 32'h100000; // @[Decode.scala 14:121:freechips.rocketchip.system.DefaultRV32Config.fir@148713.4]
-//  assign insn_break = system_insn & _T_895; // @[CSR.scala 581:95:freechips.rocketchip.system.DefaultRV32Config.fir@148733.4]
   assign _T_1512 = insn_call | insn_break; // @[CSR.scala 653:29:freechips.rocketchip.system.DefaultRV32Config.fir@149367.4]
-//  assign exception = _T_1512 | io_exception; // @[CSR.scala 653:43:freechips.rocketchip.system.DefaultRV32Config.fir@149368.4]
   assign _GEN_494 = {{2'd0}, reg_mstatus_prv}; // @[CSR.scala 617:36:freechips.rocketchip.system.DefaultRV32Config.fir@149289.4]
-  assign _T_1458 = _GEN_494 + 4'h8; // @[CSR.scala 617:36:freechips.rocketchip.system.DefaultRV32Config.fir@149290.4]
   assign _T_1459 = insn_break ? 32'h3 : io_cause; // @[CSR.scala 618:14:freechips.rocketchip.system.DefaultRV32Config.fir@149291.4]
-//  assign cause = insn_call ? {{28'd0}, _T_1458} : _T_1459; // @[CSR.scala 617:8:freechips.rocketchip.system.DefaultRV32Config.fir@149292.4]
   assign _T_1460 = cause[31]; // @[CSR.scala 620:30:freechips.rocketchip.system.DefaultRV32Config.fir@149294.4]
-//  assign cause_lsbs = cause[7:0]; // @[CSR.scala 619:25:freechips.rocketchip.system.DefaultRV32Config.fir@149293.4]
   assign _T_1461 = cause_lsbs == 8'he; // @[CSR.scala 620:53:freechips.rocketchip.system.DefaultRV32Config.fir@149295.4]
-//  assign causeIsDebugInt = _T_1460 & _T_1461; // @[CSR.scala 620:39:freechips.rocketchip.system.DefaultRV32Config.fir@149296.4]
   assign _T_1473 = reg_singleStepped | causeIsDebugInt; // @[CSR.scala 623:60:freechips.rocketchip.system.DefaultRV32Config.fir@149310.4]
   assign _T_1463 = _T_1460 == 1'h0; // @[CSR.scala 621:29:freechips.rocketchip.system.DefaultRV32Config.fir@149298.4]
- // assign causeIsDebugTrigger = _T_1463 & _T_1461; // @[CSR.scala 621:44:freechips.rocketchip.system.DefaultRV32Config.fir@149300.4]
   assign _T_1474 = _T_1473 | causeIsDebugTrigger; // @[CSR.scala 623:79:freechips.rocketchip.system.DefaultRV32Config.fir@149311.4]
   assign _T_1467 = _T_1463 & insn_break; // @[CSR.scala 622:42:freechips.rocketchip.system.DefaultRV32Config.fir@149303.4]
   assign _T_1470 = {reg_dcsr_ebreakm,1'h0,reg_dcsr_ebreaks,reg_dcsr_ebreaku}; // @[Cat.scala 29:58:freechips.rocketchip.system.DefaultRV32Config.fir@149306.4]
-  assign _T_1471 = _T_1470 >> reg_mstatus_prv; // @[CSR.scala 622:134:freechips.rocketchip.system.DefaultRV32Config.fir@149307.4]
   assign _T_1472 = _T_1471[0]; // @[CSR.scala 622:134:freechips.rocketchip.system.DefaultRV32Config.fir@149308.4]
-//  assign causeIsDebugBreak = _T_1467 & _T_1472; // @[CSR.scala 622:56:freechips.rocketchip.system.DefaultRV32Config.fir@149309.4]
   assign _T_1475 = _T_1474 | causeIsDebugBreak; // @[CSR.scala 623:102:freechips.rocketchip.system.DefaultRV32Config.fir@149312.4]
-//  assign trapToDebug = _T_1475 | reg_debug; // @[CSR.scala 623:123:freechips.rocketchip.system.DefaultRV32Config.fir@149313.4]
   assign _T_1547 = reg_debug == 1'h0; // @[CSR.scala 670:13:freechips.rocketchip.system.DefaultRV32Config.fir@149433.8]
-  assign _GEN_42 = _T_1547 ? 2'h3 : reg_mstatus_prv; // @[CSR.scala 670:25:freechips.rocketchip.system.DefaultRV32Config.fir@149434.8]
   assign _T_1478 = reg_mstatus_prv <= 2'h1; // @[CSR.scala 625:51:freechips.rocketchip.system.DefaultRV32Config.fir@149317.4]
-//  assign read_mideleg = reg_mideleg & 32'h222; // @[CSR.scala 356:28:freechips.rocketchip.system.DefaultRV32Config.fir@147750.4]
-  assign _T_1481 = read_mideleg >> cause_lsbs; // @[CSR.scala 625:94:freechips.rocketchip.system.DefaultRV32Config.fir@149320.4]
   assign _T_1482 = _T_1481[0]; // @[CSR.scala 625:94:freechips.rocketchip.system.DefaultRV32Config.fir@149321.4]
-//  assign read_medeleg = reg_medeleg & 32'hb15d; // @[CSR.scala 360:28:freechips.rocketchip.system.DefaultRV32Config.fir@147753.4]
-  assign _T_1483 = read_medeleg >> cause_lsbs; // @[CSR.scala 625:120:freechips.rocketchip.system.DefaultRV32Config.fir@149322.4]
   assign _T_1484 = _T_1483[0]; // @[CSR.scala 625:120:freechips.rocketchip.system.DefaultRV32Config.fir@149323.4]
-  assign _T_1485 = _T_1460 ? _T_1482 : _T_1484; // @[CSR.scala 625:66:freechips.rocketchip.system.DefaultRV32Config.fir@149324.4]
-//  assign delegate = _T_1478 & _T_1485; // @[CSR.scala 625:60:freechips.rocketchip.system.DefaultRV32Config.fir@149325.4]
   assign _GEN_50 = delegate ? 2'h1 : 2'h3; // @[CSR.scala 677:27:freechips.rocketchip.system.DefaultRV32Config.fir@149446.8]
-  assign _GEN_61 = trapToDebug ? _GEN_42 : _GEN_50; // @[CSR.scala 669:24:freechips.rocketchip.system.DefaultRV32Config.fir@149432.6]
   assign _GEN_79 = exception ? _GEN_61 : reg_mstatus_prv; // @[CSR.scala 668:20:freechips.rocketchip.system.DefaultRV32Config.fir@149431.4]
-//  assign new_prv = insn_ret ? _GEN_102 : _GEN_79; // @[CSR.scala 717:19:freechips.rocketchip.system.DefaultRV32Config.fir@149787.4]
   assign _T_33 = new_prv == 2'h2; // @[CSR.scala 1042:27:freechips.rocketchip.system.DefaultRV32Config.fir@147644.4]
-//  assign read_mcounteren = reg_mcounteren & 32'h7; // @[CSR.scala 376:30:freechips.rocketchip.system.DefaultRV32Config.fir@147762.4]
-//  assign read_scounteren = reg_scounteren & 32'h7; // @[CSR.scala 380:28:freechips.rocketchip.system.DefaultRV32Config.fir@147765.4]
   assign _GEN_495 = {{5'd0}, io_retire}; // @[Counters.scala 47:33:freechips.rocketchip.system.DefaultRV32Config.fir@147777.4]
   assign _T_87 = _T_86 + _GEN_495; // @[Counters.scala 47:33:freechips.rocketchip.system.DefaultRV32Config.fir@147777.4]
   assign _T_89 = _T_87[6]; // @[Counters.scala 52:20:freechips.rocketchip.system.DefaultRV32Config.fir@147780.4]
   assign _T_91 = _T_88 + 58'h1; // @[Counters.scala 52:43:freechips.rocketchip.system.DefaultRV32Config.fir@147783.6]
-//  assign _T_92 = {_T_88,_T_86}; // @[Cat.scala 29:58:freechips.rocketchip.system.DefaultRV32Config.fir@147786.4]
+  assign _T_92 = {_T_88,_T_86}; // @[Cat.scala 29:58:freechips.rocketchip.system.DefaultRV32Config.fir@147786.4]
   assign _T_93 = io_csr_stall == 1'h0; // @[CSR.scala 399:103:freechips.rocketchip.system.DefaultRV32Config.fir@147787.4]
   assign _GEN_496 = {{5'd0}, _T_93}; // @[Counters.scala 47:33:freechips.rocketchip.system.DefaultRV32Config.fir@147789.4]
   assign _T_95 = _T_94 + _GEN_496; // @[Counters.scala 47:33:freechips.rocketchip.system.DefaultRV32Config.fir@147789.4]
   assign _T_97 = _T_95[6]; // @[Counters.scala 52:20:freechips.rocketchip.system.DefaultRV32Config.fir@147792.4]
   assign _T_99 = _T_96 + 58'h1; // @[Counters.scala 52:43:freechips.rocketchip.system.DefaultRV32Config.fir@147795.6]
-//  assign _T_100 = {_T_96,_T_94}; // @[Cat.scala 29:58:freechips.rocketchip.system.DefaultRV32Config.fir@147798.4]
-  assign mip_seip = reg_mip_seip | io_interrupts_seip; // @[CSR.scala 410:57:freechips.rocketchip.system.DefaultRV32Config.fir@147805.4]
+  assign _T_100 = {_T_96,_T_94}; // @[Cat.scala 29:58:freechips.rocketchip.system.DefaultRV32Config.fir@147798.4]
   assign _T_108 = {io_interrupts_mtip,1'h0,reg_mip_stip,1'h0,io_interrupts_msip,1'h0,reg_mip_ssip,1'h0}; // @[CSR.scala 412:22:freechips.rocketchip.system.DefaultRV32Config.fir@147814.4]
   assign _T_116 = {4'h0,io_interrupts_meip,1'h0,mip_seip,1'h0,_T_108}; // @[CSR.scala 412:22:freechips.rocketchip.system.DefaultRV32Config.fir@147822.4]
-//  assign read_mip = _T_116 & 16'haaa; // @[CSR.scala 412:29:freechips.rocketchip.system.DefaultRV32Config.fir@147823.4]
   assign _GEN_497 = {{16'd0}, read_mip}; // @[CSR.scala 415:56:freechips.rocketchip.system.DefaultRV32Config.fir@147824.4]
-//  assign pending_interrupts = _GEN_497 & reg_mie; // @[CSR.scala 415:56:freechips.rocketchip.system.DefaultRV32Config.fir@147824.4]
-//  assign d_interrupts = {io_interrupts_debug, 14'h0}; // @[CSR.scala 416:42:freechips.rocketchip.system.DefaultRV32Config.fir@147826.4]
   assign _T_119 = _T_1478 | reg_mstatus_mie; // @[CSR.scala 417:51:freechips.rocketchip.system.DefaultRV32Config.fir@147828.4]
   assign _T_120 = ~ pending_interrupts; // @[CSR.scala 417:73:freechips.rocketchip.system.DefaultRV32Config.fir@147829.4]
   assign _T_121 = _T_120 | read_mideleg; // @[CSR.scala 417:93:freechips.rocketchip.system.DefaultRV32Config.fir@147830.4]
   assign _T_122 = ~ _T_121; // @[CSR.scala 417:71:freechips.rocketchip.system.DefaultRV32Config.fir@147831.4]
-//  assign m_interrupts = _T_119 ? _T_122 : 32'h0; // @[CSR.scala 417:25:freechips.rocketchip.system.DefaultRV32Config.fir@147832.4]
   assign _T_123 = reg_mstatus_prv < 2'h1; // @[CSR.scala 418:42:freechips.rocketchip.system.DefaultRV32Config.fir@147833.4]
   assign _T_124 = reg_mstatus_prv == 2'h1; // @[CSR.scala 418:70:freechips.rocketchip.system.DefaultRV32Config.fir@147834.4]
   assign _T_125 = _T_124 & reg_mstatus_sie; // @[CSR.scala 418:80:freechips.rocketchip.system.DefaultRV32Config.fir@147835.4]
   assign _T_126 = _T_123 | _T_125; // @[CSR.scala 418:50:freechips.rocketchip.system.DefaultRV32Config.fir@147836.4]
   assign _T_127 = pending_interrupts & read_mideleg; // @[CSR.scala 418:120:freechips.rocketchip.system.DefaultRV32Config.fir@147837.4]
-//  assign s_interrupts = _T_126 ? _T_127 : 32'h0; // @[CSR.scala 418:25:freechips.rocketchip.system.DefaultRV32Config.fir@147838.4]
   assign _T_128 = d_interrupts[14]; // @[CSR.scala 1032:76:freechips.rocketchip.system.DefaultRV32Config.fir@147839.4]
   assign _T_129 = d_interrupts[13]; // @[CSR.scala 1032:76:freechips.rocketchip.system.DefaultRV32Config.fir@147840.4]
   assign _T_130 = d_interrupts[12]; // @[CSR.scala 1032:76:freechips.rocketchip.system.DefaultRV32Config.fir@147841.4]
@@ -2891,7 +4511,6 @@ assign io_trace_0_exception = exception;
   assign _T_199 = _T_198 | _T_162; // @[CSR.scala 1032:90:freechips.rocketchip.system.DefaultRV32Config.fir@147910.4]
   assign _T_200 = _T_199 | _T_163; // @[CSR.scala 1032:90:freechips.rocketchip.system.DefaultRV32Config.fir@147911.4]
   assign _T_201 = _T_200 | _T_164; // @[CSR.scala 1032:90:freechips.rocketchip.system.DefaultRV32Config.fir@147912.4]
-//  assign anyInterrupt = _T_201 | _T_165; // @[CSR.scala 1032:90:freechips.rocketchip.system.DefaultRV32Config.fir@147913.4]
   assign _T_240 = _T_164 ? 3'h0 : 3'h4; // @[Mux.scala 47:69:freechips.rocketchip.system.DefaultRV32Config.fir@147952.4]
   assign _T_241 = _T_163 ? 4'h8 : {{1'd0}, _T_240}; // @[Mux.scala 47:69:freechips.rocketchip.system.DefaultRV32Config.fir@147953.4]
   assign _T_242 = _T_162 ? 4'h5 : _T_241; // @[Mux.scala 47:69:freechips.rocketchip.system.DefaultRV32Config.fir@147954.4]
@@ -2928,7 +4547,6 @@ assign io_trace_0_exception = exception;
   assign _T_273 = _T_131 ? 4'hb : _T_272; // @[Mux.scala 47:69:freechips.rocketchip.system.DefaultRV32Config.fir@147985.4]
   assign _T_274 = _T_130 ? 4'hc : _T_273; // @[Mux.scala 47:69:freechips.rocketchip.system.DefaultRV32Config.fir@147986.4]
   assign _T_275 = _T_129 ? 4'hd : _T_274; // @[Mux.scala 47:69:freechips.rocketchip.system.DefaultRV32Config.fir@147987.4]
-//  assign whichInterrupt = _T_128 ? 4'he : _T_275; // @[Mux.scala 47:69:freechips.rocketchip.system.DefaultRV32Config.fir@147988.4]
   assign _GEN_498 = {{28'd0}, whichInterrupt}; // @[CSR.scala 421:43:freechips.rocketchip.system.DefaultRV32Config.fir@147989.4]
   assign _T_277 = io_singleStep == 1'h0; // @[CSR.scala 422:36:freechips.rocketchip.system.DefaultRV32Config.fir@147991.4]
   assign _T_278 = anyInterrupt & _T_277; // @[CSR.scala 422:33:freechips.rocketchip.system.DefaultRV32Config.fir@147992.4]
@@ -2986,23 +4604,16 @@ assign io_trace_0_exception = exception;
   assign _T_360 = {io_status_hpie,io_status_spie,io_status_upie,io_status_mie,io_status_hie,io_status_sie,io_status_uie}; // @[CSR.scala 441:38:freechips.rocketchip.system.DefaultRV32Config.fir@148110.4]
   assign _T_368 = {io_status_sum,io_status_mprv,io_status_xs,io_status_fs,io_status_mpp,io_status_hpp,io_status_spp,io_status_mpie,_T_360}; // @[CSR.scala 441:38:freechips.rocketchip.system.DefaultRV32Config.fir@148118.4]
   assign _T_375 = {io_status_uxl,io_status_sd_rv32,io_status_zero1,io_status_vs,io_status_tsr,io_status_tw,io_status_tvm,io_status_mxr}; // @[CSR.scala 441:38:freechips.rocketchip.system.DefaultRV32Config.fir@148125.4]
-  assign _T_384 = {io_status_debug,io_status_cease,io_status_isa,io_status_dprv,io_status_prv,io_status_sd,io_status_zero2,io_status_sxl,_T_375,_T_368}; // @[CSR.scala 441:38:freechips.rocketchip.system.DefaultRV32Config.fir@148134.4]
-  assign read_mstatus = _T_384[31:0]; // @[CSR.scala 441:40:freechips.rocketchip.system.DefaultRV32Config.fir@148135.4]
   assign _T_385 = reg_mtvec[0]; // @[CSR.scala 1061:41:freechips.rocketchip.system.DefaultRV32Config.fir@148136.4]
-  assign _T_386 = _T_385 ? 7'h7e : 7'h2; // @[CSR.scala 1061:39:freechips.rocketchip.system.DefaultRV32Config.fir@148137.4]
   assign _T_388 = {{25'd0}, _T_386}; // @[package.scala 131:41:freechips.rocketchip.system.DefaultRV32Config.fir@148139.4]
   assign _T_389 = ~ _T_388; // @[package.scala 131:37:freechips.rocketchip.system.DefaultRV32Config.fir@148140.4]
-//  assign read_mtvec = reg_mtvec & _T_389; // @[package.scala 131:35:freechips.rocketchip.system.DefaultRV32Config.fir@148141.4]
   assign _T_390 = reg_stvec[0]; // @[CSR.scala 1061:41:freechips.rocketchip.system.DefaultRV32Config.fir@148142.4]
-  assign _T_391 = _T_390 ? 7'h7e : 7'h2; // @[CSR.scala 1061:39:freechips.rocketchip.system.DefaultRV32Config.fir@148143.4]
   assign _T_393 = {{25'd0}, _T_391}; // @[package.scala 131:41:freechips.rocketchip.system.DefaultRV32Config.fir@148145.4]
   assign _T_394 = ~ _T_393; // @[package.scala 131:37:freechips.rocketchip.system.DefaultRV32Config.fir@148146.4]
-//  assign read_stvec = reg_stvec & _T_394; // @[package.scala 131:35:freechips.rocketchip.system.DefaultRV32Config.fir@148147.4]
   assign _T_400 = {reg_bp_0_control_m,1'h0,reg_bp_0_control_s,reg_bp_0_control_u,reg_bp_0_control_x,reg_bp_0_control_w,reg_bp_0_control_r}; // @[CSR.scala 447:48:freechips.rocketchip.system.DefaultRV32Config.fir@148153.4]
   assign _T_408 = {4'h2,reg_bp_0_control_dmode,14'h400,reg_bp_0_control_action,1'h0,2'h0,reg_bp_0_control_tmatch,_T_400}; // @[CSR.scala 447:48:freechips.rocketchip.system.DefaultRV32Config.fir@148161.4]
   assign _T_409 = ~ reg_mepc; // @[CSR.scala 1060:28:freechips.rocketchip.system.DefaultRV32Config.fir@148162.4]
   assign _T_410 = reg_misa[2]; // @[CSR.scala 1060:45:freechips.rocketchip.system.DefaultRV32Config.fir@148163.4]
-  assign _T_411 = _T_410 ? 2'h1 : 2'h3; // @[CSR.scala 1060:36:freechips.rocketchip.system.DefaultRV32Config.fir@148164.4]
   assign _GEN_499 = {{30'd0}, _T_411}; // @[CSR.scala 1060:31:freechips.rocketchip.system.DefaultRV32Config.fir@148165.4]
   assign _T_412 = _T_409 | _GEN_499; // @[CSR.scala 1060:31:freechips.rocketchip.system.DefaultRV32Config.fir@148165.4]
   assign _T_413 = ~ _T_412; // @[CSR.scala 1060:26:freechips.rocketchip.system.DefaultRV32Config.fir@148166.4]
@@ -3013,7 +4624,6 @@ assign io_trace_0_exception = exception;
   assign _T_431 = ~ _T_430; // @[CSR.scala 1060:26:freechips.rocketchip.system.DefaultRV32Config.fir@148184.4]
   assign _T_432 = {reg_frm,reg_fflags}; // @[Cat.scala 29:58:freechips.rocketchip.system.DefaultRV32Config.fir@148185.4]
   assign _T_434 = {{1'd0}, _T_432}; // @[CSR.scala 465:44:freechips.rocketchip.system.DefaultRV32Config.fir@148187.4]
-  assign read_fcsr = {{1'd0}, _T_434}; // @[CSR.scala 465:78:freechips.rocketchip.system.DefaultRV32Config.fir@148189.4]
   assign _T_494 = _T_100[63:32]; // @[CSR.scala 504:50:freechips.rocketchip.system.DefaultRV32Config.fir@148248.4]
   assign _T_495 = _T_92[63:32]; // @[CSR.scala 505:54:freechips.rocketchip.system.DefaultRV32Config.fir@148249.4]
   assign _T_498 = reg_mie & read_mideleg; // @[CSR.scala 514:28:freechips.rocketchip.system.DefaultRV32Config.fir@148252.4]
@@ -3021,7 +4631,6 @@ assign io_trace_0_exception = exception;
   assign _T_539 = {1'h0,io_status_spie,2'h0,1'h0,io_status_sie,1'h0}; // @[CSR.scala 529:57:freechips.rocketchip.system.DefaultRV32Config.fir@148340.4]
   assign _T_547 = {io_status_sum,1'h0,io_status_xs,io_status_fs,4'h0,io_status_spp,1'h0,_T_539}; // @[CSR.scala 529:57:freechips.rocketchip.system.DefaultRV32Config.fir@148348.4]
   assign _T_554 = {io_status_uxl,io_status_sd_rv32,6'h0,io_status_vs,2'h0,1'h0,io_status_mxr}; // @[CSR.scala 529:57:freechips.rocketchip.system.DefaultRV32Config.fir@148355.4]
-  assign _T_563 = {36'h0,2'h0,io_status_sd,29'h0,_T_554,_T_547}; // @[CSR.scala 529:57:freechips.rocketchip.system.DefaultRV32Config.fir@148364.4]
   assign _T_564 = _T_563[31:0]; // @[CSR.scala 529:60:freechips.rocketchip.system.DefaultRV32Config.fir@148365.4]
   assign _T_566 = {reg_satp_mode,9'h0,reg_satp_ppn}; // @[CSR.scala 535:43:freechips.rocketchip.system.DefaultRV32Config.fir@148367.4]
   assign _T_567 = ~ reg_sepc; // @[CSR.scala 1060:28:freechips.rocketchip.system.DefaultRV32Config.fir@148368.4]
@@ -3035,70 +4644,15 @@ assign io_trace_0_exception = exception;
   assign _T_619 = {reg_pmp_6_cfg_l,2'h0,reg_pmp_6_cfg_a,reg_pmp_6_cfg_x,reg_pmp_6_cfg_w,reg_pmp_6_cfg_r}; // @[package.scala 36:38:freechips.rocketchip.system.DefaultRV32Config.fir@148431.4]
   assign _T_625 = {reg_pmp_5_cfg_l,2'h0,reg_pmp_5_cfg_a,reg_pmp_5_cfg_x,reg_pmp_5_cfg_w,reg_pmp_5_cfg_r,_T_609}; // @[Cat.scala 29:58:freechips.rocketchip.system.DefaultRV32Config.fir@148437.4]
   assign _T_627 = {reg_pmp_7_cfg_l,2'h0,reg_pmp_7_cfg_a,reg_pmp_7_cfg_x,reg_pmp_7_cfg_w,reg_pmp_7_cfg_r,_T_619,_T_625}; // @[Cat.scala 29:58:freechips.rocketchip.system.DefaultRV32Config.fir@148439.4]
-  assign _T_675 = io_rw_addr == 12'h7a1; // @[CSR.scala 566:73:freechips.rocketchip.system.DefaultRV32Config.fir@148491.4]
-  assign _T_676 = io_rw_addr == 12'h7a2; // @[CSR.scala 566:73:freechips.rocketchip.system.DefaultRV32Config.fir@148492.4]
-  assign _T_677 = io_rw_addr == 12'h301; // @[CSR.scala 566:73:freechips.rocketchip.system.DefaultRV32Config.fir@148493.4]
-  assign _T_678 = io_rw_addr == 12'h300; // @[CSR.scala 566:73:freechips.rocketchip.system.DefaultRV32Config.fir@148494.4]
-  assign _T_679 = io_rw_addr == 12'h305; // @[CSR.scala 566:73:freechips.rocketchip.system.DefaultRV32Config.fir@148495.4]
-  assign _T_680 = io_rw_addr == 12'h344; // @[CSR.scala 566:73:freechips.rocketchip.system.DefaultRV32Config.fir@148496.4]
-  assign _T_681 = io_rw_addr == 12'h304; // @[CSR.scala 566:73:freechips.rocketchip.system.DefaultRV32Config.fir@148497.4]
-  assign _T_682 = io_rw_addr == 12'h340; // @[CSR.scala 566:73:freechips.rocketchip.system.DefaultRV32Config.fir@148498.4]
-  assign _T_683 = io_rw_addr == 12'h341; // @[CSR.scala 566:73:freechips.rocketchip.system.DefaultRV32Config.fir@148499.4]
-  assign _T_684 = io_rw_addr == 12'h343; // @[CSR.scala 566:73:freechips.rocketchip.system.DefaultRV32Config.fir@148500.4]
-  assign _T_685 = io_rw_addr == 12'h342; // @[CSR.scala 566:73:freechips.rocketchip.system.DefaultRV32Config.fir@148501.4]
-  assign _T_687 = io_rw_addr == 12'h7b0; // @[CSR.scala 566:73:freechips.rocketchip.system.DefaultRV32Config.fir@148503.4]
-  assign _T_688 = io_rw_addr == 12'h7b1; // @[CSR.scala 566:73:freechips.rocketchip.system.DefaultRV32Config.fir@148504.4]
-  assign _T_689 = io_rw_addr == 12'h7b2; // @[CSR.scala 566:73:freechips.rocketchip.system.DefaultRV32Config.fir@148505.4]
-  assign _T_690 = io_rw_addr == 12'h1; // @[CSR.scala 566:73:freechips.rocketchip.system.DefaultRV32Config.fir@148506.4]
-  assign _T_691 = io_rw_addr == 12'h2; // @[CSR.scala 566:73:freechips.rocketchip.system.DefaultRV32Config.fir@148507.4]
-  assign _T_692 = io_rw_addr == 12'h3; // @[CSR.scala 566:73:freechips.rocketchip.system.DefaultRV32Config.fir@148508.4]
-  assign _T_693 = io_rw_addr == 12'hb00; // @[CSR.scala 566:73:freechips.rocketchip.system.DefaultRV32Config.fir@148509.4]
-  assign _T_694 = io_rw_addr == 12'hb02; // @[CSR.scala 566:73:freechips.rocketchip.system.DefaultRV32Config.fir@148510.4]
-  assign _T_840 = io_rw_addr == 12'h306; // @[CSR.scala 566:73:freechips.rocketchip.system.DefaultRV32Config.fir@148656.4]
-  assign _T_841 = io_rw_addr == 12'hc00; // @[CSR.scala 566:73:freechips.rocketchip.system.DefaultRV32Config.fir@148657.4]
-  assign _T_842 = io_rw_addr == 12'hc02; // @[CSR.scala 566:73:freechips.rocketchip.system.DefaultRV32Config.fir@148658.4]
-  assign _T_843 = io_rw_addr == 12'hb80; // @[CSR.scala 566:73:freechips.rocketchip.system.DefaultRV32Config.fir@148659.4]
-  assign _T_844 = io_rw_addr == 12'hb82; // @[CSR.scala 566:73:freechips.rocketchip.system.DefaultRV32Config.fir@148660.4]
-  assign _T_845 = io_rw_addr == 12'hc80; // @[CSR.scala 566:73:freechips.rocketchip.system.DefaultRV32Config.fir@148661.4]
-  assign _T_846 = io_rw_addr == 12'hc82; // @[CSR.scala 566:73:freechips.rocketchip.system.DefaultRV32Config.fir@148662.4]
-  assign _T_847 = io_rw_addr == 12'h100; // @[CSR.scala 566:73:freechips.rocketchip.system.DefaultRV32Config.fir@148663.4]
-  assign _T_848 = io_rw_addr == 12'h144; // @[CSR.scala 566:73:freechips.rocketchip.system.DefaultRV32Config.fir@148664.4]
-  assign _T_849 = io_rw_addr == 12'h104; // @[CSR.scala 566:73:freechips.rocketchip.system.DefaultRV32Config.fir@148665.4]
-  assign _T_850 = io_rw_addr == 12'h140; // @[CSR.scala 566:73:freechips.rocketchip.system.DefaultRV32Config.fir@148666.4]
-  assign _T_851 = io_rw_addr == 12'h142; // @[CSR.scala 566:73:freechips.rocketchip.system.DefaultRV32Config.fir@148667.4]
-  assign _T_852 = io_rw_addr == 12'h143; // @[CSR.scala 566:73:freechips.rocketchip.system.DefaultRV32Config.fir@148668.4]
-  assign _T_853 = io_rw_addr == 12'h180; // @[CSR.scala 566:73:freechips.rocketchip.system.DefaultRV32Config.fir@148669.4]
-  assign _T_854 = io_rw_addr == 12'h141; // @[CSR.scala 566:73:freechips.rocketchip.system.DefaultRV32Config.fir@148670.4]
-  assign _T_855 = io_rw_addr == 12'h105; // @[CSR.scala 566:73:freechips.rocketchip.system.DefaultRV32Config.fir@148671.4]
-  assign _T_856 = io_rw_addr == 12'h106; // @[CSR.scala 566:73:freechips.rocketchip.system.DefaultRV32Config.fir@148672.4]
-  assign _T_857 = io_rw_addr == 12'h303; // @[CSR.scala 566:73:freechips.rocketchip.system.DefaultRV32Config.fir@148673.4]
-  assign _T_858 = io_rw_addr == 12'h302; // @[CSR.scala 566:73:freechips.rocketchip.system.DefaultRV32Config.fir@148674.4]
-  assign _T_859 = io_rw_addr == 12'h3a0; // @[CSR.scala 566:73:freechips.rocketchip.system.DefaultRV32Config.fir@148675.4]
-  assign _T_860 = io_rw_addr == 12'h3a1; // @[CSR.scala 566:73:freechips.rocketchip.system.DefaultRV32Config.fir@148676.4]
-  assign _T_863 = io_rw_addr == 12'h3b0; // @[CSR.scala 566:73:freechips.rocketchip.system.DefaultRV32Config.fir@148679.4]
-  assign _T_864 = io_rw_addr == 12'h3b1; // @[CSR.scala 566:73:freechips.rocketchip.system.DefaultRV32Config.fir@148680.4]
-  assign _T_865 = io_rw_addr == 12'h3b2; // @[CSR.scala 566:73:freechips.rocketchip.system.DefaultRV32Config.fir@148681.4]
-  assign _T_866 = io_rw_addr == 12'h3b3; // @[CSR.scala 566:73:freechips.rocketchip.system.DefaultRV32Config.fir@148682.4]
-  assign _T_867 = io_rw_addr == 12'h3b4; // @[CSR.scala 566:73:freechips.rocketchip.system.DefaultRV32Config.fir@148683.4]
-  assign _T_868 = io_rw_addr == 12'h3b5; // @[CSR.scala 566:73:freechips.rocketchip.system.DefaultRV32Config.fir@148684.4]
-  assign _T_869 = io_rw_addr == 12'h3b6; // @[CSR.scala 566:73:freechips.rocketchip.system.DefaultRV32Config.fir@148685.4]
-  assign _T_870 = io_rw_addr == 12'h3b7; // @[CSR.scala 566:73:freechips.rocketchip.system.DefaultRV32Config.fir@148686.4]
-  assign _T_880 = io_rw_addr == 12'hf12; // @[CSR.scala 566:73:freechips.rocketchip.system.DefaultRV32Config.fir@148696.4]
-  assign _T_882 = io_rw_addr == 12'hf13; // @[CSR.scala 566:73:freechips.rocketchip.system.DefaultRV32Config.fir@148698.4]
   assign _T_883 = io_rw_cmd[1]; // @[CSR.scala 1038:13:freechips.rocketchip.system.DefaultRV32Config.fir@148699.4]
-  assign _T_884 = _T_883 ? io_rw_rdata : 32'h0; // @[CSR.scala 1038:9:freechips.rocketchip.system.DefaultRV32Config.fir@148700.4]
   assign _T_885 = _T_884 | io_rw_wdata; // @[CSR.scala 1038:34:freechips.rocketchip.system.DefaultRV32Config.fir@148701.4]
   assign _T_886 = io_rw_cmd[1:0]; // @[CSR.scala 1038:53:freechips.rocketchip.system.DefaultRV32Config.fir@148702.4]
   assign _T_887 = _T_886 == 2'h3; // @[CSR.scala 1038:59:freechips.rocketchip.system.DefaultRV32Config.fir@148703.4]
-  assign _T_888 = _T_887 ? io_rw_wdata : 32'h0; // @[CSR.scala 1038:49:freechips.rocketchip.system.DefaultRV32Config.fir@148704.4]
   assign _T_889 = ~ _T_888; // @[CSR.scala 1038:45:freechips.rocketchip.system.DefaultRV32Config.fir@148705.4]
-//  assign wdata = _T_885 & _T_889; // @[CSR.scala 1038:43:freechips.rocketchip.system.DefaultRV32Config.fir@148706.4]
   assign _T_903 = _T_890 & 32'h20200000; // @[Decode.scala 14:65:freechips.rocketchip.system.DefaultRV32Config.fir@148721.4]
   assign _T_904 = _T_903 == 32'h20000000; // @[Decode.scala 14:121:freechips.rocketchip.system.DefaultRV32Config.fir@148722.4]
   assign _T_906 = _T_890 & 32'h32200000; // @[Decode.scala 14:65:freechips.rocketchip.system.DefaultRV32Config.fir@148724.4]
   assign _T_907 = _T_906 == 32'h10000000; // @[Decode.scala 14:121:freechips.rocketchip.system.DefaultRV32Config.fir@148725.4]
-//  assign insn_cease = system_insn & _T_904; // @[CSR.scala 581:95:freechips.rocketchip.system.DefaultRV32Config.fir@148737.4]
-//  assign insn_wfi = system_insn & _T_907; // @[CSR.scala 581:95:freechips.rocketchip.system.DefaultRV32Config.fir@148739.4]
   assign _T_918 = {io_decode_0_csr, 20'h0}; // @[CSR.scala 588:30:freechips.rocketchip.system.DefaultRV32Config.fir@148742.4]
   assign _T_925 = _T_918 & 32'h12400000; // @[Decode.scala 14:65:freechips.rocketchip.system.DefaultRV32Config.fir@148749.4]
   assign _T_926 = _T_925 == 32'h10000000; // @[Decode.scala 14:121:freechips.rocketchip.system.DefaultRV32Config.fir@148750.4]
@@ -3109,7 +4663,6 @@ assign io_trace_0_exception = exception;
   assign _T_935 = _T_934 == 32'h10000000; // @[Decode.scala 14:121:freechips.rocketchip.system.DefaultRV32Config.fir@148759.4]
   assign _T_937 = _T_918 & 32'h42000000; // @[Decode.scala 14:65:freechips.rocketchip.system.DefaultRV32Config.fir@148761.4]
   assign _T_938 = _T_937 == 32'h2000000; // @[Decode.scala 14:121:freechips.rocketchip.system.DefaultRV32Config.fir@148762.4]
-  assign _T_946 = reg_mstatus_prv > 2'h1; // @[CSR.scala 590:55:freechips.rocketchip.system.DefaultRV32Config.fir@148770.4]
   assign _T_948 = reg_mstatus_tw == 1'h0; // @[CSR.scala 590:66:freechips.rocketchip.system.DefaultRV32Config.fir@148772.4]
   assign _T_949 = _T_946 | _T_948; // @[CSR.scala 590:63:freechips.rocketchip.system.DefaultRV32Config.fir@148773.4]
   assign _T_952 = reg_mstatus_tvm == 1'h0; // @[CSR.scala 591:73:freechips.rocketchip.system.DefaultRV32Config.fir@148776.4]
@@ -3587,9 +5140,6 @@ assign io_trace_0_exception = exception;
   assign _T_1452 = _T_1450 & _T_1547; // @[CSR.scala 612:32:freechips.rocketchip.system.DefaultRV32Config.fir@149283.4]
   assign _T_1453 = _T_1448 | _T_1452; // @[CSR.scala 611:29:freechips.rocketchip.system.DefaultRV32Config.fir@149284.4]
   assign _T_1455 = _T_938 & _T_1407; // @[CSR.scala 613:17:freechips.rocketchip.system.DefaultRV32Config.fir@149286.4]
-  assign _T_1477 = insn_break ? 12'h800 : 12'h808; // @[CSR.scala 624:37:freechips.rocketchip.system.DefaultRV32Config.fir@149315.4]
-//  assign debugTVec = reg_debug ? _T_1477 : 12'h800; // @[CSR.scala 624:22:freechips.rocketchip.system.DefaultRV32Config.fir@149316.4]
-  assign _T_1486 = delegate ? read_stvec : read_mtvec; // @[CSR.scala 632:19:freechips.rocketchip.system.DefaultRV32Config.fir@149326.4]
   assign _T_1487 = cause[4:0]; // @[CSR.scala 633:32:freechips.rocketchip.system.DefaultRV32Config.fir@149327.4]
   assign _T_1488 = {_T_1487, 2'h0}; // @[CSR.scala 633:59:freechips.rocketchip.system.DefaultRV32Config.fir@149328.4]
   assign _T_1489 = _T_1486[31:7]; // @[CSR.scala 634:33:freechips.rocketchip.system.DefaultRV32Config.fir@149329.4]
@@ -3601,8 +5151,6 @@ assign io_trace_0_exception = exception;
   assign _T_1496 = _T_1493 & _T_1495; // @[CSR.scala 635:55:freechips.rocketchip.system.DefaultRV32Config.fir@149336.4]
   assign _T_1497 = _T_1486[31:2]; // @[CSR.scala 636:38:freechips.rocketchip.system.DefaultRV32Config.fir@149337.4]
   assign _T_1498 = {_T_1497, 2'h0}; // @[CSR.scala 636:56:freechips.rocketchip.system.DefaultRV32Config.fir@149338.4]
-//  assign notDebugTVec = _T_1496 ? _T_1490 : _T_1498; // @[CSR.scala 636:8:freechips.rocketchip.system.DefaultRV32Config.fir@149339.4]
-  assign tvec = trapToDebug ? {{20'd0}, debugTVec} : notDebugTVec; // @[CSR.scala 638:17:freechips.rocketchip.system.DefaultRV32Config.fir@149340.4]
   assign _T_1503 = io_status_fs == 2'h3; // @[CSR.scala 644:32:freechips.rocketchip.system.DefaultRV32Config.fir@149350.4]
   assign _T_1504 = io_status_xs == 2'h3; // @[CSR.scala 644:53:freechips.rocketchip.system.DefaultRV32Config.fir@149351.4]
   assign _T_1505 = _T_1503 | _T_1504; // @[CSR.scala 644:37:freechips.rocketchip.system.DefaultRV32Config.fir@149352.4]
@@ -3613,7 +5161,6 @@ assign io_trace_0_exception = exception;
   assign _T_1517 = _T_1513 + _T_1515; // @[Bitwise.scala 47:55:freechips.rocketchip.system.DefaultRV32Config.fir@149373.4]
   assign _T_1519 = _T_1517 <= 3'h1; // @[CSR.scala 654:79:freechips.rocketchip.system.DefaultRV32Config.fir@149375.4]
   assign _T_1521 = _T_1519 | reset; // @[CSR.scala 654:9:freechips.rocketchip.system.DefaultRV32Config.fir@149377.4]
-  assign _T_1522 = _T_1521 == 1'h0; // @[CSR.scala 654:9:freechips.rocketchip.system.DefaultRV32Config.fir@149378.4]
   assign _T_1524 = insn_wfi & _T_277; // @[CSR.scala 656:18:freechips.rocketchip.system.DefaultRV32Config.fir@149384.4]
   assign _T_1526 = _T_1524 & _T_1547; // @[CSR.scala 656:36:freechips.rocketchip.system.DefaultRV32Config.fir@149386.4]
   assign _GEN_34 = _T_1526 | reg_wfi; // @[CSR.scala 656:51:freechips.rocketchip.system.DefaultRV32Config.fir@149387.4]
@@ -3626,10 +5173,8 @@ assign io_trace_0_exception = exception;
   assign _T_1540 = io_retire == 1'h0; // @[CSR.scala 662:42:freechips.rocketchip.system.DefaultRV32Config.fir@149416.4]
   assign _T_1541 = _T_1539 | _T_1540; // @[CSR.scala 662:29:freechips.rocketchip.system.DefaultRV32Config.fir@149417.4]
   assign _T_1543 = _T_1541 | reset; // @[CSR.scala 662:9:freechips.rocketchip.system.DefaultRV32Config.fir@149419.4]
-  assign _T_1544 = _T_1543 == 1'h0; // @[CSR.scala 662:9:freechips.rocketchip.system.DefaultRV32Config.fir@149420.4]
   assign _T_1545 = ~ io_pc; // @[CSR.scala 1059:28:freechips.rocketchip.system.DefaultRV32Config.fir@149425.4]
   assign _T_1546 = _T_1545 | 32'h1; // @[CSR.scala 1059:31:freechips.rocketchip.system.DefaultRV32Config.fir@149426.4]
-  assign epc = ~ _T_1546; // @[CSR.scala 1059:26:freechips.rocketchip.system.DefaultRV32Config.fir@149427.4]
   assign _T_1548 = causeIsDebugTrigger ? 2'h2 : 2'h1; // @[CSR.scala 673:86:freechips.rocketchip.system.DefaultRV32Config.fir@149437.10]
   assign _T_1549 = causeIsDebugInt ? 2'h3 : _T_1548; // @[CSR.scala 673:56:freechips.rocketchip.system.DefaultRV32Config.fir@149438.10]
   assign _GEN_38 = _T_1547 | reg_debug; // @[CSR.scala 670:25:freechips.rocketchip.system.DefaultRV32Config.fir@149434.8]
@@ -3651,57 +5196,56 @@ assign io_trace_0_exception = exception;
   assign _GEN_95 = _T_1879 ? _T_431 : _T_413; // @[CSR.scala 724:53:freechips.rocketchip.system.DefaultRV32Config.fir@149806.8]
   assign _GEN_100 = _T_1872 | _GEN_84; // @[CSR.scala 718:44:freechips.rocketchip.system.DefaultRV32Config.fir@149791.6]
   assign _GEN_101 = _T_1872 ? 2'h0 : _GEN_85; // @[CSR.scala 718:44:freechips.rocketchip.system.DefaultRV32Config.fir@149791.6]
-  assign _GEN_103 = _T_1872 ? _T_571 : _GEN_95; // @[CSR.scala 718:44:freechips.rocketchip.system.DefaultRV32Config.fir@149791.6]
   assign _GEN_110 = insn_ret ? _GEN_101 : _GEN_85; // @[CSR.scala 717:19:freechips.rocketchip.system.DefaultRV32Config.fir@149787.4]
   assign _GEN_117 = insn_cease | _T_1894; // @[Reg.scala 28:19:freechips.rocketchip.system.DefaultRV32Config.fir@149835.4]
-  assign _T_1896 = _T_675 ? _T_408 : 32'h0; // @[Mux.scala 27:72:freechips.rocketchip.system.DefaultRV32Config.fir@149852.4]
-  assign _T_1897 = _T_676 ? reg_bp_0_address : 32'h0; // @[Mux.scala 27:72:freechips.rocketchip.system.DefaultRV32Config.fir@149853.4]
-  assign _T_1898 = _T_677 ? reg_misa : 32'h0; // @[Mux.scala 27:72:freechips.rocketchip.system.DefaultRV32Config.fir@149854.4]
-  assign _T_1899 = _T_678 ? read_mstatus : 32'h0; // @[Mux.scala 27:72:freechips.rocketchip.system.DefaultRV32Config.fir@149855.4]
-  assign _T_1900 = _T_679 ? read_mtvec : 32'h0; // @[Mux.scala 27:72:freechips.rocketchip.system.DefaultRV32Config.fir@149856.4]
-  assign _T_1901 = _T_680 ? read_mip : 16'h0; // @[Mux.scala 27:72:freechips.rocketchip.system.DefaultRV32Config.fir@149857.4]
-  assign _T_1902 = _T_681 ? reg_mie : 32'h0; // @[Mux.scala 27:72:freechips.rocketchip.system.DefaultRV32Config.fir@149858.4]
-  assign _T_1903 = _T_682 ? reg_mscratch : 32'h0; // @[Mux.scala 27:72:freechips.rocketchip.system.DefaultRV32Config.fir@149859.4]
-  assign _T_1904 = _T_683 ? _T_413 : 32'h0; // @[Mux.scala 27:72:freechips.rocketchip.system.DefaultRV32Config.fir@149860.4]
-  assign _T_1905 = _T_684 ? reg_mtval : 32'h0; // @[Mux.scala 27:72:freechips.rocketchip.system.DefaultRV32Config.fir@149861.4]
-  assign _T_1906 = _T_685 ? reg_mcause : 32'h0; // @[Mux.scala 27:72:freechips.rocketchip.system.DefaultRV32Config.fir@149862.4]
-  assign _T_1908 = _T_687 ? _T_426 : 32'h0; // @[Mux.scala 27:72:freechips.rocketchip.system.DefaultRV32Config.fir@149864.4]
-  assign _T_1909 = _T_688 ? _T_431 : 32'h0; // @[Mux.scala 27:72:freechips.rocketchip.system.DefaultRV32Config.fir@149865.4]
-  assign _T_1910 = _T_689 ? reg_dscratch : 32'h0; // @[Mux.scala 27:72:freechips.rocketchip.system.DefaultRV32Config.fir@149866.4]
-  assign _T_1911 = _T_690 ? reg_fflags : 5'h0; // @[Mux.scala 27:72:freechips.rocketchip.system.DefaultRV32Config.fir@149867.4]
-  assign _T_1912 = _T_691 ? reg_frm : 3'h0; // @[Mux.scala 27:72:freechips.rocketchip.system.DefaultRV32Config.fir@149868.4]
-  assign _T_1913 = _T_692 ? read_fcsr : 10'h0; // @[Mux.scala 27:72:freechips.rocketchip.system.DefaultRV32Config.fir@149869.4]
-  assign _T_1914 = _T_693 ? _T_100 : 64'h0; // @[Mux.scala 27:72:freechips.rocketchip.system.DefaultRV32Config.fir@149870.4]
-  assign _T_1915 = _T_694 ? _T_92 : 64'h0; // @[Mux.scala 27:72:freechips.rocketchip.system.DefaultRV32Config.fir@149871.4]
-  assign _T_2061 = _T_840 ? read_mcounteren : 32'h0; // @[Mux.scala 27:72:freechips.rocketchip.system.DefaultRV32Config.fir@150017.4]
+  assign _T_1896 = sel_tdata1 ? _T_408 : 32'h0; // @[Mux.scala 27:72:freechips.rocketchip.system.DefaultRV32Config.fir@149852.4]
+  assign _T_1897 = sel_tdata2 ? reg_bp_0_address : 32'h0; // @[Mux.scala 27:72:freechips.rocketchip.system.DefaultRV32Config.fir@149853.4]
+  assign _T_1898 = sel_misa ? reg_misa : 32'h0; // @[Mux.scala 27:72:freechips.rocketchip.system.DefaultRV32Config.fir@149854.4]
+  assign _T_1899 = sel_mstatus ? read_mstatus : 32'h0; // @[Mux.scala 27:72:freechips.rocketchip.system.DefaultRV32Config.fir@149855.4]
+  assign _T_1900 = sel_mtvec ? read_mtvec : 32'h0; // @[Mux.scala 27:72:freechips.rocketchip.system.DefaultRV32Config.fir@149856.4]
+  assign _T_1901 = sel_mip ? read_mip : 16'h0; // @[Mux.scala 27:72:freechips.rocketchip.system.DefaultRV32Config.fir@149857.4]
+  assign _T_1902 = sel_mie ? reg_mie : 32'h0; // @[Mux.scala 27:72:freechips.rocketchip.system.DefaultRV32Config.fir@149858.4]
+  assign _T_1903 = sel_mscratch ? reg_mscratch : 32'h0; // @[Mux.scala 27:72:freechips.rocketchip.system.DefaultRV32Config.fir@149859.4]
+  assign _T_1904 = sel_mepc ? _T_413 : 32'h0; // @[Mux.scala 27:72:freechips.rocketchip.system.DefaultRV32Config.fir@149860.4]
+  assign _T_1905 = sel_mtval ? reg_mtval : 32'h0; // @[Mux.scala 27:72:freechips.rocketchip.system.DefaultRV32Config.fir@149861.4]
+  assign _T_1906 = sel_mcause ? reg_mcause : 32'h0; // @[Mux.scala 27:72:freechips.rocketchip.system.DefaultRV32Config.fir@149862.4]
+  assign _T_1908 = sel_dcsr ? _T_426 : 32'h0; // @[Mux.scala 27:72:freechips.rocketchip.system.DefaultRV32Config.fir@149864.4]
+  assign _T_1909 = sel_dpc ? _T_431 : 32'h0; // @[Mux.scala 27:72:freechips.rocketchip.system.DefaultRV32Config.fir@149865.4]
+  assign _T_1910 = sel_dscratch ? reg_dscratch : 32'h0; // @[Mux.scala 27:72:freechips.rocketchip.system.DefaultRV32Config.fir@149866.4]
+  assign _T_1911 = sel_fflags ? reg_fflags : 5'h0; // @[Mux.scala 27:72:freechips.rocketchip.system.DefaultRV32Config.fir@149867.4]
+  assign _T_1912 = sel_frm ? reg_frm : 3'h0; // @[Mux.scala 27:72:freechips.rocketchip.system.DefaultRV32Config.fir@149868.4]
+  assign _T_1913 = sel_fcsr ? read_fcsr : 10'h0; // @[Mux.scala 27:72:freechips.rocketchip.system.DefaultRV32Config.fir@149869.4]
+  assign _T_1914 = sel_mcycle ? _T_100 : 64'h0; // @[Mux.scala 27:72:freechips.rocketchip.system.DefaultRV32Config.fir@149870.4]
+  assign _T_1915 = sel_minstret ? _T_92 : 64'h0; // @[Mux.scala 27:72:freechips.rocketchip.system.DefaultRV32Config.fir@149871.4]
+  assign _T_2061 = sel_mcounteren ? read_mcounteren : 32'h0; // @[Mux.scala 27:72:freechips.rocketchip.system.DefaultRV32Config.fir@150017.4]
   assign _T_2062 = _T_841 ? _T_100 : 64'h0; // @[Mux.scala 27:72:freechips.rocketchip.system.DefaultRV32Config.fir@150018.4]
   assign _T_2063 = _T_842 ? _T_92 : 64'h0; // @[Mux.scala 27:72:freechips.rocketchip.system.DefaultRV32Config.fir@150019.4]
-  assign _T_2064 = _T_843 ? _T_494 : 32'h0; // @[Mux.scala 27:72:freechips.rocketchip.system.DefaultRV32Config.fir@150020.4]
-  assign _T_2065 = _T_844 ? _T_495 : 32'h0; // @[Mux.scala 27:72:freechips.rocketchip.system.DefaultRV32Config.fir@150021.4]
+  assign _T_2064 = sel_mcycleh ? _T_494 : 32'h0; // @[Mux.scala 27:72:freechips.rocketchip.system.DefaultRV32Config.fir@150020.4]
+  assign _T_2065 = sel_minstreth ? _T_495 : 32'h0; // @[Mux.scala 27:72:freechips.rocketchip.system.DefaultRV32Config.fir@150021.4]
   assign _T_2066 = _T_845 ? _T_494 : 32'h0; // @[Mux.scala 27:72:freechips.rocketchip.system.DefaultRV32Config.fir@150022.4]
   assign _T_2067 = _T_846 ? _T_495 : 32'h0; // @[Mux.scala 27:72:freechips.rocketchip.system.DefaultRV32Config.fir@150023.4]
-  assign _T_2068 = _T_847 ? _T_564 : 32'h0; // @[Mux.scala 27:72:freechips.rocketchip.system.DefaultRV32Config.fir@150024.4]
-  assign _T_2069 = _T_848 ? _T_499 : 32'h0; // @[Mux.scala 27:72:freechips.rocketchip.system.DefaultRV32Config.fir@150025.4]
-  assign _T_2070 = _T_849 ? _T_498 : 32'h0; // @[Mux.scala 27:72:freechips.rocketchip.system.DefaultRV32Config.fir@150026.4]
-  assign _T_2071 = _T_850 ? reg_sscratch : 32'h0; // @[Mux.scala 27:72:freechips.rocketchip.system.DefaultRV32Config.fir@150027.4]
-  assign _T_2072 = _T_851 ? reg_scause : 32'h0; // @[Mux.scala 27:72:freechips.rocketchip.system.DefaultRV32Config.fir@150028.4]
-  assign _T_2073 = _T_852 ? reg_stval : 32'h0; // @[Mux.scala 27:72:freechips.rocketchip.system.DefaultRV32Config.fir@150029.4]
-  assign _T_2074 = _T_853 ? _T_566 : 32'h0; // @[Mux.scala 27:72:freechips.rocketchip.system.DefaultRV32Config.fir@150030.4]
-  assign _T_2075 = _T_854 ? _T_571 : 32'h0; // @[Mux.scala 27:72:freechips.rocketchip.system.DefaultRV32Config.fir@150031.4]
-  assign _T_2076 = _T_855 ? read_stvec : 32'h0; // @[Mux.scala 27:72:freechips.rocketchip.system.DefaultRV32Config.fir@150032.4]
-  assign _T_2077 = _T_856 ? read_scounteren : 32'h0; // @[Mux.scala 27:72:freechips.rocketchip.system.DefaultRV32Config.fir@150033.4]
-  assign _T_2078 = _T_857 ? read_mideleg : 32'h0; // @[Mux.scala 27:72:freechips.rocketchip.system.DefaultRV32Config.fir@150034.4]
-  assign _T_2079 = _T_858 ? read_medeleg : 32'h0; // @[Mux.scala 27:72:freechips.rocketchip.system.DefaultRV32Config.fir@150035.4]
-  assign _T_2080 = _T_859 ? _T_604 : 32'h0; // @[Mux.scala 27:72:freechips.rocketchip.system.DefaultRV32Config.fir@150036.4]
-  assign _T_2081 = _T_860 ? _T_627 : 32'h0; // @[Mux.scala 27:72:freechips.rocketchip.system.DefaultRV32Config.fir@150037.4]
-  assign _T_2084 = _T_863 ? reg_pmp_0_addr : 30'h0; // @[Mux.scala 27:72:freechips.rocketchip.system.DefaultRV32Config.fir@150040.4]
-  assign _T_2085 = _T_864 ? reg_pmp_1_addr : 30'h0; // @[Mux.scala 27:72:freechips.rocketchip.system.DefaultRV32Config.fir@150041.4]
-  assign _T_2086 = _T_865 ? reg_pmp_2_addr : 30'h0; // @[Mux.scala 27:72:freechips.rocketchip.system.DefaultRV32Config.fir@150042.4]
-  assign _T_2087 = _T_866 ? reg_pmp_3_addr : 30'h0; // @[Mux.scala 27:72:freechips.rocketchip.system.DefaultRV32Config.fir@150043.4]
-  assign _T_2088 = _T_867 ? reg_pmp_4_addr : 30'h0; // @[Mux.scala 27:72:freechips.rocketchip.system.DefaultRV32Config.fir@150044.4]
-  assign _T_2089 = _T_868 ? reg_pmp_5_addr : 30'h0; // @[Mux.scala 27:72:freechips.rocketchip.system.DefaultRV32Config.fir@150045.4]
-  assign _T_2090 = _T_869 ? reg_pmp_6_addr : 30'h0; // @[Mux.scala 27:72:freechips.rocketchip.system.DefaultRV32Config.fir@150046.4]
-  assign _T_2091 = _T_870 ? reg_pmp_7_addr : 30'h0; // @[Mux.scala 27:72:freechips.rocketchip.system.DefaultRV32Config.fir@150047.4]
+  assign _T_2068 = sel_sstatus ? _T_564 : 32'h0; // @[Mux.scala 27:72:freechips.rocketchip.system.DefaultRV32Config.fir@150024.4]
+  assign _T_2069 = sel_sip ? _T_499 : 32'h0; // @[Mux.scala 27:72:freechips.rocketchip.system.DefaultRV32Config.fir@150025.4]
+  assign _T_2070 = sel_sie ? _T_498 : 32'h0; // @[Mux.scala 27:72:freechips.rocketchip.system.DefaultRV32Config.fir@150026.4]
+  assign _T_2071 = sel_sscratch ? reg_sscratch : 32'h0; // @[Mux.scala 27:72:freechips.rocketchip.system.DefaultRV32Config.fir@150027.4]
+  assign _T_2072 = sel_scause ? reg_scause : 32'h0; // @[Mux.scala 27:72:freechips.rocketchip.system.DefaultRV32Config.fir@150028.4]
+  assign _T_2073 = sel_stval ? reg_stval : 32'h0; // @[Mux.scala 27:72:freechips.rocketchip.system.DefaultRV32Config.fir@150029.4]
+  assign _T_2074 = sel_satp ? _T_566 : 32'h0; // @[Mux.scala 27:72:freechips.rocketchip.system.DefaultRV32Config.fir@150030.4]
+  assign _T_2075 = sel_sepc ? _T_571 : 32'h0; // @[Mux.scala 27:72:freechips.rocketchip.system.DefaultRV32Config.fir@150031.4]
+  assign _T_2076 = sel_stvec ? read_stvec : 32'h0; // @[Mux.scala 27:72:freechips.rocketchip.system.DefaultRV32Config.fir@150032.4]
+  assign _T_2077 = sel_scounteren ? read_scounteren : 32'h0; // @[Mux.scala 27:72:freechips.rocketchip.system.DefaultRV32Config.fir@150033.4]
+  assign _T_2078 = sel_mideleg ? read_mideleg : 32'h0; // @[Mux.scala 27:72:freechips.rocketchip.system.DefaultRV32Config.fir@150034.4]
+  assign _T_2079 = sel_medeleg ? read_medeleg : 32'h0; // @[Mux.scala 27:72:freechips.rocketchip.system.DefaultRV32Config.fir@150035.4]
+  assign _T_2080 = sel_pmp_cfg_0 ? _T_604 : 32'h0; // @[Mux.scala 27:72:freechips.rocketchip.system.DefaultRV32Config.fir@150036.4]
+  assign _T_2081 = sel_pmp_cfg_1 ? _T_627 : 32'h0; // @[Mux.scala 27:72:freechips.rocketchip.system.DefaultRV32Config.fir@150037.4]
+  assign _T_2084 = sel_pmp_addr_0 ? reg_pmp_0_addr : 30'h0; // @[Mux.scala 27:72:freechips.rocketchip.system.DefaultRV32Config.fir@150040.4]
+  assign _T_2085 = sel_pmp_addr_1 ? reg_pmp_1_addr : 30'h0; // @[Mux.scala 27:72:freechips.rocketchip.system.DefaultRV32Config.fir@150041.4]
+  assign _T_2086 = sel_pmp_addr_2 ? reg_pmp_2_addr : 30'h0; // @[Mux.scala 27:72:freechips.rocketchip.system.DefaultRV32Config.fir@150042.4]
+  assign _T_2087 = sel_pmp_addr_3 ? reg_pmp_3_addr : 30'h0; // @[Mux.scala 27:72:freechips.rocketchip.system.DefaultRV32Config.fir@150043.4]
+  assign _T_2088 = sel_pmp_addr_4 ? reg_pmp_4_addr : 30'h0; // @[Mux.scala 27:72:freechips.rocketchip.system.DefaultRV32Config.fir@150044.4]
+  assign _T_2089 = sel_pmp_addr_5 ? reg_pmp_5_addr : 30'h0; // @[Mux.scala 27:72:freechips.rocketchip.system.DefaultRV32Config.fir@150045.4]
+  assign _T_2090 = sel_pmp_addr_6 ? reg_pmp_6_addr : 30'h0; // @[Mux.scala 27:72:freechips.rocketchip.system.DefaultRV32Config.fir@150046.4]
+  assign _T_2091 = sel_pmp_addr_7 ? reg_pmp_7_addr : 30'h0; // @[Mux.scala 27:72:freechips.rocketchip.system.DefaultRV32Config.fir@150047.4]
   assign _T_2101 = _T_880 ? 32'h1 : 32'h0; // @[Mux.scala 27:72:freechips.rocketchip.system.DefaultRV32Config.fir@150057.4]
   assign _T_2103 = _T_882 ? 32'h20181004 : 32'h0; // @[Mux.scala 27:72:freechips.rocketchip.system.DefaultRV32Config.fir@150059.4]
   assign _T_2105 = _T_1896 | _T_1897; // @[Mux.scala 27:72:freechips.rocketchip.system.DefaultRV32Config.fir@150061.4]
@@ -3793,7 +5337,6 @@ assign io_trace_0_exception = exception;
   assign _T_4821 = reg_fflags | io_fcsr_flags_bits; // @[CSR.scala 776:30:freechips.rocketchip.system.DefaultRV32Config.fir@153623.6]
   assign _GEN_118 = io_fcsr_flags_valid ? _T_4821 : reg_fflags; // @[CSR.scala 775:30:freechips.rocketchip.system.DefaultRV32Config.fir@153622.4]
   assign _T_4825 = _T_2316 | _T_2317; // @[package.scala 64:59:freechips.rocketchip.system.DefaultRV32Config.fir@153630.4]
-//  assign csr_wen = _T_4825 | _T_2315; // @[package.scala 64:59:freechips.rocketchip.system.DefaultRV32Config.fir@153631.4]
   assign _T_4839 = {{70'd0}, wdata}; // @[:freechips.rocketchip.system.DefaultRV32Config.fir@153649.8 :freechips.rocketchip.system.DefaultRV32Config.fir@153651.8]
   assign _T_4841 = _T_4839[1]; // @[CSR.scala 791:47:freechips.rocketchip.system.DefaultRV32Config.fir@153654.8]
   assign _T_4843 = _T_4839[3]; // @[CSR.scala 791:47:freechips.rocketchip.system.DefaultRV32Config.fir@153658.8]
@@ -3810,7 +5353,7 @@ assign io_trace_0_exception = exception;
   assign _T_4858 = _T_4839[22]; // @[CSR.scala 791:47:freechips.rocketchip.system.DefaultRV32Config.fir@153688.8]
   assign _T_4871 = _T_4850 == 2'h2; // @[CSR.scala 1042:27:freechips.rocketchip.system.DefaultRV32Config.fir@153717.8]
   assign _T_4873 = _T_4851 != 2'h0; // @[CSR.scala 1063:73:freechips.rocketchip.system.DefaultRV32Config.fir@153728.8]
-  assign _GEN_126 = _T_678 ? {{1'd0}, _T_4848} : _GEN_110; // @[CSR.scala 790:39:freechips.rocketchip.system.DefaultRV32Config.fir@153646.6]
+  assign _GEN_126 = sel_mstatus ? {{1'd0}, _T_4848} : _GEN_110; // @[CSR.scala 790:39:freechips.rocketchip.system.DefaultRV32Config.fir@153646.6]
   assign _T_4876 = wdata[5]; // @[CSR.scala 816:20:freechips.rocketchip.system.DefaultRV32Config.fir@153735.8]
   assign _T_4877 = io_pc[1]; // @[CSR.scala 818:39:freechips.rocketchip.system.DefaultRV32Config.fir@153736.8]
   assign _T_4878 = _T_4877 == 1'h0; // @[CSR.scala 818:33:freechips.rocketchip.system.DefaultRV32Config.fir@153737.8]
@@ -3841,30 +5384,30 @@ assign io_trace_0_exception = exception;
   assign _T_4938 = _T_100[63:32]; // @[CSR.scala 1053:47:freechips.rocketchip.system.DefaultRV32Config.fir@153844.8]
   assign _T_4939 = {_T_4938,wdata}; // @[Cat.scala 29:58:freechips.rocketchip.system.DefaultRV32Config.fir@153845.8]
   assign _T_4940 = _T_4939[63:6]; // @[Counters.scala 67:28:freechips.rocketchip.system.DefaultRV32Config.fir@153847.8]
-  assign _GEN_145 = _T_693 ? _T_4939 : {{57'd0}, _T_95}; // @[CSR.scala 1053:31:freechips.rocketchip.system.DefaultRV32Config.fir@153843.6]
+  assign _GEN_145 = sel_mcycle ? _T_4939 : {{57'd0}, _T_95}; // @[CSR.scala 1053:31:freechips.rocketchip.system.DefaultRV32Config.fir@153843.6]
   assign _T_4942 = _T_100[31:0]; // @[CSR.scala 1054:74:freechips.rocketchip.system.DefaultRV32Config.fir@153852.8]
   assign _T_4943 = {wdata,_T_4942}; // @[Cat.scala 29:58:freechips.rocketchip.system.DefaultRV32Config.fir@153853.8]
   assign _T_4944 = _T_4943[63:6]; // @[Counters.scala 67:28:freechips.rocketchip.system.DefaultRV32Config.fir@153855.8]
-  assign _GEN_147 = _T_843 ? _T_4943 : _GEN_145; // @[CSR.scala 1054:31:freechips.rocketchip.system.DefaultRV32Config.fir@153850.6]
+  assign _GEN_147 = sel_mcycleh ? _T_4943 : _GEN_145; // @[CSR.scala 1054:31:freechips.rocketchip.system.DefaultRV32Config.fir@153850.6]
   assign _T_4945 = _T_92[63:32]; // @[CSR.scala 1053:47:freechips.rocketchip.system.DefaultRV32Config.fir@153859.8]
   assign _T_4946 = {_T_4945,wdata}; // @[Cat.scala 29:58:freechips.rocketchip.system.DefaultRV32Config.fir@153860.8]
   assign _T_4947 = _T_4946[63:6]; // @[Counters.scala 67:28:freechips.rocketchip.system.DefaultRV32Config.fir@153862.8]
-  assign _GEN_149 = _T_694 ? _T_4946 : {{57'd0}, _T_87}; // @[CSR.scala 1053:31:freechips.rocketchip.system.DefaultRV32Config.fir@153858.6]
+  assign _GEN_149 = sel_minstret ? _T_4946 : {{57'd0}, _T_87}; // @[CSR.scala 1053:31:freechips.rocketchip.system.DefaultRV32Config.fir@153858.6]
   assign _T_4949 = _T_92[31:0]; // @[CSR.scala 1054:74:freechips.rocketchip.system.DefaultRV32Config.fir@153867.8]
   assign _T_4950 = {wdata,_T_4949}; // @[Cat.scala 29:58:freechips.rocketchip.system.DefaultRV32Config.fir@153868.8]
   assign _T_4951 = _T_4950[63:6]; // @[Counters.scala 67:28:freechips.rocketchip.system.DefaultRV32Config.fir@153870.8]
-  assign _GEN_151 = _T_844 ? _T_4950 : _GEN_149; // @[CSR.scala 1054:31:freechips.rocketchip.system.DefaultRV32Config.fir@153865.6]
-  assign _GEN_154 = _T_690 ? wdata : {{27'd0}, _GEN_118}; // @[CSR.scala 853:40:freechips.rocketchip.system.DefaultRV32Config.fir@153873.6]
-  assign _GEN_156 = _T_691 ? wdata : {{29'd0}, reg_frm}; // @[CSR.scala 854:40:freechips.rocketchip.system.DefaultRV32Config.fir@153877.6]
+  assign _GEN_151 = sel_minstreth ? _T_4950 : _GEN_149; // @[CSR.scala 1054:31:freechips.rocketchip.system.DefaultRV32Config.fir@153865.6]
+  assign _GEN_154 = sel_fflags ? wdata : {{27'd0}, _GEN_118}; // @[CSR.scala 853:40:freechips.rocketchip.system.DefaultRV32Config.fir@153873.6]
+  assign _GEN_156 = sel_frm ? wdata : {{29'd0}, reg_frm}; // @[CSR.scala 854:40:freechips.rocketchip.system.DefaultRV32Config.fir@153877.6]
   assign _T_4952 = wdata[31:5]; // @[CSR.scala 860:26:freechips.rocketchip.system.DefaultRV32Config.fir@153884.8]
-  assign _GEN_158 = _T_692 ? wdata : _GEN_154; // @[CSR.scala 857:38:freechips.rocketchip.system.DefaultRV32Config.fir@153881.6]
-  assign _GEN_159 = _T_692 ? {{5'd0}, _T_4952} : _GEN_156; // @[CSR.scala 857:38:freechips.rocketchip.system.DefaultRV32Config.fir@153881.6]
+  assign _GEN_158 = sel_fcsr ? wdata : _GEN_154; // @[CSR.scala 857:38:freechips.rocketchip.system.DefaultRV32Config.fir@153881.6]
+  assign _GEN_159 = sel_fcsr ? {{5'd0}, _T_4952} : _GEN_156; // @[CSR.scala 857:38:freechips.rocketchip.system.DefaultRV32Config.fir@153881.6]
   assign _T_4955 = wdata[1:0]; // @[CSR.scala 867:43:freechips.rocketchip.system.DefaultRV32Config.fir@153893.8]
   assign _T_4962 = wdata[12]; // @[CSR.scala 867:43:freechips.rocketchip.system.DefaultRV32Config.fir@153907.8]
   assign _T_4963 = wdata[13]; // @[CSR.scala 867:43:freechips.rocketchip.system.DefaultRV32Config.fir@153909.8]
   assign _T_4965 = wdata[15]; // @[CSR.scala 867:43:freechips.rocketchip.system.DefaultRV32Config.fir@153913.8]
   assign _T_4969 = _T_4955 == 2'h2; // @[CSR.scala 1042:27:freechips.rocketchip.system.DefaultRV32Config.fir@153925.8]
-  assign _GEN_169 = _T_847 ? {{1'd0}, _T_4848} : _GEN_126; // @[CSR.scala 878:41:freechips.rocketchip.system.DefaultRV32Config.fir@153938.6]
+  assign _GEN_169 = sel_sstatus ? {{1'd0}, _T_4848} : _GEN_126; // @[CSR.scala 878:41:freechips.rocketchip.system.DefaultRV32Config.fir@153938.6]
   assign _T_5010 = ~ read_mideleg; // @[CSR.scala 890:54:freechips.rocketchip.system.DefaultRV32Config.fir@154018.8]
   assign _T_5011 = _GEN_497 & _T_5010; // @[CSR.scala 890:52:freechips.rocketchip.system.DefaultRV32Config.fir@154019.8]
   assign _T_5012 = wdata & read_mideleg; // @[CSR.scala 890:78:freechips.rocketchip.system.DefaultRV32Config.fir@154020.8]
@@ -3895,7 +5438,7 @@ assign io_trace_0_exception = exception;
   assign _T_5111 = _T_5109 & reg_debug; // @[CSR.scala 929:38:freechips.rocketchip.system.DefaultRV32Config.fir@154227.10]
   assign _GEN_191 = _T_5111 & _T_5106; // @[CSR.scala 931:51:freechips.rocketchip.system.DefaultRV32Config.fir@154234.10]
   assign _T_5195 = reg_pmp_0_cfg_l == 1'h0; // @[CSR.scala 939:60:freechips.rocketchip.system.DefaultRV32Config.fir@154373.6]
-  assign _T_5196 = _T_859 & _T_5195; // @[CSR.scala 939:57:freechips.rocketchip.system.DefaultRV32Config.fir@154374.6]
+  assign _T_5196 = sel_pmp_cfg_0 & _T_5195; // @[CSR.scala 939:57:freechips.rocketchip.system.DefaultRV32Config.fir@154374.6]
   assign _T_5199 = wdata[7:0]; // @[:freechips.rocketchip.system.DefaultRV32Config.fir@154379.8 :freechips.rocketchip.system.DefaultRV32Config.fir@154381.8]
   assign _T_5200 = _T_5199[0]; // @[CSR.scala 940:46:freechips.rocketchip.system.DefaultRV32Config.fir@154382.8]
   assign _T_5201 = _T_5199[1]; // @[CSR.scala 940:46:freechips.rocketchip.system.DefaultRV32Config.fir@154384.8]
@@ -3909,10 +5452,10 @@ assign io_trace_0_exception = exception;
   assign _T_5211 = reg_pmp_1_cfg_l & _T_5210; // @[PMP.scala 49:62:freechips.rocketchip.system.DefaultRV32Config.fir@154402.6]
   assign _T_5212 = reg_pmp_0_cfg_l | _T_5211; // @[PMP.scala 49:44:freechips.rocketchip.system.DefaultRV32Config.fir@154403.6]
   assign _T_5213 = _T_5212 == 1'h0; // @[CSR.scala 948:48:freechips.rocketchip.system.DefaultRV32Config.fir@154404.6]
-  assign _T_5214 = _T_863 & _T_5213; // @[CSR.scala 948:45:freechips.rocketchip.system.DefaultRV32Config.fir@154405.6]
+  assign _T_5214 = sel_pmp_addr_0 & _T_5213; // @[CSR.scala 948:45:freechips.rocketchip.system.DefaultRV32Config.fir@154405.6]
   assign _GEN_262 = _T_5214 ? wdata : {{2'd0}, reg_pmp_0_addr}; // @[CSR.scala 948:71:freechips.rocketchip.system.DefaultRV32Config.fir@154406.6]
   assign _T_5215 = reg_pmp_1_cfg_l == 1'h0; // @[CSR.scala 939:60:freechips.rocketchip.system.DefaultRV32Config.fir@154409.6]
-  assign _T_5216 = _T_859 & _T_5215; // @[CSR.scala 939:57:freechips.rocketchip.system.DefaultRV32Config.fir@154410.6]
+  assign _T_5216 = sel_pmp_cfg_0 & _T_5215; // @[CSR.scala 939:57:freechips.rocketchip.system.DefaultRV32Config.fir@154410.6]
   assign _T_5217 = wdata[31:8]; // @[CSR.scala 940:53:freechips.rocketchip.system.DefaultRV32Config.fir@154412.8]
   assign _T_5219 = _T_5217[7:0]; // @[:freechips.rocketchip.system.DefaultRV32Config.fir@154415.8 :freechips.rocketchip.system.DefaultRV32Config.fir@154417.8]
   assign _T_5220 = _T_5219[0]; // @[CSR.scala 940:46:freechips.rocketchip.system.DefaultRV32Config.fir@154418.8]
@@ -3927,10 +5470,10 @@ assign io_trace_0_exception = exception;
   assign _T_5231 = reg_pmp_2_cfg_l & _T_5230; // @[PMP.scala 49:62:freechips.rocketchip.system.DefaultRV32Config.fir@154438.6]
   assign _T_5232 = reg_pmp_1_cfg_l | _T_5231; // @[PMP.scala 49:44:freechips.rocketchip.system.DefaultRV32Config.fir@154439.6]
   assign _T_5233 = _T_5232 == 1'h0; // @[CSR.scala 948:48:freechips.rocketchip.system.DefaultRV32Config.fir@154440.6]
-  assign _T_5234 = _T_864 & _T_5233; // @[CSR.scala 948:45:freechips.rocketchip.system.DefaultRV32Config.fir@154441.6]
+  assign _T_5234 = sel_pmp_addr_1 & _T_5233; // @[CSR.scala 948:45:freechips.rocketchip.system.DefaultRV32Config.fir@154441.6]
   assign _GEN_269 = _T_5234 ? wdata : {{2'd0}, reg_pmp_1_addr}; // @[CSR.scala 948:71:freechips.rocketchip.system.DefaultRV32Config.fir@154442.6]
   assign _T_5235 = reg_pmp_2_cfg_l == 1'h0; // @[CSR.scala 939:60:freechips.rocketchip.system.DefaultRV32Config.fir@154445.6]
-  assign _T_5236 = _T_859 & _T_5235; // @[CSR.scala 939:57:freechips.rocketchip.system.DefaultRV32Config.fir@154446.6]
+  assign _T_5236 = sel_pmp_cfg_0 & _T_5235; // @[CSR.scala 939:57:freechips.rocketchip.system.DefaultRV32Config.fir@154446.6]
   assign _T_5237 = wdata[31:16]; // @[CSR.scala 940:53:freechips.rocketchip.system.DefaultRV32Config.fir@154448.8]
   assign _T_5239 = _T_5237[7:0]; // @[:freechips.rocketchip.system.DefaultRV32Config.fir@154451.8 :freechips.rocketchip.system.DefaultRV32Config.fir@154453.8]
   assign _T_5240 = _T_5239[0]; // @[CSR.scala 940:46:freechips.rocketchip.system.DefaultRV32Config.fir@154454.8]
@@ -3945,10 +5488,10 @@ assign io_trace_0_exception = exception;
   assign _T_5251 = reg_pmp_3_cfg_l & _T_5250; // @[PMP.scala 49:62:freechips.rocketchip.system.DefaultRV32Config.fir@154474.6]
   assign _T_5252 = reg_pmp_2_cfg_l | _T_5251; // @[PMP.scala 49:44:freechips.rocketchip.system.DefaultRV32Config.fir@154475.6]
   assign _T_5253 = _T_5252 == 1'h0; // @[CSR.scala 948:48:freechips.rocketchip.system.DefaultRV32Config.fir@154476.6]
-  assign _T_5254 = _T_865 & _T_5253; // @[CSR.scala 948:45:freechips.rocketchip.system.DefaultRV32Config.fir@154477.6]
+  assign _T_5254 = sel_pmp_addr_2 & _T_5253; // @[CSR.scala 948:45:freechips.rocketchip.system.DefaultRV32Config.fir@154477.6]
   assign _GEN_276 = _T_5254 ? wdata : {{2'd0}, reg_pmp_2_addr}; // @[CSR.scala 948:71:freechips.rocketchip.system.DefaultRV32Config.fir@154478.6]
   assign _T_5255 = reg_pmp_3_cfg_l == 1'h0; // @[CSR.scala 939:60:freechips.rocketchip.system.DefaultRV32Config.fir@154481.6]
-  assign _T_5256 = _T_859 & _T_5255; // @[CSR.scala 939:57:freechips.rocketchip.system.DefaultRV32Config.fir@154482.6]
+  assign _T_5256 = sel_pmp_cfg_0 & _T_5255; // @[CSR.scala 939:57:freechips.rocketchip.system.DefaultRV32Config.fir@154482.6]
   assign _T_5257 = wdata[31:24]; // @[CSR.scala 940:53:freechips.rocketchip.system.DefaultRV32Config.fir@154484.8]
   assign _T_5260 = _T_5257[0]; // @[CSR.scala 940:46:freechips.rocketchip.system.DefaultRV32Config.fir@154490.8]
   assign _T_5261 = _T_5257[1]; // @[CSR.scala 940:46:freechips.rocketchip.system.DefaultRV32Config.fir@154492.8]
@@ -3962,43 +5505,43 @@ assign io_trace_0_exception = exception;
   assign _T_5271 = reg_pmp_4_cfg_l & _T_5270; // @[PMP.scala 49:62:freechips.rocketchip.system.DefaultRV32Config.fir@154510.6]
   assign _T_5272 = reg_pmp_3_cfg_l | _T_5271; // @[PMP.scala 49:44:freechips.rocketchip.system.DefaultRV32Config.fir@154511.6]
   assign _T_5273 = _T_5272 == 1'h0; // @[CSR.scala 948:48:freechips.rocketchip.system.DefaultRV32Config.fir@154512.6]
-  assign _T_5274 = _T_866 & _T_5273; // @[CSR.scala 948:45:freechips.rocketchip.system.DefaultRV32Config.fir@154513.6]
+  assign _T_5274 = sel_pmp_addr_3 & _T_5273; // @[CSR.scala 948:45:freechips.rocketchip.system.DefaultRV32Config.fir@154513.6]
   assign _GEN_283 = _T_5274 ? wdata : {{2'd0}, reg_pmp_3_addr}; // @[CSR.scala 948:71:freechips.rocketchip.system.DefaultRV32Config.fir@154514.6]
   assign _T_5275 = reg_pmp_4_cfg_l == 1'h0; // @[CSR.scala 939:60:freechips.rocketchip.system.DefaultRV32Config.fir@154517.6]
-  assign _T_5276 = _T_860 & _T_5275; // @[CSR.scala 939:57:freechips.rocketchip.system.DefaultRV32Config.fir@154518.6]
+  assign _T_5276 = sel_pmp_cfg_1 & _T_5275; // @[CSR.scala 939:57:freechips.rocketchip.system.DefaultRV32Config.fir@154518.6]
   assign _T_5287 = reg_pmp_5_cfg_a[1]; // @[PMP.scala 45:20:freechips.rocketchip.system.DefaultRV32Config.fir@154542.6]
   assign _T_5288 = _T_5287 == 1'h0; // @[PMP.scala 47:13:freechips.rocketchip.system.DefaultRV32Config.fir@154543.6]
   assign _T_5290 = _T_5288 & _T_329; // @[PMP.scala 47:20:freechips.rocketchip.system.DefaultRV32Config.fir@154545.6]
   assign _T_5291 = reg_pmp_5_cfg_l & _T_5290; // @[PMP.scala 49:62:freechips.rocketchip.system.DefaultRV32Config.fir@154546.6]
   assign _T_5292 = reg_pmp_4_cfg_l | _T_5291; // @[PMP.scala 49:44:freechips.rocketchip.system.DefaultRV32Config.fir@154547.6]
   assign _T_5293 = _T_5292 == 1'h0; // @[CSR.scala 948:48:freechips.rocketchip.system.DefaultRV32Config.fir@154548.6]
-  assign _T_5294 = _T_867 & _T_5293; // @[CSR.scala 948:45:freechips.rocketchip.system.DefaultRV32Config.fir@154549.6]
+  assign _T_5294 = sel_pmp_addr_4 & _T_5293; // @[CSR.scala 948:45:freechips.rocketchip.system.DefaultRV32Config.fir@154549.6]
   assign _GEN_290 = _T_5294 ? wdata : {{2'd0}, reg_pmp_4_addr}; // @[CSR.scala 948:71:freechips.rocketchip.system.DefaultRV32Config.fir@154550.6]
   assign _T_5295 = reg_pmp_5_cfg_l == 1'h0; // @[CSR.scala 939:60:freechips.rocketchip.system.DefaultRV32Config.fir@154553.6]
-  assign _T_5296 = _T_860 & _T_5295; // @[CSR.scala 939:57:freechips.rocketchip.system.DefaultRV32Config.fir@154554.6]
+  assign _T_5296 = sel_pmp_cfg_1 & _T_5295; // @[CSR.scala 939:57:freechips.rocketchip.system.DefaultRV32Config.fir@154554.6]
   assign _T_5307 = reg_pmp_6_cfg_a[1]; // @[PMP.scala 45:20:freechips.rocketchip.system.DefaultRV32Config.fir@154578.6]
   assign _T_5308 = _T_5307 == 1'h0; // @[PMP.scala 47:13:freechips.rocketchip.system.DefaultRV32Config.fir@154579.6]
   assign _T_5310 = _T_5308 & _T_338; // @[PMP.scala 47:20:freechips.rocketchip.system.DefaultRV32Config.fir@154581.6]
   assign _T_5311 = reg_pmp_6_cfg_l & _T_5310; // @[PMP.scala 49:62:freechips.rocketchip.system.DefaultRV32Config.fir@154582.6]
   assign _T_5312 = reg_pmp_5_cfg_l | _T_5311; // @[PMP.scala 49:44:freechips.rocketchip.system.DefaultRV32Config.fir@154583.6]
   assign _T_5313 = _T_5312 == 1'h0; // @[CSR.scala 948:48:freechips.rocketchip.system.DefaultRV32Config.fir@154584.6]
-  assign _T_5314 = _T_868 & _T_5313; // @[CSR.scala 948:45:freechips.rocketchip.system.DefaultRV32Config.fir@154585.6]
+  assign _T_5314 = sel_pmp_addr_5 & _T_5313; // @[CSR.scala 948:45:freechips.rocketchip.system.DefaultRV32Config.fir@154585.6]
   assign _GEN_297 = _T_5314 ? wdata : {{2'd0}, reg_pmp_5_addr}; // @[CSR.scala 948:71:freechips.rocketchip.system.DefaultRV32Config.fir@154586.6]
   assign _T_5315 = reg_pmp_6_cfg_l == 1'h0; // @[CSR.scala 939:60:freechips.rocketchip.system.DefaultRV32Config.fir@154589.6]
-  assign _T_5316 = _T_860 & _T_5315; // @[CSR.scala 939:57:freechips.rocketchip.system.DefaultRV32Config.fir@154590.6]
+  assign _T_5316 = sel_pmp_cfg_1 & _T_5315; // @[CSR.scala 939:57:freechips.rocketchip.system.DefaultRV32Config.fir@154590.6]
   assign _T_5327 = reg_pmp_7_cfg_a[1]; // @[PMP.scala 45:20:freechips.rocketchip.system.DefaultRV32Config.fir@154614.6]
   assign _T_5328 = _T_5327 == 1'h0; // @[PMP.scala 47:13:freechips.rocketchip.system.DefaultRV32Config.fir@154615.6]
   assign _T_5330 = _T_5328 & _T_347; // @[PMP.scala 47:20:freechips.rocketchip.system.DefaultRV32Config.fir@154617.6]
   assign _T_5331 = reg_pmp_7_cfg_l & _T_5330; // @[PMP.scala 49:62:freechips.rocketchip.system.DefaultRV32Config.fir@154618.6]
   assign _T_5332 = reg_pmp_6_cfg_l | _T_5331; // @[PMP.scala 49:44:freechips.rocketchip.system.DefaultRV32Config.fir@154619.6]
   assign _T_5333 = _T_5332 == 1'h0; // @[CSR.scala 948:48:freechips.rocketchip.system.DefaultRV32Config.fir@154620.6]
-  assign _T_5334 = _T_869 & _T_5333; // @[CSR.scala 948:45:freechips.rocketchip.system.DefaultRV32Config.fir@154621.6]
+  assign _T_5334 = sel_pmp_addr_6 & _T_5333; // @[CSR.scala 948:45:freechips.rocketchip.system.DefaultRV32Config.fir@154621.6]
   assign _GEN_304 = _T_5334 ? wdata : {{2'd0}, reg_pmp_6_addr}; // @[CSR.scala 948:71:freechips.rocketchip.system.DefaultRV32Config.fir@154622.6]
   assign _T_5335 = reg_pmp_7_cfg_l == 1'h0; // @[CSR.scala 939:60:freechips.rocketchip.system.DefaultRV32Config.fir@154625.6]
-  assign _T_5336 = _T_860 & _T_5335; // @[CSR.scala 939:57:freechips.rocketchip.system.DefaultRV32Config.fir@154626.6]
+  assign _T_5336 = sel_pmp_cfg_1 & _T_5335; // @[CSR.scala 939:57:freechips.rocketchip.system.DefaultRV32Config.fir@154626.6]
   assign _T_5352 = reg_pmp_7_cfg_l | _T_5331; // @[PMP.scala 49:44:freechips.rocketchip.system.DefaultRV32Config.fir@154655.6]
   assign _T_5353 = _T_5352 == 1'h0; // @[CSR.scala 948:48:freechips.rocketchip.system.DefaultRV32Config.fir@154656.6]
-  assign _T_5354 = _T_870 & _T_5353; // @[CSR.scala 948:45:freechips.rocketchip.system.DefaultRV32Config.fir@154657.6]
+  assign _T_5354 = sel_pmp_addr_7 & _T_5353; // @[CSR.scala 948:45:freechips.rocketchip.system.DefaultRV32Config.fir@154657.6]
   assign _GEN_311 = _T_5354 ? wdata : {{2'd0}, reg_pmp_7_addr}; // @[CSR.scala 948:71:freechips.rocketchip.system.DefaultRV32Config.fir@154658.6]
   assign _GEN_326 = csr_wen ? _GEN_169 : _GEN_110; // @[CSR.scala 789:18:freechips.rocketchip.system.DefaultRV32Config.fir@153645.4]
   assign _GEN_344 = csr_wen ? _GEN_147 : {{57'd0}, _T_95}; // @[CSR.scala 789:18:freechips.rocketchip.system.DefaultRV32Config.fir@153645.4]
@@ -4014,126 +5557,6 @@ assign io_trace_0_exception = exception;
   assign _GEN_450 = csr_wen ? _GEN_304 : {{2'd0}, reg_pmp_6_addr}; // @[CSR.scala 789:18:freechips.rocketchip.system.DefaultRV32Config.fir@153645.4]
   assign _GEN_457 = csr_wen ? _GEN_311 : {{2'd0}, reg_pmp_7_addr}; // @[CSR.scala 789:18:freechips.rocketchip.system.DefaultRV32Config.fir@153645.4]
   assign _T_5401 = io_retire > 1'h0; // @[CSR.scala 1017:26:freechips.rocketchip.system.DefaultRV32Config.fir@154815.4]
-
-
-  assign io_rw_rdata = _T_2311[31:0]; // @[CSR.scala 747:15:freechips.rocketchip.system.DefaultRV32Config.fir@150270.4]
-  assign io_decode_0_fp_illegal = _T_969 | _T_971; // @[CSR.scala 596:23:freechips.rocketchip.system.DefaultRV32Config.fir@148797.4]
-  assign io_decode_0_fp_csr = _T_977 == 12'h0; // @[CSR.scala 598:19:freechips.rocketchip.system.DefaultRV32Config.fir@148807.4]
-  assign io_decode_0_read_illegal = _T_1426 | _T_1429; // @[CSR.scala 600:25:freechips.rocketchip.system.DefaultRV32Config.fir@149259.4]
-  assign io_decode_0_write_illegal = _T_1431 == 2'h3; // @[CSR.scala 607:26:freechips.rocketchip.system.DefaultRV32Config.fir@149262.4]
-  assign io_decode_0_write_flush = _T_1439 == 1'h0; // @[CSR.scala 608:24:freechips.rocketchip.system.DefaultRV32Config.fir@149271.4]
-  assign io_decode_0_system_illegal = _T_1453 | _T_1455; // @[CSR.scala 609:27:freechips.rocketchip.system.DefaultRV32Config.fir@149288.4]
-  assign io_csr_stall = reg_wfi | io_status_cease; // @[CSR.scala 738:16:freechips.rocketchip.system.DefaultRV32Config.fir@149833.4]
-  assign io_eret = _T_1512 | insn_ret; // @[CSR.scala 641:11:freechips.rocketchip.system.DefaultRV32Config.fir@149345.4]
-  assign io_singleStep = reg_dcsr_step & _T_1547; // @[CSR.scala 642:17:freechips.rocketchip.system.DefaultRV32Config.fir@149348.4]
-  assign io_status_debug = reg_debug; // @[CSR.scala 643:13:freechips.rocketchip.system.DefaultRV32Config.fir@149349.4 CSR.scala 645:19:freechips.rocketchip.system.DefaultRV32Config.fir@149356.4]
-  assign io_status_cease = _T_1894; // @[CSR.scala 643:13:freechips.rocketchip.system.DefaultRV32Config.fir@149349.4 CSR.scala 739:19:freechips.rocketchip.system.DefaultRV32Config.fir@149838.4]
-  assign io_status_isa = reg_misa; // @[CSR.scala 643:13:freechips.rocketchip.system.DefaultRV32Config.fir@149349.4 CSR.scala 646:17:freechips.rocketchip.system.DefaultRV32Config.fir@149357.4]
-  assign io_status_dprv = _T_1511; // @[CSR.scala 643:13:freechips.rocketchip.system.DefaultRV32Config.fir@149349.4 CSR.scala 649:18:freechips.rocketchip.system.DefaultRV32Config.fir@149365.4]
-  assign io_status_prv = reg_mstatus_prv; // @[CSR.scala 643:13:freechips.rocketchip.system.DefaultRV32Config.fir@149349.4]
-  assign io_status_sd = _T_1505 | _T_1506; // @[CSR.scala 643:13:freechips.rocketchip.system.DefaultRV32Config.fir@149349.4 CSR.scala 644:16:freechips.rocketchip.system.DefaultRV32Config.fir@149355.4]
-  assign io_status_zero2 = 27'h0; // @[CSR.scala 643:13:freechips.rocketchip.system.DefaultRV32Config.fir@149349.4]
-  assign io_status_sxl = 2'h1; // @[CSR.scala 643:13:freechips.rocketchip.system.DefaultRV32Config.fir@149349.4 CSR.scala 648:17:freechips.rocketchip.system.DefaultRV32Config.fir@149359.4]
-  assign io_status_uxl = 2'h1; // @[CSR.scala 643:13:freechips.rocketchip.system.DefaultRV32Config.fir@149349.4 CSR.scala 647:17:freechips.rocketchip.system.DefaultRV32Config.fir@149358.4]
-  assign io_status_sd_rv32 = io_status_sd; // @[CSR.scala 643:13:freechips.rocketchip.system.DefaultRV32Config.fir@149349.4 CSR.scala 651:23:freechips.rocketchip.system.DefaultRV32Config.fir@149366.4]
-  assign io_status_zero1 = 6'h0; // @[CSR.scala 643:13:freechips.rocketchip.system.DefaultRV32Config.fir@149349.4]
-  assign io_status_vs = 2'h0; // @[CSR.scala 643:13:freechips.rocketchip.system.DefaultRV32Config.fir@149349.4]
-  assign io_status_tsr = reg_mstatus_tsr; // @[CSR.scala 643:13:freechips.rocketchip.system.DefaultRV32Config.fir@149349.4]
-  assign io_status_tw = reg_mstatus_tw; // @[CSR.scala 643:13:freechips.rocketchip.system.DefaultRV32Config.fir@149349.4]
-  assign io_status_tvm = reg_mstatus_tvm; // @[CSR.scala 643:13:freechips.rocketchip.system.DefaultRV32Config.fir@149349.4]
-  assign io_status_mxr = reg_mstatus_mxr; // @[CSR.scala 643:13:freechips.rocketchip.system.DefaultRV32Config.fir@149349.4]
-  assign io_status_sum = reg_mstatus_sum; // @[CSR.scala 643:13:freechips.rocketchip.system.DefaultRV32Config.fir@149349.4]
-  assign io_status_mprv = reg_mstatus_mprv; // @[CSR.scala 643:13:freechips.rocketchip.system.DefaultRV32Config.fir@149349.4]
-  assign io_status_xs = 2'h0; // @[CSR.scala 643:13:freechips.rocketchip.system.DefaultRV32Config.fir@149349.4]
-  assign io_status_fs = reg_mstatus_fs; // @[CSR.scala 643:13:freechips.rocketchip.system.DefaultRV32Config.fir@149349.4]
-  assign io_status_mpp = reg_mstatus_mpp; // @[CSR.scala 643:13:freechips.rocketchip.system.DefaultRV32Config.fir@149349.4]
-  assign io_status_hpp = 2'h0; // @[CSR.scala 643:13:freechips.rocketchip.system.DefaultRV32Config.fir@149349.4]
-  assign io_status_spp = reg_mstatus_spp; // @[CSR.scala 643:13:freechips.rocketchip.system.DefaultRV32Config.fir@149349.4]
-  assign io_status_mpie = reg_mstatus_mpie; // @[CSR.scala 643:13:freechips.rocketchip.system.DefaultRV32Config.fir@149349.4]
-  assign io_status_hpie = 1'h0; // @[CSR.scala 643:13:freechips.rocketchip.system.DefaultRV32Config.fir@149349.4]
-  assign io_status_spie = reg_mstatus_spie; // @[CSR.scala 643:13:freechips.rocketchip.system.DefaultRV32Config.fir@149349.4]
-  assign io_status_upie = 1'h0; // @[CSR.scala 643:13:freechips.rocketchip.system.DefaultRV32Config.fir@149349.4]
-  assign io_status_mie = reg_mstatus_mie; // @[CSR.scala 643:13:freechips.rocketchip.system.DefaultRV32Config.fir@149349.4]
-  assign io_status_hie = 1'h0; // @[CSR.scala 643:13:freechips.rocketchip.system.DefaultRV32Config.fir@149349.4]
-  assign io_status_sie = reg_mstatus_sie; // @[CSR.scala 643:13:freechips.rocketchip.system.DefaultRV32Config.fir@149349.4]
-  assign io_status_uie = 1'h0; // @[CSR.scala 643:13:freechips.rocketchip.system.DefaultRV32Config.fir@149349.4]
-  assign io_ptbr_mode = reg_satp_mode; // @[CSR.scala 640:11:freechips.rocketchip.system.DefaultRV32Config.fir@149342.4]
-  assign io_ptbr_ppn = reg_satp_ppn; // @[CSR.scala 640:11:freechips.rocketchip.system.DefaultRV32Config.fir@149342.4]
-  assign io_evec = insn_ret ? _GEN_103 : tvec; // @[CSR.scala 639:11:freechips.rocketchip.system.DefaultRV32Config.fir@149341.4 CSR.scala 723:15:freechips.rocketchip.system.DefaultRV32Config.fir@149801.8 CSR.scala 727:15:freechips.rocketchip.system.DefaultRV32Config.fir@149814.10 CSR.scala 733:15:freechips.rocketchip.system.DefaultRV32Config.fir@149828.10]
-  assign io_time = _T_100[31:0]; // @[CSR.scala 737:11:freechips.rocketchip.system.DefaultRV32Config.fir@149831.4]
-  assign io_fcsr_rm = reg_frm; // @[CSR.scala 774:14:freechips.rocketchip.system.DefaultRV32Config.fir@153621.4]
-  assign io_interrupt = _T_279 & _T_281; // @[CSR.scala 422:16:freechips.rocketchip.system.DefaultRV32Config.fir@147997.4]
-  assign io_interrupt_cause = 32'h80000000 + _GEN_498; // @[CSR.scala 423:22:freechips.rocketchip.system.DefaultRV32Config.fir@147998.4]
-  assign io_bp_0_control_action = reg_bp_0_control_action; // @[CSR.scala 424:9:freechips.rocketchip.system.DefaultRV32Config.fir@147999.4]
-  assign io_bp_0_control_tmatch = reg_bp_0_control_tmatch; // @[CSR.scala 424:9:freechips.rocketchip.system.DefaultRV32Config.fir@147999.4]
-  assign io_bp_0_control_m = reg_bp_0_control_m; // @[CSR.scala 424:9:freechips.rocketchip.system.DefaultRV32Config.fir@147999.4]
-  assign io_bp_0_control_s = reg_bp_0_control_s; // @[CSR.scala 424:9:freechips.rocketchip.system.DefaultRV32Config.fir@147999.4]
-  assign io_bp_0_control_u = reg_bp_0_control_u; // @[CSR.scala 424:9:freechips.rocketchip.system.DefaultRV32Config.fir@147999.4]
-  assign io_bp_0_control_x = reg_bp_0_control_x; // @[CSR.scala 424:9:freechips.rocketchip.system.DefaultRV32Config.fir@147999.4]
-  assign io_bp_0_control_w = reg_bp_0_control_w; // @[CSR.scala 424:9:freechips.rocketchip.system.DefaultRV32Config.fir@147999.4]
-  assign io_bp_0_control_r = reg_bp_0_control_r; // @[CSR.scala 424:9:freechips.rocketchip.system.DefaultRV32Config.fir@147999.4]
-  assign io_bp_0_address = reg_bp_0_address; // @[CSR.scala 424:9:freechips.rocketchip.system.DefaultRV32Config.fir@147999.4]
-  assign io_pmp_0_cfg_l = reg_pmp_0_cfg_l; // @[CSR.scala 425:10:freechips.rocketchip.system.DefaultRV32Config.fir@148096.4]
-  assign io_pmp_0_cfg_a = reg_pmp_0_cfg_a; // @[CSR.scala 425:10:freechips.rocketchip.system.DefaultRV32Config.fir@148096.4]
-  assign io_pmp_0_cfg_x = reg_pmp_0_cfg_x; // @[CSR.scala 425:10:freechips.rocketchip.system.DefaultRV32Config.fir@148096.4]
-  assign io_pmp_0_cfg_w = reg_pmp_0_cfg_w; // @[CSR.scala 425:10:freechips.rocketchip.system.DefaultRV32Config.fir@148096.4]
-  assign io_pmp_0_cfg_r = reg_pmp_0_cfg_r; // @[CSR.scala 425:10:freechips.rocketchip.system.DefaultRV32Config.fir@148096.4]
-  assign io_pmp_0_addr = reg_pmp_0_addr; // @[CSR.scala 425:10:freechips.rocketchip.system.DefaultRV32Config.fir@148096.4]
-  assign io_pmp_0_mask = _T_291[31:0]; // @[CSR.scala 425:10:freechips.rocketchip.system.DefaultRV32Config.fir@148096.4]
-  assign io_pmp_1_cfg_l = reg_pmp_1_cfg_l; // @[CSR.scala 425:10:freechips.rocketchip.system.DefaultRV32Config.fir@148097.4]
-  assign io_pmp_1_cfg_a = reg_pmp_1_cfg_a; // @[CSR.scala 425:10:freechips.rocketchip.system.DefaultRV32Config.fir@148097.4]
-  assign io_pmp_1_cfg_x = reg_pmp_1_cfg_x; // @[CSR.scala 425:10:freechips.rocketchip.system.DefaultRV32Config.fir@148097.4]
-  assign io_pmp_1_cfg_w = reg_pmp_1_cfg_w; // @[CSR.scala 425:10:freechips.rocketchip.system.DefaultRV32Config.fir@148097.4]
-  assign io_pmp_1_cfg_r = reg_pmp_1_cfg_r; // @[CSR.scala 425:10:freechips.rocketchip.system.DefaultRV32Config.fir@148097.4]
-  assign io_pmp_1_addr = reg_pmp_1_addr; // @[CSR.scala 425:10:freechips.rocketchip.system.DefaultRV32Config.fir@148097.4]
-  assign io_pmp_1_mask = _T_300[31:0]; // @[CSR.scala 425:10:freechips.rocketchip.system.DefaultRV32Config.fir@148097.4]
-  assign io_pmp_2_cfg_l = reg_pmp_2_cfg_l; // @[CSR.scala 425:10:freechips.rocketchip.system.DefaultRV32Config.fir@148098.4]
-  assign io_pmp_2_cfg_a = reg_pmp_2_cfg_a; // @[CSR.scala 425:10:freechips.rocketchip.system.DefaultRV32Config.fir@148098.4]
-  assign io_pmp_2_cfg_x = reg_pmp_2_cfg_x; // @[CSR.scala 425:10:freechips.rocketchip.system.DefaultRV32Config.fir@148098.4]
-  assign io_pmp_2_cfg_w = reg_pmp_2_cfg_w; // @[CSR.scala 425:10:freechips.rocketchip.system.DefaultRV32Config.fir@148098.4]
-  assign io_pmp_2_cfg_r = reg_pmp_2_cfg_r; // @[CSR.scala 425:10:freechips.rocketchip.system.DefaultRV32Config.fir@148098.4]
-  assign io_pmp_2_addr = reg_pmp_2_addr; // @[CSR.scala 425:10:freechips.rocketchip.system.DefaultRV32Config.fir@148098.4]
-  assign io_pmp_2_mask = _T_309[31:0]; // @[CSR.scala 425:10:freechips.rocketchip.system.DefaultRV32Config.fir@148098.4]
-  assign io_pmp_3_cfg_l = reg_pmp_3_cfg_l; // @[CSR.scala 425:10:freechips.rocketchip.system.DefaultRV32Config.fir@148099.4]
-  assign io_pmp_3_cfg_a = reg_pmp_3_cfg_a; // @[CSR.scala 425:10:freechips.rocketchip.system.DefaultRV32Config.fir@148099.4]
-  assign io_pmp_3_cfg_x = reg_pmp_3_cfg_x; // @[CSR.scala 425:10:freechips.rocketchip.system.DefaultRV32Config.fir@148099.4]
-  assign io_pmp_3_cfg_w = reg_pmp_3_cfg_w; // @[CSR.scala 425:10:freechips.rocketchip.system.DefaultRV32Config.fir@148099.4]
-  assign io_pmp_3_cfg_r = reg_pmp_3_cfg_r; // @[CSR.scala 425:10:freechips.rocketchip.system.DefaultRV32Config.fir@148099.4]
-  assign io_pmp_3_addr = reg_pmp_3_addr; // @[CSR.scala 425:10:freechips.rocketchip.system.DefaultRV32Config.fir@148099.4]
-  assign io_pmp_3_mask = _T_318[31:0]; // @[CSR.scala 425:10:freechips.rocketchip.system.DefaultRV32Config.fir@148099.4]
-  assign io_pmp_4_cfg_l = reg_pmp_4_cfg_l; // @[CSR.scala 425:10:freechips.rocketchip.system.DefaultRV32Config.fir@148100.4]
-  assign io_pmp_4_cfg_a = reg_pmp_4_cfg_a; // @[CSR.scala 425:10:freechips.rocketchip.system.DefaultRV32Config.fir@148100.4]
-  assign io_pmp_4_cfg_x = reg_pmp_4_cfg_x; // @[CSR.scala 425:10:freechips.rocketchip.system.DefaultRV32Config.fir@148100.4]
-  assign io_pmp_4_cfg_w = reg_pmp_4_cfg_w; // @[CSR.scala 425:10:freechips.rocketchip.system.DefaultRV32Config.fir@148100.4]
-  assign io_pmp_4_cfg_r = reg_pmp_4_cfg_r; // @[CSR.scala 425:10:freechips.rocketchip.system.DefaultRV32Config.fir@148100.4]
-  assign io_pmp_4_addr = reg_pmp_4_addr; // @[CSR.scala 425:10:freechips.rocketchip.system.DefaultRV32Config.fir@148100.4]
-  assign io_pmp_4_mask = _T_327[31:0]; // @[CSR.scala 425:10:freechips.rocketchip.system.DefaultRV32Config.fir@148100.4]
-  assign io_pmp_5_cfg_l = reg_pmp_5_cfg_l; // @[CSR.scala 425:10:freechips.rocketchip.system.DefaultRV32Config.fir@148101.4]
-  assign io_pmp_5_cfg_a = reg_pmp_5_cfg_a; // @[CSR.scala 425:10:freechips.rocketchip.system.DefaultRV32Config.fir@148101.4]
-  assign io_pmp_5_cfg_x = reg_pmp_5_cfg_x; // @[CSR.scala 425:10:freechips.rocketchip.system.DefaultRV32Config.fir@148101.4]
-  assign io_pmp_5_cfg_w = reg_pmp_5_cfg_w; // @[CSR.scala 425:10:freechips.rocketchip.system.DefaultRV32Config.fir@148101.4]
-  assign io_pmp_5_cfg_r = reg_pmp_5_cfg_r; // @[CSR.scala 425:10:freechips.rocketchip.system.DefaultRV32Config.fir@148101.4]
-  assign io_pmp_5_addr = reg_pmp_5_addr; // @[CSR.scala 425:10:freechips.rocketchip.system.DefaultRV32Config.fir@148101.4]
-  assign io_pmp_5_mask = _T_336[31:0]; // @[CSR.scala 425:10:freechips.rocketchip.system.DefaultRV32Config.fir@148101.4]
-  assign io_pmp_6_cfg_l = reg_pmp_6_cfg_l; // @[CSR.scala 425:10:freechips.rocketchip.system.DefaultRV32Config.fir@148102.4]
-  assign io_pmp_6_cfg_a = reg_pmp_6_cfg_a; // @[CSR.scala 425:10:freechips.rocketchip.system.DefaultRV32Config.fir@148102.4]
-  assign io_pmp_6_cfg_x = reg_pmp_6_cfg_x; // @[CSR.scala 425:10:freechips.rocketchip.system.DefaultRV32Config.fir@148102.4]
-  assign io_pmp_6_cfg_w = reg_pmp_6_cfg_w; // @[CSR.scala 425:10:freechips.rocketchip.system.DefaultRV32Config.fir@148102.4]
-  assign io_pmp_6_cfg_r = reg_pmp_6_cfg_r; // @[CSR.scala 425:10:freechips.rocketchip.system.DefaultRV32Config.fir@148102.4]
-  assign io_pmp_6_addr = reg_pmp_6_addr; // @[CSR.scala 425:10:freechips.rocketchip.system.DefaultRV32Config.fir@148102.4]
-  assign io_pmp_6_mask = _T_345[31:0]; // @[CSR.scala 425:10:freechips.rocketchip.system.DefaultRV32Config.fir@148102.4]
-  assign io_pmp_7_cfg_l = reg_pmp_7_cfg_l; // @[CSR.scala 425:10:freechips.rocketchip.system.DefaultRV32Config.fir@148103.4]
-  assign io_pmp_7_cfg_a = reg_pmp_7_cfg_a; // @[CSR.scala 425:10:freechips.rocketchip.system.DefaultRV32Config.fir@148103.4]
-  assign io_pmp_7_cfg_x = reg_pmp_7_cfg_x; // @[CSR.scala 425:10:freechips.rocketchip.system.DefaultRV32Config.fir@148103.4]
-  assign io_pmp_7_cfg_w = reg_pmp_7_cfg_w; // @[CSR.scala 425:10:freechips.rocketchip.system.DefaultRV32Config.fir@148103.4]
-  assign io_pmp_7_cfg_r = reg_pmp_7_cfg_r; // @[CSR.scala 425:10:freechips.rocketchip.system.DefaultRV32Config.fir@148103.4]
-  assign io_pmp_7_addr = reg_pmp_7_addr; // @[CSR.scala 425:10:freechips.rocketchip.system.DefaultRV32Config.fir@148103.4]
-  assign io_pmp_7_mask = _T_354[31:0]; // @[CSR.scala 425:10:freechips.rocketchip.system.DefaultRV32Config.fir@148103.4]
-  assign io_trace_0_valid = _T_5401 | io_trace_0_exception; // @[CSR.scala 1017:13:freechips.rocketchip.system.DefaultRV32Config.fir@154817.4]
-  assign io_trace_0_iaddr = io_pc; // @[CSR.scala 1019:13:freechips.rocketchip.system.DefaultRV32Config.fir@154819.4]
-  assign io_trace_0_insn = io_inst_0; // @[CSR.scala 1018:12:freechips.rocketchip.system.DefaultRV32Config.fir@154818.4]
-  assign io_trace_0_exception = _T_1512 | io_exception; // @[CSR.scala 1016:17:freechips.rocketchip.system.DefaultRV32Config.fir@154814.4]
-`endif //ASSIGN_IO
 `ifdef RANDOMIZE_GARBAGE_ASSIGN
 `define RANDOMIZE
 `endif
@@ -4614,1738 +6037,7 @@ initial begin
   `endif // RANDOMIZE_REG_INIT
   `endif // RANDOMIZE
 end
-
-`define REG_MSTATUS
-`ifdef REG_MSTATUS
-//parameter PRV_U = 0;
-//parameter PRV_H = 2;
-//parameter PRV_M = 3;
-
-
-// MSTATUS register
-always @(posedge clock) begin
-	if (reset) begin
-		reg_mstatus_cease	<=  1'b0;
-		reg_mstatus_prv		<=  2'h3;
-		reg_mstatus_tsr		<=  1'h0;
-		reg_mstatus_tw		<=  1'h0;
-		reg_mstatus_tvm		<=  1'h0;
-		reg_mstatus_mxr		<=  1'h0;
-		reg_mstatus_sum		<=  1'h0;
-		reg_mstatus_mprv	<=  1'h0;
-		reg_mstatus_fs		<=  2'h0;
-	end
-	else begin
-		if (new_prv == PRV_H) reg_mstatus_prv <= PRV_U;
-		else if (insn_ret & !io_rw_addr[9]) reg_mstatus_prv <= {1'd0, reg_mstatus_spp};
-		else if (insn_ret & io_rw_addr[9] & io_rw_addr[10]) reg_mstatus_prv <= reg_dcsr_prv;
-		else if (insn_ret & io_rw_addr[9] & !io_rw_addr[10]) reg_mstatus_prv <= reg_mstatus_mpp;
-		else if (exception & trapToDebug & !reg_debug) reg_mstatus_prv <= PRV_M;
-		else if (exception & !trapToDebug & delegate) reg_mstatus_prv <= PRV_S;
-		else if (exception & !trapToDebug & !delegate) reg_mstatus_prv <= PRV_M;
-
-		if (csr_wen & sel_sstatus) begin
-			reg_mstatus_mxr <=  wdata[19];
-			reg_mstatus_sum <=  wdata[18];
-			if (wdata[14:13] != 2'h0) reg_mstatus_fs <= 2'h3;
-			else reg_mstatus_fs <= 2'h0;
-		end
-		else if (csr_wen & sel_mstatus) begin
-			reg_mstatus_mprv <=  wdata[17];
-			reg_mstatus_mxr <=  wdata[19];
-			reg_mstatus_sum <=  wdata[18];
-			reg_mstatus_tw <=  wdata[21];
-			reg_mstatus_tvm <=  wdata[20];
-			reg_mstatus_tsr <=  wdata[22];
-			if (wdata[14:13] != 2'h0) reg_mstatus_fs <= 2'h3;
-			else reg_mstatus_fs <= 2'h0;
-		end 
-		if (insn_cease) reg_mstatus_cease <= 1;
-	end
-end 
-
-// MSTATUS register
-always @(posedge clock) begin
-	if (reset) begin
-		reg_mstatus_spp		<=  0;
-		reg_mstatus_spie	<=  0;
-		reg_mstatus_sie		<=  0;
-	end
-	else begin
-		if (csr_wen & (sel_sstatus | sel_mstatus)) begin
-			reg_mstatus_sie <=  wdata[1];
-			reg_mstatus_spie <=  wdata[5];
-			reg_mstatus_spp <=  wdata[8];
-		end
-		else if (insn_ret & !io_rw_addr[9]) begin
-			reg_mstatus_sie <=  reg_mstatus_spie;
-			reg_mstatus_spie <=  1;
-			reg_mstatus_spp <=  PRV_U;
-		end
-		else if (exception & !trapToDebug & delegate) begin
-			reg_mstatus_spie <=  reg_mstatus_sie;
-			reg_mstatus_spp <=  reg_mstatus_prv;
-			reg_mstatus_sie <=  0;
-		end
-	end
-end
-
-// MSTATUS register
-always @(posedge clock) begin
-	if (reset) begin
-		reg_mstatus_mpp		<=  PRV_M;
-		reg_mstatus_mpie	<=  0;
-		reg_mstatus_mie		<=  0;
-	end
-	else begin
-		if (csr_wen & sel_mstatus) begin
-			reg_mstatus_mie <=  wdata[3];
-			reg_mstatus_mpie <=  wdata[7];
-			reg_mstatus_mpp <=  (wdata[12:11] == 2'h2) ? 2'h0 : wdata[12:11];
-		end
-		else if (insn_ret & io_rw_addr[9] & !io_rw_addr[10]) begin
-			reg_mstatus_mie <=  reg_mstatus_mpie;
-			reg_mstatus_mpie <=  1;
-			reg_mstatus_mpp <=  PRV_U;
-		end
-		else if (exception & !trapToDebug & !delegate) begin
-			reg_mstatus_mpie <=  reg_mstatus_mie;
-			reg_mstatus_mpp <=  reg_mstatus_prv;
-			reg_mstatus_mie <=  0;
-		end
-	end
-end
-`endif //REG_MSTATUS
-
-`define REG_DCSR
-`ifdef REG_DCSR
-// DCSR register
-always @(posedge clock) begin
-	if (reset) begin
-		reg_dcsr_ebreakm	<= 0;
-		reg_dcsr_ebreaku	<= 0;
-		reg_dcsr_cause		<= 0;
-		reg_dcsr_step		<= 0;
-		reg_dcsr_prv		<= PRV_M;
-	end
-	else if (csr_wen & sel_dcsr) begin
-		reg_dcsr_step <= wdata[2]; 
-		reg_dcsr_ebreakm <= wdata[15]; 
-		reg_dcsr_ebreaks <= wdata[13]; 
-		reg_dcsr_ebreaku <= wdata[12]; 
-		reg_dcsr_prv <= (wdata[1:0] == PRV_H) ? PRV_U : wdata[1:0]; 
-	end
-	else if (exception & trapToDebug & !reg_debug) begin
-		reg_dcsr_cause <= reg_singleStepped ? 4
-				: causeIsDebugInt ? 3
-				: causeIsDebugTrigger ? 2
-				: 1;
-		reg_dcsr_prv <= reg_mstatus_prv;
-	end
-end
-// reg_singleStepped
-always @(posedge clock) begin
-	if (reset) reg_singleStepped <= 0;
-	else if (!io_singleStep) reg_singleStepped <= 0;
-	else if (io_retire || exception) reg_singleStepped <= 1;
-end	
-`endif //REG_DCSR
-
-`define REG_WFI
-`ifdef REG_WFI
-// WFI register
-always @(posedge io_ungated_clock) begin
-	if (reset) reg_wfi <= 0;
-	else if ((pending_interrupts != 32'h00) | io_interrupts_debug | exception) reg_wfi <= 0;
-	else if (insn_wfi & !io_singleStep & !reg_debug) reg_wfi <= 1;
-end
-`endif //REG_WFI
-
-`define REG_INSTRET
-`ifdef REG_INSTRET
-// reg_instret
-reg [57:0] reg_instret_large;
-reg [5:0] reg_instret_small;
-wire [6:0] nextInstretSmall = (io_retire) ? (reg_instret_small + 6'd1) : {1'b0, reg_instret_small};
-wire [59:0] nextInstretLarge = reg_instret_large + 58'd1;
-assign reg_instret = {reg_instret_large, reg_instret_small}; 
-always @(posedge clock) begin
-	if (reset) begin
-		reg_instret_small <= 6'h00;
-		reg_instret_large <= 58'h00;
-	end
-	else begin
-		if (csr_wen & sel_minstret) begin
-			reg_instret_small <= wdata[5:0];
-			reg_instret_large <= {reg_instret[63:32], wdata[31:6]};
-		end
-		else
-			reg_instret_small <= nextInstretSmall[5:0];
-		
-		if (csr_wen & sel_minstreth) begin
-			reg_instret_large <= {wdata[xLen - 1:0], reg_instret[31:6]};
-		end
-		else if (nextInstretSmall[6])
-			reg_instret_large <= nextInstretLarge;
-	end
-end
-`endif //REG_INSTRET
-
-`define REG_CYCLE
-`ifdef REG_CYCLE
-// reg_cycle
-reg [57:0] reg_cycle_large;
-reg [5:0] reg_cycle_small;
-wire [6:0] nextSmall;
-assign nextSmall = (io_csr_stall == 1'h0) ? (reg_cycle_small + 6'd1) : {1'b0, reg_cycle_small};
-wire [59:0] nextLarge = reg_cycle_large + 58'd1;
-assign reg_cycle = {reg_cycle_large, reg_cycle_small}; 
-always @(posedge io_ungated_clock) begin
-	if (reset) begin
-		reg_cycle_small <= 6'h00;
-		reg_cycle_large <= 58'h00;
-	end
-	else begin
-		if (csr_wen & sel_mcycle) begin
-			reg_cycle_small <= wdata[5:0];
-			reg_cycle_large <= {reg_cycle[63:32], wdata[31:6]};
-		end
-		else
-			reg_cycle_small <= nextSmall[5:0];
-		
-		if (csr_wen & sel_mcycleh) begin
-			reg_cycle_large <= {wdata[xLen - 1:0], reg_cycle[31:6]};
-		end
-		else if (nextSmall[6])
-			reg_cycle_large <= nextLarge;
-	end
-end
-`endif //REG_CYCLE
-
-`define REG_MISA
-`ifdef REG_MISA
-// reg_misa register
-parameter isaMask = 32'h1025;
-always @(posedge clock) begin
-	if (reset)
-		reg_misa <= 32'h40941125;
-	else if (csr_wen) begin
-		if (sel_misa) begin
-			if (!io_pc[1] | wdata[2]) begin
-				reg_misa <= (~(~wdata | !(wdata[5] << 3)) & isaMask) | (reg_misa & ~isaMask); 
-			end
-		end
-	end
-end
-`endif //REG_MISA
-
-`define REG_DEBUG
-`ifdef REG_DEBUG
-// reg_debug
-always @(posedge clock) begin
-	if (reset) reg_debug <= 0;
-	else if (insn_ret & io_rw_addr[9] & io_rw_addr[10]) reg_debug <= 0;
-	else if (exception & trapToDebug) reg_debug <= (reg_debug == 0) | reg_debug;
-end	
-`endif //REG_DEBUG
-
-`define REG_SATP
-`ifdef REG_SATP
-// reg_satp
-always @(posedge clock) begin
-	if (reset) begin
-		reg_satp_mode <= #1 0;
-	end
-	else if (csr_wen) begin
-		if (sel_satp) begin
-			if (wdata[xLen - 1] == 0 | wdata[xLen - 1] == 1)
-				reg_satp_mode <= #1 wdata[xLen - 1];
-			reg_satp_ppn <= #1 {2'd0, wdata[19:0]};
-		end
-	end
-end
-`endif //REG_SATP
-
-
-`define REG_STATUS_DPRV
-`ifdef REG_STATUS_DPRV
-// reg_status_dprv
-always @(posedge clock) begin
-	if (reset) reg_status_dprv <= #1 0;
-	else if (reg_mstatus_mprv & !reg_debug) reg_status_dprv <= #1 reg_mstatus_mpp;
-	else reg_status_dprv <= #1 reg_mstatus_prv;
-end
-`endif //REG_STATUS_DPRV
-
-
-`define REG_BP
-`ifdef REG_BP
-
-wire [31:0] newBPC = (io_rw_cmd[1] ? read_dp_control : 32'h00) & (~((io_rw_cmd[1:0] == 2'h3) ? io_rw_wdata : 32'h00));
-wire dMode = newBPC[27] & reg_debug;
-// reg_bp
-always @(posedge clock) begin
-	if (reset) begin
-		reg_bp_0_control_dmode <= 0;
-		reg_bp_0_control_action <= 0;
-		reg_bp_0_control_tmatch <= 0;
-		reg_bp_0_control_m <= 0;
-		reg_bp_0_control_s <= 0;
-		reg_bp_0_control_u <= 0;
-		reg_bp_0_control_x <= 0;
-		reg_bp_0_control_w <= 0;
-		reg_bp_0_control_r <= 0;
-		reg_bp_0_address <= 0;
-	end
-	else if (csr_wen & (!reg_bp_0_control_dmode | reg_debug) & sel_tdata1) begin
-		reg_bp_0_control_dmode <= dMode;
-		reg_bp_0_control_tmatch <= wdata[8:7];
-		reg_bp_0_control_m <= wdata[6];
-		reg_bp_0_control_s <= wdata[4];
-		reg_bp_0_control_u <= wdata[3];
-		reg_bp_0_control_x <= wdata[2];
-		reg_bp_0_control_w <= wdata[1];
-		reg_bp_0_control_r <= wdata[0];				
-		if (dMode || newBPC[12] > 1) reg_bp_0_control_action <= newBPC[12];
-		else reg_bp_0_control_action <= 0;
-	end 
-	else if (csr_wen & (!reg_bp_0_control_dmode | reg_debug) & sel_tdata2)
-		reg_bp_0_address <= wdata;
-end
-`endif //REG_BP
-
-`define REG_TOTAL2
-`ifdef REG_TOTAL2
-
-// reg_mtvec
-// reg_mie
-// reg_mscratch
-// reg_sscratch
-// reg_stvec
-// reg_mcounteren
-// reg_scounteren
-always @(posedge clock) begin
-	if (reset) begin
-		reg_mtvec <= 32'h00;
-		reg_mie <= 32'h00;
-		reg_mscratch <= 32'h00;
-		reg_sscratch <= 32'h00;
-		reg_stvec <= 32'h00;
-		reg_mcounteren <= 32'h00;
-		reg_scounteren <= 32'h00;
-	end
-	else if (csr_wen) begin
-		if (sel_mtvec) reg_mtvec <= wdata;
-		if (sel_stvec) reg_stvec <= wdata;
-		if (sel_sie) reg_mie <= (reg_mie & ~(read_mideleg)) | (wdata & read_mideleg);
-		else if (sel_mie) reg_mie <= wdata & {16'h00, supported_interrupts};
-		if (sel_mscratch) reg_mscratch <= wdata;
-		if (sel_sscratch) reg_sscratch <= wdata;
-		if (sel_mcounteren) reg_mcounteren <= wdata;
-		if (sel_scounteren) reg_scounteren <= wdata;
-	end
-end
-`endif //REG_TOTAL2
-
-`define REG_MIP
-`ifdef REG_MIP
-wire [15:0] new_mip = (io_rw_cmd[1] ? read_mip : 16'h00) & (~((io_rw_cmd[1:0] == 2'h3) ? io_rw_wdata[15:0] : 16'h00));
-// reg_mip
-always @(posedge clock) begin
-	if (reset) begin
-		reg_mip_seip <= 0;
-		reg_mip_stip <= 0;
-		reg_mip_ssip <= 0;
-	end
-	else if (csr_wen) begin
-		if (sel_sip) begin
-			reg_mip_ssip <= (read_mip[1] & ~(read_mideleg[1])) | (wdata[1] & read_mideleg[1]);
-		end
-		else if (sel_mip) begin
-			reg_mip_ssip <= new_mip[1];
-			reg_mip_stip <= new_mip[5];
-			reg_mip_seip <= new_mip[9];
-		end
-	end
-end
-`endif //REG_MIP
-
-`define REG_TOTAL1
-`ifdef REG_TOTAL1
-// reg_dpc
-// reg_dscratch
-// reg_mideleg
-// reg_medeleg
-// reg_sepc
-// reg_mepc
-// reg_mcause
-// reg_mtval
-// reg_scause
-// reg_stval
-// reg_fflags
-// reg_frm
-always @(posedge clock) begin
-	if (reset) begin
-		reg_dpc <= 32'h00;
-		reg_dscratch <= 32'h00;
-		reg_mideleg <= 32'h00;
-		reg_medeleg <= 32'h00;
-		reg_sepc <= 32'h00;
-		reg_mepc <= 32'h00;
-		reg_mcause <= 32'h00;
-		reg_mtval <= 32'h00;
-		reg_scause <= 32'h00;
-		reg_stval <= 32'h00;
-		reg_fflags <= 5'h0;
-		reg_frm <= 3'h0;
-	end
-	else begin
-		if (csr_wen & sel_dpc) reg_dpc <= ~(~wdata | 32'h1);
-		else if (exception & trapToDebug & !reg_debug) reg_dpc <= ~(~io_pc | 32'h1);
-
-		if (csr_wen & sel_dscratch) reg_dscratch <= wdata;
-		if (csr_wen & sel_mideleg) reg_mideleg <= wdata;
-		if (csr_wen & sel_medeleg) reg_medeleg <= wdata;
-
-		if (csr_wen & sel_sepc) reg_sepc <= ~(~wdata | 32'h1);
-		else if (exception & delegate) reg_sepc <= ~(~io_pc | 32'h1);
-
-		if (csr_wen & sel_mepc) reg_mepc <= ~(~wdata | 32'h1);
-		else if (exception & !trapToDebug & !delegate) reg_mepc <= ~(~io_pc | 32'h1);
-
-		if (csr_wen & sel_mcause) reg_mcause <= wdata & 32'h8000000f;
-		else if (exception & !trapToDebug & !delegate) reg_mcause <= cause;
-
-		if (csr_wen & sel_mtval) reg_mtval <= wdata;
-		else if (exception & !trapToDebug & !delegate) reg_mtval <= io_tval;
-
-		if (csr_wen & sel_scause) reg_scause <= wdata & 32'h8000001f;
-		else if (exception & !trapToDebug & delegate) reg_scause <= cause;
-
-		if (csr_wen & sel_stval) reg_stval <= wdata;
-		else if (exception & !trapToDebug & delegate) reg_stval <= io_tval;
-
-		if (csr_wen & (sel_fflags | sel_fcsr)) reg_fflags <= wdata[4:0];
-		else if (io_fcsr_flags_valid) reg_fflags <= reg_fflags | io_fcsr_flags_bits;
-
-		if (csr_wen & sel_fcsr) reg_frm <= wdata[7:5];
-		else if (csr_wen & sel_frm) reg_frm <= wdata[2:0];
-		
-	end
-end
-`endif //REG_TOTAL1
-
-`define REG_PMP
-`ifdef REG_PMP
-//parameter paddrBits = 32;
-//parameter PMP_lgAlign = 2;
-
-// reg_pmp
-always @(posedge clock) begin
-	if (reset) begin
-		reg_pmp_0_cfg_l <= 0;
-		reg_pmp_0_cfg_a <= 2'h0;
-		reg_pmp_0_cfg_x <= 0;
-		reg_pmp_0_cfg_w <= 0;
-		reg_pmp_0_cfg_r <= 0;
-		reg_pmp_1_cfg_l <= 0;
-		reg_pmp_1_cfg_a <= 2'h0;
-		reg_pmp_1_cfg_x <= 0;
-		reg_pmp_1_cfg_w <= 0;
-		reg_pmp_1_cfg_r <= 0;
-		reg_pmp_2_cfg_l <= 0;
-		reg_pmp_2_cfg_a <= 2'h0;
-		reg_pmp_2_cfg_x <= 0;
-		reg_pmp_2_cfg_w <= 0;
-		reg_pmp_2_cfg_r <= 0;
-		reg_pmp_3_cfg_l <= 0;
-		reg_pmp_3_cfg_a <= 2'h0;
-		reg_pmp_3_cfg_x <= 0;
-		reg_pmp_3_cfg_w <= 0;
-		reg_pmp_3_cfg_r <= 0;
-		reg_pmp_4_cfg_l <= 0;
-		reg_pmp_4_cfg_a <= 2'h0;
-		reg_pmp_4_cfg_x <= 0;
-		reg_pmp_4_cfg_w <= 0;
-		reg_pmp_4_cfg_r <= 0;
-		reg_pmp_5_cfg_l <= 0;
-		reg_pmp_5_cfg_a <= 2'h0;
-		reg_pmp_5_cfg_x <= 0;
-		reg_pmp_5_cfg_w <= 0;
-		reg_pmp_5_cfg_r <= 0;
-		reg_pmp_6_cfg_l <= 0;
-		reg_pmp_6_cfg_a <= 2'h0;
-		reg_pmp_6_cfg_x <= 0;
-		reg_pmp_6_cfg_w <= 0;
-		reg_pmp_6_cfg_r <= 0;
-		reg_pmp_7_cfg_l <= 0;
-		reg_pmp_7_cfg_a <= 2'h0;
-		reg_pmp_7_cfg_x <= 0;
-		reg_pmp_7_cfg_w <= 0;
-		reg_pmp_7_cfg_r <= 0;
-	end
-	if (csr_wen) begin
-		if (sel_pmp_cfg_0 & !reg_pmp_0_cfg_l) begin
-			reg_pmp_0_cfg_l <= wdata[7];
-			reg_pmp_0_cfg_a <= wdata[4:3];
-			reg_pmp_0_cfg_x <= wdata[2];
-			reg_pmp_0_cfg_w <= wdata[1] & wdata[0];
-			reg_pmp_0_cfg_r <= wdata[0];
-		end
-		if (sel_pmp_cfg_0 & !reg_pmp_1_cfg_l) begin
-			reg_pmp_1_cfg_l <= wdata[15];
-			reg_pmp_1_cfg_a <= wdata[12:11];
-			reg_pmp_1_cfg_x <= wdata[10];
-			reg_pmp_1_cfg_w <= wdata[9] & wdata[8];
-			reg_pmp_1_cfg_r <= wdata[8];
-		end
-		if (sel_pmp_cfg_0 & !reg_pmp_2_cfg_l) begin
-			reg_pmp_2_cfg_l <= wdata[23];
-			reg_pmp_2_cfg_a <= wdata[20:19];
-			reg_pmp_2_cfg_x <= wdata[18];
-			reg_pmp_2_cfg_w <= wdata[17] & wdata[16];
-			reg_pmp_2_cfg_r <= wdata[16];
-		end
-		if (sel_pmp_cfg_0 & !reg_pmp_3_cfg_l) begin
-			reg_pmp_3_cfg_l <= wdata[xLen - 1];
-			reg_pmp_3_cfg_a <= wdata[28:27];
-			reg_pmp_3_cfg_x <= wdata[26];
-			reg_pmp_3_cfg_w <= wdata[25] & wdata[24];
-			reg_pmp_3_cfg_r <= wdata[24];
-		end
-		if (sel_pmp_cfg_1 & !reg_pmp_4_cfg_l) begin
-			reg_pmp_4_cfg_l <= wdata[7];
-			reg_pmp_4_cfg_a <= wdata[4:3];
-			reg_pmp_4_cfg_x <= wdata[2];
-			reg_pmp_4_cfg_w <= wdata[1] & wdata[0];
-			reg_pmp_4_cfg_r <= wdata[0];
-		end
-		if (sel_pmp_cfg_1 & !reg_pmp_5_cfg_l) begin
-			reg_pmp_5_cfg_l <= wdata[15];
-			reg_pmp_5_cfg_a <= wdata[12:11];
-			reg_pmp_5_cfg_x <= wdata[10];
-			reg_pmp_5_cfg_w <= wdata[9] & wdata[8];
-			reg_pmp_5_cfg_r <= wdata[8];
-		end
-		if (sel_pmp_cfg_1 & !reg_pmp_6_cfg_l) begin
-			reg_pmp_6_cfg_l <= wdata[23];
-			reg_pmp_6_cfg_a <= wdata[20:19];
-			reg_pmp_6_cfg_x <= wdata[18];
-			reg_pmp_6_cfg_w <= wdata[17] & wdata[16];
-			reg_pmp_6_cfg_r <= wdata[16];
-		end
-		if (sel_pmp_cfg_1 & !reg_pmp_7_cfg_l) begin
-			reg_pmp_7_cfg_l <= wdata[xLen - 1];
-			reg_pmp_7_cfg_a <= wdata[28:27];
-			reg_pmp_7_cfg_x <= wdata[26];
-			reg_pmp_7_cfg_w <= wdata[25] & wdata[24];
-			reg_pmp_7_cfg_r <= wdata[24];
-		end
-		if (sel_pmp_addr_0 & !(reg_pmp_0_cfg_l | (reg_pmp_1_cfg_l & ( !reg_pmp_1_cfg_a[1] & reg_pmp_1_cfg_a[0])))) begin
-			reg_pmp_0_addr <= wdata[paddrBits - PMP_lgAlign - 1:0];
-		end 
-		if (sel_pmp_addr_1 & !(reg_pmp_1_cfg_l | (reg_pmp_2_cfg_l & ( !reg_pmp_2_cfg_a[1] & reg_pmp_2_cfg_a[0])))) begin
-			reg_pmp_1_addr <= wdata[paddrBits - PMP_lgAlign - 1:0];
-		end 
-		if (sel_pmp_addr_2 & !(reg_pmp_2_cfg_l | (reg_pmp_3_cfg_l & ( !reg_pmp_3_cfg_a[1] & reg_pmp_3_cfg_a[0])))) begin
-			reg_pmp_2_addr <= wdata[paddrBits - PMP_lgAlign - 1:0];
-		end 
-		if (sel_pmp_addr_3 & !(reg_pmp_3_cfg_l | (reg_pmp_4_cfg_l & ( !reg_pmp_4_cfg_a[1] & reg_pmp_4_cfg_a[0])))) begin
-			reg_pmp_3_addr <= wdata[paddrBits - PMP_lgAlign - 1:0];
-		end 
-		if (sel_pmp_addr_4 & !(reg_pmp_4_cfg_l | (reg_pmp_5_cfg_l & ( !reg_pmp_5_cfg_a[1] & reg_pmp_5_cfg_a[0])))) begin
-			reg_pmp_4_addr <= wdata[paddrBits - PMP_lgAlign - 1:0];
-		end 
-		if (sel_pmp_addr_5 & !(reg_pmp_5_cfg_l | (reg_pmp_6_cfg_l & ( !reg_pmp_6_cfg_a[1] & reg_pmp_6_cfg_a[0])))) begin
-			reg_pmp_5_addr <= wdata[paddrBits - PMP_lgAlign - 1:0];
-		end 
-		if (sel_pmp_addr_6 & !(reg_pmp_6_cfg_l | (reg_pmp_7_cfg_l & ( !reg_pmp_7_cfg_a[1] & reg_pmp_7_cfg_a[0])))) begin
-			reg_pmp_6_addr <= wdata[paddrBits - PMP_lgAlign - 1:0];
-		end 
-		if (sel_pmp_addr_7 & !(reg_pmp_7_cfg_l | (reg_pmp_7_cfg_l & ( !reg_pmp_7_cfg_a[1] & reg_pmp_7_cfg_a[0])))) begin
-			reg_pmp_7_addr <= wdata[paddrBits - PMP_lgAlign - 1:0];
-		end 
-	end
-end
-`endif //REG_PMP
-
   always @(posedge clock) begin
-`ifndef REG_MSTATUS
-    if (reset) begin
-      reg_mstatus_prv <= 2'h3;
-    end else begin
-      if (_T_33) begin
-        reg_mstatus_prv <= 2'h0;
-      end else begin
-        if (insn_ret) begin
-          if (_T_1872) begin
-            reg_mstatus_prv <= {{1'd0}, reg_mstatus_spp};
-          end else begin
-            if (_T_1879) begin
-              reg_mstatus_prv <= reg_dcsr_prv;
-            end else begin
-              reg_mstatus_prv <= reg_mstatus_mpp;
-            end
-          end
-        end else begin
-          if (exception) begin
-            if (trapToDebug) begin
-              if (_T_1547) begin
-                reg_mstatus_prv <= 2'h3;
-              end
-            end else begin
-              if (delegate) begin
-                reg_mstatus_prv <= 2'h1;
-              end else begin
-                reg_mstatus_prv <= 2'h3;
-              end
-            end
-          end
-        end
-      end
-    end
-    if (reset) begin
-      reg_mstatus_tsr <= 1'h0;
-    end else begin
-      if (csr_wen) begin
-        if (_T_678) begin
-          reg_mstatus_tsr <= _T_4858;
-        end
-      end
-    end
-    if (reset) begin
-      reg_mstatus_tw <= 1'h0;
-    end else begin
-      if (csr_wen) begin
-        if (_T_678) begin
-          reg_mstatus_tw <= _T_4857;
-        end
-      end
-    end
-    if (reset) begin
-      reg_mstatus_tvm <= 1'h0;
-    end else begin
-      if (csr_wen) begin
-        if (_T_678) begin
-          reg_mstatus_tvm <= _T_4856;
-        end
-      end
-    end
-    if (reset) begin
-      reg_mstatus_mxr <= 1'h0;
-    end else begin
-      if (csr_wen) begin
-        if (_T_847) begin
-          reg_mstatus_mxr <= _T_4855;
-        end else begin
-          if (_T_678) begin
-            reg_mstatus_mxr <= _T_4855;
-          end
-        end
-      end
-    end
-    if (reset) begin
-      reg_mstatus_sum <= 1'h0;
-    end else begin
-      if (csr_wen) begin
-        if (_T_847) begin
-          reg_mstatus_sum <= _T_4854;
-        end else begin
-          if (_T_678) begin
-            reg_mstatus_sum <= _T_4854;
-          end
-        end
-      end
-    end
-    if (reset) begin
-      reg_mstatus_mprv <= 1'h0;
-    end else begin
-      if (csr_wen) begin
-        if (_T_678) begin
-          reg_mstatus_mprv <= _T_4853;
-        end
-      end
-    end
-    if (reset) begin
-      reg_mstatus_fs <= 2'h0;
-    end else begin
-      if (csr_wen) begin
-        if (_T_847) begin
-          if (_T_4873) begin
-            reg_mstatus_fs <= 2'h3;
-          end else begin
-            reg_mstatus_fs <= 2'h0;
-          end
-        end else begin
-          if (_T_678) begin
-            if (_T_4873) begin
-              reg_mstatus_fs <= 2'h3;
-            end else begin
-              reg_mstatus_fs <= 2'h0;
-            end
-          end
-        end
-      end
-    end
-    if (reset) begin
-      reg_mstatus_mpp <= 2'h3;
-    end else begin
-      if (csr_wen) begin
-        if (_T_678) begin
-          if (_T_4871) begin
-            reg_mstatus_mpp <= 2'h0;
-          end else begin
-            reg_mstatus_mpp <= _T_4850;
-          end
-        end else begin
-          if (insn_ret) begin
-            if (_T_1872) begin
-              if (exception) begin
-                if (!(trapToDebug)) begin
-                  if (!(delegate)) begin
-                    reg_mstatus_mpp <= reg_mstatus_prv;
-                  end
-                end
-              end
-            end else begin
-              if (_T_1879) begin
-                if (exception) begin
-                  if (!(trapToDebug)) begin
-                    if (!(delegate)) begin
-                      reg_mstatus_mpp <= reg_mstatus_prv;
-                    end
-                  end
-                end
-              end else begin
-                reg_mstatus_mpp <= 2'h0;
-              end
-            end
-          end else begin
-            if (exception) begin
-              if (!(trapToDebug)) begin
-                if (!(delegate)) begin
-                  reg_mstatus_mpp <= reg_mstatus_prv;
-                end
-              end
-            end
-          end
-        end
-      end else begin
-        if (insn_ret) begin
-          if (_T_1872) begin
-            if (exception) begin
-              if (!(trapToDebug)) begin
-                if (!(delegate)) begin
-                  reg_mstatus_mpp <= reg_mstatus_prv;
-                end
-              end
-            end
-          end else begin
-            if (_T_1879) begin
-              reg_mstatus_mpp <= _GEN_91;
-            end else begin
-              reg_mstatus_mpp <= 2'h0;
-            end
-          end
-        end else begin
-          reg_mstatus_mpp <= _GEN_91;
-        end
-      end
-    end
-    if (reset) begin
-      reg_mstatus_spp <= 1'h0;
-    end else begin
-      reg_mstatus_spp <= _GEN_326[0];
-    end
-    if (reset) begin
-      reg_mstatus_mpie <= 1'h0;
-    end else begin
-      if (csr_wen) begin
-        if (_T_678) begin
-          reg_mstatus_mpie <= _T_4847;
-        end else begin
-          if (insn_ret) begin
-            if (_T_1872) begin
-              if (exception) begin
-                if (!(trapToDebug)) begin
-                  if (!(delegate)) begin
-                    reg_mstatus_mpie <= reg_mstatus_mie;
-                  end
-                end
-              end
-            end else begin
-              if (_T_1879) begin
-                if (exception) begin
-                  if (!(trapToDebug)) begin
-                    if (!(delegate)) begin
-                      reg_mstatus_mpie <= reg_mstatus_mie;
-                    end
-                  end
-                end
-              end else begin
-                reg_mstatus_mpie <= 1'h1;
-              end
-            end
-          end else begin
-            if (exception) begin
-              if (!(trapToDebug)) begin
-                if (!(delegate)) begin
-                  reg_mstatus_mpie <= reg_mstatus_mie;
-                end
-              end
-            end
-          end
-        end
-      end else begin
-        if (insn_ret) begin
-          if (_T_1872) begin
-            if (exception) begin
-              if (!(trapToDebug)) begin
-                if (!(delegate)) begin
-                  reg_mstatus_mpie <= reg_mstatus_mie;
-                end
-              end
-            end
-          end else begin
-            if (_T_1879) begin
-              reg_mstatus_mpie <= _GEN_90;
-            end else begin
-              reg_mstatus_mpie <= 1'h1;
-            end
-          end
-        end else begin
-          reg_mstatus_mpie <= _GEN_90;
-        end
-      end
-    end
-    if (reset) begin
-      reg_mstatus_spie <= 1'h0;
-    end else begin
-      if (csr_wen) begin
-        if (_T_847) begin
-          reg_mstatus_spie <= _T_4845;
-        end else begin
-          if (_T_678) begin
-            reg_mstatus_spie <= _T_4845;
-          end else begin
-            if (insn_ret) begin
-              reg_mstatus_spie <= _GEN_100;
-            end else begin
-              if (exception) begin
-                if (!(trapToDebug)) begin
-                  if (delegate) begin
-                    reg_mstatus_spie <= reg_mstatus_sie;
-                  end
-                end
-              end
-            end
-          end
-        end
-      end else begin
-        if (insn_ret) begin
-          reg_mstatus_spie <= _GEN_100;
-        end else begin
-          if (exception) begin
-            if (!(trapToDebug)) begin
-              if (delegate) begin
-                reg_mstatus_spie <= reg_mstatus_sie;
-              end
-            end
-          end
-        end
-      end
-    end
-    if (reset) begin
-      reg_mstatus_mie <= 1'h0;
-    end else begin
-      if (csr_wen) begin
-        if (_T_678) begin
-          reg_mstatus_mie <= _T_4843;
-        end else begin
-          if (insn_ret) begin
-            if (_T_1872) begin
-              if (exception) begin
-                if (!(trapToDebug)) begin
-                  reg_mstatus_mie <= _GEN_56;
-                end
-              end
-            end else begin
-              if (_T_1879) begin
-                if (exception) begin
-                  if (!(trapToDebug)) begin
-                    reg_mstatus_mie <= _GEN_56;
-                  end
-                end
-              end else begin
-                reg_mstatus_mie <= reg_mstatus_mpie;
-              end
-            end
-          end else begin
-            if (exception) begin
-              if (!(trapToDebug)) begin
-                reg_mstatus_mie <= _GEN_56;
-              end
-            end
-          end
-        end
-      end else begin
-        if (insn_ret) begin
-          if (_T_1872) begin
-            if (exception) begin
-              if (!(trapToDebug)) begin
-                reg_mstatus_mie <= _GEN_56;
-              end
-            end
-          end else begin
-            if (_T_1879) begin
-              reg_mstatus_mie <= _GEN_92;
-            end else begin
-              reg_mstatus_mie <= reg_mstatus_mpie;
-            end
-          end
-        end else begin
-          reg_mstatus_mie <= _GEN_92;
-        end
-      end
-    end
-    if (reset) begin
-      reg_mstatus_sie <= 1'h0;
-    end else begin
-      if (csr_wen) begin
-        if (_T_847) begin
-          reg_mstatus_sie <= _T_4841;
-        end else begin
-          if (_T_678) begin
-            reg_mstatus_sie <= _T_4841;
-          end else begin
-            if (insn_ret) begin
-              if (_T_1872) begin
-                reg_mstatus_sie <= reg_mstatus_spie;
-              end else begin
-                if (exception) begin
-                  if (!(trapToDebug)) begin
-                    if (delegate) begin
-                      reg_mstatus_sie <= 1'h0;
-                    end
-                  end
-                end
-              end
-            end else begin
-              if (exception) begin
-                if (!(trapToDebug)) begin
-                  if (delegate) begin
-                    reg_mstatus_sie <= 1'h0;
-                  end
-                end
-              end
-            end
-          end
-        end
-      end else begin
-        if (insn_ret) begin
-          if (_T_1872) begin
-            reg_mstatus_sie <= reg_mstatus_spie;
-          end else begin
-            if (exception) begin
-              if (!(trapToDebug)) begin
-                if (delegate) begin
-                  reg_mstatus_sie <= 1'h0;
-                end
-              end
-            end
-          end
-        end else begin
-          if (exception) begin
-            if (!(trapToDebug)) begin
-              if (delegate) begin
-                reg_mstatus_sie <= 1'h0;
-              end
-            end
-          end
-        end
-      end
-    end
-`endif //REG_MSTATUS
-`ifndef REG_DCSR
-    if (reset) begin
-      reg_dcsr_prv <= 2'h3;
-    end else begin
-      if (csr_wen) begin
-        if (_T_687) begin
-          if (_T_4969) begin
-            reg_dcsr_prv <= 2'h0;
-          end else begin
-            reg_dcsr_prv <= _T_4955;
-          end
-        end else begin
-          if (exception) begin
-            if (trapToDebug) begin
-              if (_T_1547) begin
-                reg_dcsr_prv <= reg_mstatus_prv;
-              end
-            end
-          end
-        end
-      end else begin
-        if (exception) begin
-          if (trapToDebug) begin
-            if (_T_1547) begin
-              reg_dcsr_prv <= reg_mstatus_prv;
-            end
-          end
-        end
-      end
-    end
-    if (_T_277) begin
-      reg_singleStepped <= 1'h0;
-    end else begin
-      reg_singleStepped <= _GEN_36;
-    end
-    if (reset) begin
-      reg_dcsr_ebreakm <= 1'h0;
-    end else begin
-      if (csr_wen) begin
-        if (_T_687) begin
-          reg_dcsr_ebreakm <= _T_4965;
-        end
-      end
-    end
-    if (reset) begin
-      reg_dcsr_ebreaks <= 1'h0;
-    end else begin
-      if (csr_wen) begin
-        if (_T_687) begin
-          reg_dcsr_ebreaks <= _T_4963;
-        end
-      end
-    end
-    if (reset) begin
-      reg_dcsr_ebreaku <= 1'h0;
-    end else begin
-      if (csr_wen) begin
-        if (_T_687) begin
-          reg_dcsr_ebreaku <= _T_4962;
-        end
-      end
-    end
-`endif //REG_DCSR
-`ifndef REG_DEBUG
-    if (reset) begin
-      reg_debug <= 1'h0;
-    end else begin
-      if (insn_ret) begin
-        if (_T_1872) begin
-          if (exception) begin
-            if (trapToDebug) begin
-              reg_debug <= _GEN_38;
-            end
-          end
-        end else begin
-          if (_T_1879) begin
-            reg_debug <= 1'h0;
-          end else begin
-            if (exception) begin
-              if (trapToDebug) begin
-                reg_debug <= _GEN_38;
-              end
-            end
-          end
-        end
-      end else begin
-        if (exception) begin
-          if (trapToDebug) begin
-            reg_debug <= _GEN_38;
-          end
-        end
-      end
-    end
-`endif //REG_DEBUG
-`ifndef REG_TOTAL1
-    if (csr_wen) begin
-      if (_T_857) begin
-        reg_mideleg <= wdata;
-      end
-    end
-    if (csr_wen) begin
-      if (_T_858) begin
-        reg_medeleg <= wdata;
-      end
-    end
-`endif //REG_TOTAL1
-`ifndef REG_DCSR
-    if (reset) begin
-      reg_dcsr_cause <= 3'h0;
-    end else begin
-      if (exception) begin
-        if (trapToDebug) begin
-          if (_T_1547) begin
-            if (reg_singleStepped) begin
-              reg_dcsr_cause <= 3'h4;
-            end else begin
-              reg_dcsr_cause <= {{1'd0}, _T_1549};
-            end
-          end
-        end
-      end
-    end
-    if (reset) begin
-      reg_dcsr_step <= 1'h0;
-    end else begin
-      if (csr_wen) begin
-        if (_T_687) begin
-          reg_dcsr_step <= _T_4880;
-        end
-      end
-    end
-`endif //REG_DCSR
-`ifndef REG_TOTAL1
-    if (csr_wen) begin
-      if (_T_688) begin
-        reg_dpc <= _T_4935;
-      end else begin
-        if (exception) begin
-          if (trapToDebug) begin
-            if (_T_1547) begin
-              reg_dpc <= epc;
-            end
-          end
-        end
-      end
-    end else begin
-      if (exception) begin
-        if (trapToDebug) begin
-          if (_T_1547) begin
-            reg_dpc <= epc;
-          end
-        end
-      end
-    end
-    if (csr_wen) begin
-      if (_T_689) begin
-        reg_dscratch <= wdata;
-      end
-    end
-`endif //REG_TOTAL1
-`ifndef REG_BP
-    if (reset) begin
-      reg_bp_0_control_dmode <= 1'h0;
-    end else begin
-      if (csr_wen) begin
-        if (_T_5053) begin
-          if (_T_675) begin
-            reg_bp_0_control_dmode <= _T_5111;
-          end
-        end
-      end
-    end
-    if (reset) begin
-      reg_bp_0_control_action <= 1'h0;
-    end else begin
-      if (csr_wen) begin
-        if (_T_5053) begin
-          if (_T_675) begin
-            reg_bp_0_control_action <= _GEN_191;
-          end
-        end
-      end
-    end
-    if (csr_wen) begin
-      if (_T_5053) begin
-        if (_T_675) begin
-          reg_bp_0_control_tmatch <= _T_5064;
-        end
-      end
-    end
-    if (csr_wen) begin
-      if (_T_5053) begin
-        if (_T_675) begin
-          reg_bp_0_control_m <= _T_5063;
-        end
-      end
-    end
-    if (csr_wen) begin
-      if (_T_5053) begin
-        if (_T_675) begin
-          reg_bp_0_control_s <= _T_5061;
-        end
-      end
-    end
-    if (csr_wen) begin
-      if (_T_5053) begin
-        if (_T_675) begin
-          reg_bp_0_control_u <= _T_5060;
-        end
-      end
-    end
-    if (reset) begin
-      reg_bp_0_control_x <= 1'h0;
-    end else begin
-      if (csr_wen) begin
-        if (_T_5053) begin
-          if (_T_675) begin
-            reg_bp_0_control_x <= _T_4880;
-          end
-        end
-      end
-    end
-    if (reset) begin
-      reg_bp_0_control_w <= 1'h0;
-    end else begin
-      if (csr_wen) begin
-        if (_T_5053) begin
-          if (_T_675) begin
-            reg_bp_0_control_w <= _T_5058;
-          end
-        end
-      end
-    end
-    if (reset) begin
-      reg_bp_0_control_r <= 1'h0;
-    end else begin
-      if (csr_wen) begin
-        if (_T_5053) begin
-          if (_T_675) begin
-            reg_bp_0_control_r <= _T_5057;
-          end
-        end
-      end
-    end
-    if (csr_wen) begin
-      if (_T_5053) begin
-        if (_T_676) begin
-          reg_bp_0_address <= wdata;
-        end
-      end
-    end
-`endif //REG_BP
-`ifndef REG_PMP
-    if (reset) begin
-      reg_pmp_0_cfg_l <= 1'h0;
-    end else begin
-      if (csr_wen) begin
-        if (_T_5196) begin
-          reg_pmp_0_cfg_l <= _T_5205;
-        end
-      end
-    end
-    if (reset) begin
-      reg_pmp_0_cfg_a <= 2'h0;
-    end else begin
-      if (csr_wen) begin
-        if (_T_5196) begin
-          reg_pmp_0_cfg_a <= _T_5203;
-        end
-      end
-    end
-    if (csr_wen) begin
-      if (_T_5196) begin
-        reg_pmp_0_cfg_x <= _T_5202;
-      end
-    end
-    if (csr_wen) begin
-      if (_T_5196) begin
-        reg_pmp_0_cfg_w <= _T_5206;
-      end
-    end
-    if (csr_wen) begin
-      if (_T_5196) begin
-        reg_pmp_0_cfg_r <= _T_5200;
-      end
-    end
-    reg_pmp_0_addr <= _GEN_408[29:0];
-    if (reset) begin
-      reg_pmp_1_cfg_l <= 1'h0;
-    end else begin
-      if (csr_wen) begin
-        if (_T_5216) begin
-          reg_pmp_1_cfg_l <= _T_5225;
-        end
-      end
-    end
-    if (reset) begin
-      reg_pmp_1_cfg_a <= 2'h0;
-    end else begin
-      if (csr_wen) begin
-        if (_T_5216) begin
-          reg_pmp_1_cfg_a <= _T_5223;
-        end
-      end
-    end
-    if (csr_wen) begin
-      if (_T_5216) begin
-        reg_pmp_1_cfg_x <= _T_5222;
-      end
-    end
-    if (csr_wen) begin
-      if (_T_5216) begin
-        reg_pmp_1_cfg_w <= _T_5226;
-      end
-    end
-    if (csr_wen) begin
-      if (_T_5216) begin
-        reg_pmp_1_cfg_r <= _T_5220;
-      end
-    end
-    reg_pmp_1_addr <= _GEN_415[29:0];
-    if (reset) begin
-      reg_pmp_2_cfg_l <= 1'h0;
-    end else begin
-      if (csr_wen) begin
-        if (_T_5236) begin
-          reg_pmp_2_cfg_l <= _T_5245;
-        end
-      end
-    end
-    if (reset) begin
-      reg_pmp_2_cfg_a <= 2'h0;
-    end else begin
-      if (csr_wen) begin
-        if (_T_5236) begin
-          reg_pmp_2_cfg_a <= _T_5243;
-        end
-      end
-    end
-    if (csr_wen) begin
-      if (_T_5236) begin
-        reg_pmp_2_cfg_x <= _T_5242;
-      end
-    end
-    if (csr_wen) begin
-      if (_T_5236) begin
-        reg_pmp_2_cfg_w <= _T_5246;
-      end
-    end
-    if (csr_wen) begin
-      if (_T_5236) begin
-        reg_pmp_2_cfg_r <= _T_5240;
-      end
-    end
-    reg_pmp_2_addr <= _GEN_422[29:0];
-    if (reset) begin
-      reg_pmp_3_cfg_l <= 1'h0;
-    end else begin
-      if (csr_wen) begin
-        if (_T_5256) begin
-          reg_pmp_3_cfg_l <= _T_5265;
-        end
-      end
-    end
-    if (reset) begin
-      reg_pmp_3_cfg_a <= 2'h0;
-    end else begin
-      if (csr_wen) begin
-        if (_T_5256) begin
-          reg_pmp_3_cfg_a <= _T_5263;
-        end
-      end
-    end
-    if (csr_wen) begin
-      if (_T_5256) begin
-        reg_pmp_3_cfg_x <= _T_5262;
-      end
-    end
-    if (csr_wen) begin
-      if (_T_5256) begin
-        reg_pmp_3_cfg_w <= _T_5266;
-      end
-    end
-    if (csr_wen) begin
-      if (_T_5256) begin
-        reg_pmp_3_cfg_r <= _T_5260;
-      end
-    end
-    reg_pmp_3_addr <= _GEN_429[29:0];
-    if (reset) begin
-      reg_pmp_4_cfg_l <= 1'h0;
-    end else begin
-      if (csr_wen) begin
-        if (_T_5276) begin
-          reg_pmp_4_cfg_l <= _T_5205;
-        end
-      end
-    end
-    if (reset) begin
-      reg_pmp_4_cfg_a <= 2'h0;
-    end else begin
-      if (csr_wen) begin
-        if (_T_5276) begin
-          reg_pmp_4_cfg_a <= _T_5203;
-        end
-      end
-    end
-    if (csr_wen) begin
-      if (_T_5276) begin
-        reg_pmp_4_cfg_x <= _T_5202;
-      end
-    end
-    if (csr_wen) begin
-      if (_T_5276) begin
-        reg_pmp_4_cfg_w <= _T_5206;
-      end
-    end
-    if (csr_wen) begin
-      if (_T_5276) begin
-        reg_pmp_4_cfg_r <= _T_5200;
-      end
-    end
-    reg_pmp_4_addr <= _GEN_436[29:0];
-    if (reset) begin
-      reg_pmp_5_cfg_l <= 1'h0;
-    end else begin
-      if (csr_wen) begin
-        if (_T_5296) begin
-          reg_pmp_5_cfg_l <= _T_5225;
-        end
-      end
-    end
-    if (reset) begin
-      reg_pmp_5_cfg_a <= 2'h0;
-    end else begin
-      if (csr_wen) begin
-        if (_T_5296) begin
-          reg_pmp_5_cfg_a <= _T_5223;
-        end
-      end
-    end
-    if (csr_wen) begin
-      if (_T_5296) begin
-        reg_pmp_5_cfg_x <= _T_5222;
-      end
-    end
-    if (csr_wen) begin
-      if (_T_5296) begin
-        reg_pmp_5_cfg_w <= _T_5226;
-      end
-    end
-    if (csr_wen) begin
-      if (_T_5296) begin
-        reg_pmp_5_cfg_r <= _T_5220;
-      end
-    end
-    reg_pmp_5_addr <= _GEN_443[29:0];
-    if (reset) begin
-      reg_pmp_6_cfg_l <= 1'h0;
-    end else begin
-      if (csr_wen) begin
-        if (_T_5316) begin
-          reg_pmp_6_cfg_l <= _T_5245;
-        end
-      end
-    end
-    if (reset) begin
-      reg_pmp_6_cfg_a <= 2'h0;
-    end else begin
-      if (csr_wen) begin
-        if (_T_5316) begin
-          reg_pmp_6_cfg_a <= _T_5243;
-        end
-      end
-    end
-    if (csr_wen) begin
-      if (_T_5316) begin
-        reg_pmp_6_cfg_x <= _T_5242;
-      end
-    end
-    if (csr_wen) begin
-      if (_T_5316) begin
-        reg_pmp_6_cfg_w <= _T_5246;
-      end
-    end
-    if (csr_wen) begin
-      if (_T_5316) begin
-        reg_pmp_6_cfg_r <= _T_5240;
-      end
-    end
-    reg_pmp_6_addr <= _GEN_450[29:0];
-    if (reset) begin
-      reg_pmp_7_cfg_l <= 1'h0;
-    end else begin
-      if (csr_wen) begin
-        if (_T_5336) begin
-          reg_pmp_7_cfg_l <= _T_5265;
-        end
-      end
-    end
-    if (reset) begin
-      reg_pmp_7_cfg_a <= 2'h0;
-    end else begin
-      if (csr_wen) begin
-        if (_T_5336) begin
-          reg_pmp_7_cfg_a <= _T_5263;
-        end
-      end
-    end
-    if (csr_wen) begin
-      if (_T_5336) begin
-        reg_pmp_7_cfg_x <= _T_5262;
-      end
-    end
-    if (csr_wen) begin
-      if (_T_5336) begin
-        reg_pmp_7_cfg_w <= _T_5266;
-      end
-    end
-    if (csr_wen) begin
-      if (_T_5336) begin
-        reg_pmp_7_cfg_r <= _T_5260;
-      end
-    end
-    reg_pmp_7_addr <= _GEN_457[29:0];
-`endif //REG_PMP
-`ifndef REG_TOTAL2
-    if (csr_wen) begin
-      if (_T_849) begin
-        reg_mie <= _T_5045;
-      end else begin
-        if (_T_681) begin
-          reg_mie <= _T_4932;
-        end
-      end
-    end
-`endif //REG_TOTAL2
-`ifndef REG_MIP
-    if (csr_wen) begin
-      if (_T_680) begin
-        reg_mip_seip <= _T_4925;
-      end
-    end
-    if (csr_wen) begin
-      if (_T_680) begin
-        reg_mip_stip <= _T_4921;
-      end
-    end
-    if (csr_wen) begin
-      if (_T_848) begin
-        reg_mip_ssip <= _T_5017;
-      end else begin
-        if (_T_680) begin
-          reg_mip_ssip <= _T_4917;
-        end
-      end
-    end
-`endif //REG_MIP
-`ifndef REG_TOTAL1
-    if (csr_wen) begin
-      if (_T_683) begin
-        reg_mepc <= _T_4935;
-      end else begin
-        if (exception) begin
-          if (!(trapToDebug)) begin
-            if (!(delegate)) begin
-              reg_mepc <= epc;
-            end
-          end
-        end
-      end
-    end else begin
-      if (exception) begin
-        if (!(trapToDebug)) begin
-          if (!(delegate)) begin
-            reg_mepc <= epc;
-          end
-        end
-      end
-    end
-    if (csr_wen) begin
-      if (_T_685) begin
-        reg_mcause <= _T_4936;
-      end else begin
-        if (exception) begin
-          if (!(trapToDebug)) begin
-            if (!(delegate)) begin
-              if (insn_call) begin
-                reg_mcause <= {{28'd0}, _T_1458};
-              end else begin
-                if (insn_break) begin
-                  reg_mcause <= 32'h3;
-                end else begin
-                  reg_mcause <= io_cause;
-                end
-              end
-            end
-          end
-        end
-      end
-    end else begin
-      if (exception) begin
-        if (!(trapToDebug)) begin
-          if (!(delegate)) begin
-            if (insn_call) begin
-              reg_mcause <= {{28'd0}, _T_1458};
-            end else begin
-              if (insn_break) begin
-                reg_mcause <= 32'h3;
-              end else begin
-                reg_mcause <= io_cause;
-              end
-            end
-          end
-        end
-      end
-    end
-    if (csr_wen) begin
-      if (_T_684) begin
-        reg_mtval <= wdata;
-      end else begin
-        if (exception) begin
-          if (!(trapToDebug)) begin
-            if (!(delegate)) begin
-              reg_mtval <= io_tval;
-            end
-          end
-        end
-      end
-    end else begin
-      if (exception) begin
-        if (!(trapToDebug)) begin
-          if (!(delegate)) begin
-            reg_mtval <= io_tval;
-          end
-        end
-      end
-    end
-`endif //REG_TOTAL1
-`ifndef REG_TOTAL2
-    if (csr_wen) begin
-      if (_T_682) begin
-        reg_mscratch <= wdata;
-      end
-    end
-    if (reset) begin
-      reg_mtvec <= 32'h0;
-    end else begin
-      if (csr_wen) begin
-        if (_T_679) begin
-          reg_mtvec <= wdata;
-        end
-      end
-    end
-    if (csr_wen) begin
-      if (_T_840) begin
-        reg_mcounteren <= wdata;
-      end
-    end
-    if (csr_wen) begin
-      if (_T_856) begin
-        reg_scounteren <= wdata;
-      end
-    end
-`endif //REG_TOTAL2
-`ifndef REG_TOTAL1
-    if (csr_wen) begin
-      if (_T_854) begin
-        reg_sepc <= _T_4935;
-      end else begin
-        if (exception) begin
-          if (!(trapToDebug)) begin
-            if (delegate) begin
-              reg_sepc <= epc;
-            end
-          end
-        end
-      end
-    end else begin
-      if (exception) begin
-        if (!(trapToDebug)) begin
-          if (delegate) begin
-            reg_sepc <= epc;
-          end
-        end
-      end
-    end
-    if (csr_wen) begin
-      if (_T_851) begin
-        reg_scause <= _T_5049;
-      end else begin
-        if (exception) begin
-          if (!(trapToDebug)) begin
-            if (delegate) begin
-              if (insn_call) begin
-                reg_scause <= {{28'd0}, _T_1458};
-              end else begin
-                if (insn_break) begin
-                  reg_scause <= 32'h3;
-                end else begin
-                  reg_scause <= io_cause;
-                end
-              end
-            end
-          end
-        end
-      end
-    end else begin
-      if (exception) begin
-        if (!(trapToDebug)) begin
-          if (delegate) begin
-            if (insn_call) begin
-              reg_scause <= {{28'd0}, _T_1458};
-            end else begin
-              if (insn_break) begin
-                reg_scause <= 32'h3;
-              end else begin
-                reg_scause <= io_cause;
-              end
-            end
-          end
-        end
-      end
-    end
-    if (csr_wen) begin
-      if (_T_852) begin
-        reg_stval <= wdata;
-      end else begin
-        if (exception) begin
-          if (!(trapToDebug)) begin
-            if (delegate) begin
-              reg_stval <= io_tval;
-            end
-          end
-        end
-      end
-    end else begin
-      if (exception) begin
-        if (!(trapToDebug)) begin
-          if (delegate) begin
-            reg_stval <= io_tval;
-          end
-        end
-      end
-    end
-`endif //REG_TOTAL1
-`ifndef REG_TOTAL2
-    if (csr_wen) begin
-      if (_T_850) begin
-        reg_sscratch <= wdata;
-      end
-    end
-    if (csr_wen) begin
-      if (_T_855) begin
-        reg_stvec <= wdata;
-      end
-    end
-`endif //REG_TOTAL2
-`ifndef REG_SATP
-    if (csr_wen) begin
-      if (_T_853) begin
-        if (_T_5039) begin
-          reg_satp_mode <= _T_5036;
-        end
-      end
-    end
-    if (csr_wen) begin
-      if (_T_853) begin
-        if (_T_5039) begin
-          reg_satp_ppn <= {{2'd0}, _T_5041};
-        end
-      end
-    end
-`endif //REG_SATP
-`ifndef REG_TOTAL1
-    reg_fflags <= _GEN_349[4:0];
-    reg_frm <= _GEN_350[2:0];
-`endif //REG_TOTAL1
-`ifndef REG_INSTRET
-  assign _T_92 = {_T_88,_T_86}; // @[Cat.scala 29:58:freechips.rocketchip.system.DefaultRV32Config.fir@147786.4]
     if (reset) begin
       _T_86 <= 6'h0;
     end else begin
@@ -6355,10 +6047,10 @@ end
       _T_88 <= 58'h0;
     end else begin
       if (csr_wen) begin
-        if (_T_844) begin
+        if (sel_minstreth) begin
           _T_88 <= _T_4951;
         end else begin
-          if (_T_694) begin
+          if (sel_minstret) begin
             _T_88 <= _T_4947;
           end else begin
             if (_T_89) begin
@@ -6372,89 +6064,8 @@ end
         end
       end
     end
-`endif //REG_INSTRET
-`ifndef REG_MISA
-    if (reset) begin
-      reg_misa <= 32'h40941125;
-    end else begin
-      if (csr_wen) begin
-        if (_T_677) begin
-          if (_T_4881) begin
-            reg_misa <= _T_4890;
-          end
-        end
-      end
-    end
-`endif //REG_MISA
-    if (_T_1509) begin
-      _T_1511 <= reg_mstatus_mpp;
-    end else begin
-      _T_1511 <= reg_mstatus_prv;
-    end
-    if (reset) begin
-      _T_1894 <= 1'h0;
-    end else begin
-      _T_1894 <= _GEN_117;
-    end
-    `ifndef SYNTHESIS
-    `ifdef PRINTF_COND
-      if (`PRINTF_COND) begin
-    `endif
-        if (_T_1522) begin
-          $fwrite(32'h80000002,"Assertion failed: these conditions must be mutually exclusive\n    at CSR.scala:654 assert(PopCount(insn_ret :: insn_call :: insn_break :: io.exception :: Nil) <= 1, \"these conditions must be mutually exclusive\")\n"); // @[CSR.scala 654:9:freechips.rocketchip.system.DefaultRV32Config.fir@149380.6]
-        end
-    `ifdef PRINTF_COND
-      end
-    `endif
-    `endif // SYNTHESIS
-    `ifndef SYNTHESIS
-    `ifdef STOP_COND
-      if (`STOP_COND) begin
-    `endif
-        if (_T_1522) begin
-          $fatal; // @[CSR.scala 654:9:freechips.rocketchip.system.DefaultRV32Config.fir@149381.6]
-        end
-    `ifdef STOP_COND
-      end
-    `endif
-    `endif // SYNTHESIS
-    `ifndef SYNTHESIS
-    `ifdef PRINTF_COND
-      if (`PRINTF_COND) begin
-    `endif
-        if (_T_1544) begin
-          $fwrite(32'h80000002,"Assertion failed\n    at CSR.scala:662 assert(!reg_singleStepped || io.retire === UInt(0))\n"); // @[CSR.scala 662:9:freechips.rocketchip.system.DefaultRV32Config.fir@149422.6]
-        end
-    `ifdef PRINTF_COND
-      end
-    `endif
-    `endif // SYNTHESIS
-    `ifndef SYNTHESIS
-    `ifdef STOP_COND
-      if (`STOP_COND) begin
-    `endif
-        if (_T_1544) begin
-          $fatal; // @[CSR.scala 662:9:freechips.rocketchip.system.DefaultRV32Config.fir@149423.6]
-        end
-    `ifdef STOP_COND
-      end
-    `endif
-    `endif // SYNTHESIS
   end
   always @(posedge io_ungated_clock) begin
-`ifndef REG_WFI
-    if (reset) begin
-      reg_wfi <= 1'h0;
-    end else begin
-      if (_T_1529) begin
-        reg_wfi <= 1'h0;
-      end else begin
-        reg_wfi <= _GEN_34;
-      end
-    end
-`endif
-`ifndef REG_CYCLE
-  assign _T_100 = {_T_96,_T_94}; // @[Cat.scala 29:58:freechips.rocketchip.system.DefaultRV32Config.fir@147798.4]
     if (reset) begin
       _T_94 <= 6'h0;
     end else begin
@@ -6464,10 +6075,10 @@ end
       _T_96 <= 58'h0;
     end else begin
       if (csr_wen) begin
-        if (_T_843) begin
+        if (sel_mcycleh) begin
           _T_96 <= _T_4944;
         end else begin
-          if (_T_693) begin
+          if (sel_mcycle) begin
             _T_96 <= _T_4940;
           end else begin
             if (_T_97) begin
@@ -6481,6 +6092,5 @@ end
         end
       end
     end
-`endif //REG_CYCLE
   end
 endmodule

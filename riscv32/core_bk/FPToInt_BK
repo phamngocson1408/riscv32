@@ -1,0 +1,123 @@
+module FPToInt(
+  input         clock,
+  input         io_in_valid,
+  input         io_in_bits_ren2,
+  input         io_in_bits_wflags,
+  input  [2:0]  io_in_bits_rm,
+  input  [1:0]  io_in_bits_typ,
+  input  [32:0] io_in_bits_in1,
+  input  [32:0] io_in_bits_in2,
+  output [2:0]  io_out_bits_in_rm,
+  output [32:0] io_out_bits_in_in1,
+  output [32:0] io_out_bits_in_in2,
+  output        io_out_bits_lt,
+  output [31:0] io_out_bits_store,
+  output [31:0] io_out_bits_toint,
+  output [4:0]  io_out_bits_exc
+);
+  wire [32:0] dcmp_io_a;
+  wire [32:0] dcmp_io_b;
+  wire  dcmp_io_signaling;
+  wire  dcmp_io_lt;
+  wire  dcmp_io_eq;
+  wire [4:0] dcmp_io_exceptionFlags;
+  wire [32:0] RecFNToIN_io_in;
+  wire [2:0] RecFNToIN_io_roundingMode;
+  wire  RecFNToIN_io_signedOut;
+  wire [31:0] RecFNToIN_io_out;
+  wire [2:0] RecFNToIN_io_intExceptionFlags;
+  reg  in_ren2;
+  reg  in_wflags;
+  reg [2:0] in_rm;
+  reg [1:0] in_typ;
+  reg [32:0] in_in1;
+  reg [32:0] in_in2;
+  wire [31:0] store;
+  wire [32:0] toint;
+
+  CompareRecFN dcmp (
+    .io_a(dcmp_io_a),
+    .io_b(dcmp_io_b),
+    .io_signaling(dcmp_io_signaling),
+    .io_lt(dcmp_io_lt),
+    .io_eq(dcmp_io_eq),
+    .io_exceptionFlags(dcmp_io_exceptionFlags)
+  );
+  RecFNToIN RecFNToIN (
+    .io_in(RecFNToIN_io_in),
+    .io_roundingMode(RecFNToIN_io_roundingMode),
+    .io_signedOut(RecFNToIN_io_signedOut),
+    .io_out(RecFNToIN_io_out),
+    .io_intExceptionFlags(RecFNToIN_io_intExceptionFlags)
+  );
+
+`define MY_ASSIGNMENT
+`ifdef MY_ASSIGNMENT
+  wire [9:0] _T_14 = {1'b0,$signed(in_in1[31:23])};
+  wire [24:0] _T_18 = {1'h0, !(in_in1[31:29] == 3'h0), in_in1[22:0]};
+  wire [7:0] _T_28 = _T_14[7:0] - 8'h81;
+  wire [7:0] _T_29 = ($signed(_T_14) < $signed(10'sh82)) ? 8'h0 : _T_28;
+  wire [7:0] _T_32 = (((in_in1[31:30] == 2'h3) & in_in1[29]) | ((in_in1[31:30] == 2'h3) & !in_in1[29])) ? 8'hff : 8'h0;
+  wire [7:0] _T_33 = _T_29 | _T_32;
+  wire [4:0] _T_22 = 5'h1 - _T_14[4:0];
+  wire [23:0] _T_24 = _T_18[24:1] >> _T_22;
+  wire [22:0] _T_35 = ((in_in1[31:30] == 2'h3) & !in_in1[29]) ? 23'h0 :  _T_18[22:0];
+  wire [22:0] _T_36 = ($signed(_T_14) < $signed(10'sh82)) ? _T_24[22:0] : _T_35;
+  assign store = {in_in1[32], _T_33, _T_36};
+
+  wire _T_63 = (in_in1[31:29] == 3'h7) & !in_in1[22];
+  wire _T_65 = (in_in1[31:29] == 3'h7) & in_in1[22];
+  wire _T_67 = (in_in1[31:30] == 2'h3) & !in_in1[29] & !in_in1[32];
+  wire _T_69 = (((in_in1[31:20] == 2'h1) & !(in_in1[29:23] < 7'h2)) | (in_in1[31:30] == 2'h2)) & !in_in1[32];
+  wire _T_71 = ((in_in1[31:29] == 3'h1) | ((in_in1[31:30] == 2'h1) & (in_in1[29:23] < 7'h2))) & !in_in1[32];
+  wire _T_73 = (in_in1[31:29] == 3'h0) & !in_in1[32];
+  wire _T_74 = (in_in1[31:29] == 3'h0) & in_in1[32];
+  wire _T_75 = ((in_in1[31:29] == 3'h1) | ((in_in1[31:30] == 2'h1) & (in_in1[29:23] < 7'h2))) & in_in1[32];
+  wire _T_76 = ((in_in1[31:30] == 2'h1 & !(in_in1[29:23] < 7'h2)) | (in_in1[31:30] == 2'h2)) & in_in1[32];
+  wire _T_77 = ((in_in1[31:30] == 2'h3) & !in_in1[29]) & in_in1[32];
+  wire [9:0] _T_86 = {_T_65,_T_63,_T_67,_T_69,_T_71,_T_73,_T_74,_T_75,_T_76,_T_77};
+  wire [32:0] _GEN_22 = in_rm[0] ? {{23'd0}, _T_86} : {{1'd0}, store};
+  wire _T_93 = ((~ in_rm) & {{1'd0}, dcmp_io_lt, dcmp_io_eq}) != 3'h0;
+  wire [32:0] _GEN_25 = !in_ren2 ? {{1'd0}, RecFNToIN_io_out} : {{32'd0}, _T_93};
+  wire [32:0] toint = in_wflags ? _GEN_25 : _GEN_22;
+  assign io_out_bits_in_rm = in_rm;
+  assign io_out_bits_in_in1 = in_in1;
+  assign io_out_bits_in_in2 = in_in2;
+  assign io_out_bits_lt = dcmp_io_lt | (($signed(dcmp_io_a) < $signed(33'sh0)) & ($signed(dcmp_io_b) >= $signed(33'sh0)));
+  assign io_out_bits_store = {in_in1[32], _T_33, _T_36};
+  assign io_out_bits_toint = toint[31:0];
+
+  assign _T_101 = RecFNToIN_io_intExceptionFlags[2:1] != 2'h0;
+  wire [4:0] _GEN_26 = !in_ren2 ? {_T_101, 3'h0, RecFNToIN_io_intExceptionFlags[0]} : dcmp_io_exceptionFlags;
+  assign io_out_bits_exc = in_wflags ? _GEN_26 : 5'h0;
+  assign dcmp_io_a = in_in1;
+  assign dcmp_io_b = in_in2;
+  assign dcmp_io_signaling = !in_rm[1];
+  assign RecFNToIN_io_in = in_in1;
+  assign RecFNToIN_io_roundingMode = in_rm;
+  assign RecFNToIN_io_signedOut = ~ in_typ[0];
+
+initial begin
+	in_ren2 = 1'h0;
+	in_wflags = 1'h0;
+	in_rm = 3'h0;
+	in_typ = 2'h0;
+	in_in1 = 33'h000;
+	in_in2 = 33'h000;
+end
+
+always @(posedge clock) begin
+	if (io_in_valid) begin
+		in_ren2 <= io_in_bits_ren2;
+		in_wflags <= io_in_bits_wflags;
+		in_rm <= io_in_bits_rm;
+		in_typ <= io_in_bits_typ;
+		in_in1 <= io_in_bits_in1;
+		in_in2 <= io_in_bits_in2;
+	end
+end
+
+`endif // MY_ASSIGNMENT
+
+endmodule
+

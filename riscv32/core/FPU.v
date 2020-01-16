@@ -492,7 +492,7 @@ assign mem_wen = mem_reg_valid & (mem_ctrl_fma | mem_ctrl_fastpipe | mem_ctrl_fr
 wire [1:0] wbInfo_0_pipeid_0 = (mem_ctrl_fma & mem_ctrl_singleOut) ? 2'h2 : 2'h0;
 wire [1:0] wbInfo_1_pipeid_0 = (mem_ctrl_fma & mem_ctrl_singleOut) ? 2'h2 : 2'h0;
 
-wire [2:0] write_port_busy_6 = (ex_reg_ctrl_fma & ex_reg_ctrl_singleOut) ? 4'h8 : 4'h0;
+wire [3:0] write_port_busy_6 = (ex_reg_ctrl_fma & ex_reg_ctrl_singleOut) ? 4'h8 : 4'h0;
 wire [2:0] write_port_busy_5 = ex_reg_ctrl_fromint ? 3'h4 : 3'h0;
 wire [2:0] write_port_busy_4 = ex_reg_ctrl_fastpipe ? 3'h4 : 3'h0;
 wire [2:0] write_port_busy_3 = (ex_reg_ctrl_fma & ex_reg_ctrl_singleOut) ? 3'h4 : 3'h0;

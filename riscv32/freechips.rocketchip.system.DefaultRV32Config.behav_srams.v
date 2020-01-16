@@ -222,6 +222,8 @@ module mem_ext(
   reg reg_R0_ren;
   reg [25:0] reg_R0_addr;
   reg [31:0] ram [67108863:0];
+
+
   `ifdef RANDOMIZE_MEM_INIT
     integer initvar;
     initial begin
@@ -257,6 +259,10 @@ module mem_ext(
   `else
   assign R0_data = ram[reg_R0_addr];
   `endif
+
+  initial begin
+    $readmemh ( "/home/pnson89/RISCV/ROCKET/rocket-chip/vsim/rv32um-v-mul.hex" , ram );
+  end
 
 endmodule
 

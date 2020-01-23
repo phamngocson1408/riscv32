@@ -1,3 +1,5 @@
+`include "include_module.v"
+`ifdef __FPToFP
 module FPToFP( // @[:freechips.rocketchip.system.DefaultRV32Config.fir@143572.2]
   input         clock, // @[:freechips.rocketchip.system.DefaultRV32Config.fir@143573.4]
   input         reset, // @[:freechips.rocketchip.system.DefaultRV32Config.fir@143574.4]
@@ -180,4 +182,5 @@ end
     end
   end
 endmodule
+`endif // __FPToFP
 

@@ -1,3 +1,5 @@
+`include "include_module.v"
+`ifdef __DivSqrtRawFN_small
 module DivSqrtRawFN_small(
   input         clock,
   input         reset,
@@ -266,7 +268,6 @@ module DivSqrtRawFN_small(
   assign io_rawOut_sExp = sExp_Z;
   assign io_rawOut_sig = {sigX_Z, 1'h0} | {{26'd0}, notZeroRem_Z};
 
-
   assign _T_56 = io_a_sExp[0] ? 5'h18 : 5'h19;
   assign _T_57 = io_sqrtOp ? _T_56 : 5'h1a;
   assign _T_58 = entering_normalCase ? _T_57 : 5'h0;
@@ -281,6 +282,7 @@ module DivSqrtRawFN_small(
 		| {{2'd0}, _T_137};
   assign _T_141 = !inReady ? ({{4'd0}, sigX_Z} | bitMask) : 30'h0;
   assign _GEN_12 = (entering_normalCase | (!inReady & newBit)) ? ({{4'd0}, _T_138} | _T_141) : {{4'd0}, sigX_Z};
+
 
 always @(posedge clock) begin
 	if (reset) begin
@@ -317,24 +319,24 @@ always @(posedge clock) begin
         			isZero_Z <= io_a_isZero | io_b_isInf;
 			end
 			sign_Z <= sign_S;
-			if (entering_normalCase) begin
-				if (io_sqrtOp) begin
-					sExp_Z <= $signed(io_a_sExp[9:1]) + $signed(9'sh80);
-				end
-				else begin
-					sExp_Z <= sSatExpQuot_S_div;
-				end
-				roundingMode_Z <= io_roundingMode;
-			end
-			if (entering_normalCase & !io_sqrtOp) begin
-				fractB_Z <= io_b_sig[22:0];
-			end
-			rem_Z <= _GEN_10[25:0];
-			if (entering_normalCase | (!inReady & newBit)) begin
-				notZeroRem_Z <= $signed(trialRem) != $signed(31'sh0);
-			end
-			sigX_Z <= _GEN_12[25:0];
 		end
+		if (entering_normalCase) begin
+			if (io_sqrtOp) begin
+				sExp_Z <= $signed(io_a_sExp[9:1]) + $signed(9'sh80);
+			end
+			else begin
+				sExp_Z <= sSatExpQuot_S_div;
+			end
+			roundingMode_Z <= io_roundingMode;
+		end
+		if (entering_normalCase & !io_sqrtOp) begin
+			fractB_Z <= io_b_sig[22:0];
+		end
+		rem_Z <= _GEN_10[25:0];
+		if (entering_normalCase | (!inReady & newBit)) begin
+			notZeroRem_Z <= $signed(trialRem) != $signed(31'sh0);
+		end
+		sigX_Z <= _GEN_12[25:0];
 	end
 end
 `endif // MY_ASSIGNMENT
@@ -662,4 +664,4 @@ end
 `endif // MY_ASSIGNMENT
   end
 endmodule
-
+`endif // __DivSqrtRawFN_small

@@ -12,7 +12,8 @@ default: all
 base_dir = $(abspath ..)
 generated_dir = $(abspath ./generated-src)
 riscv32_dir = $(abspath ./riscv32)
-include_dir = $(abspath ./riscv32/core_combine/include)
+core_dir = $(riscv32_dir)/$(CORE_DIR)
+include_dir = $(core_dir)/include
 mem_gen = $(VLSI_MEM_GEN)
 sim_dir = .
 output_dir = $(sim_dir)/output

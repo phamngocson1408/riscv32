@@ -1,3 +1,5 @@
+`include "include_module.v"
+`ifdef __ALU
 module ALU( 
   input  [3:0]  io_fn, 
   input  [31:0] io_in2,
@@ -83,3 +85,4 @@ wire [31:0] shift_logic = {31'h00, (isCmp && slt)} | logic_ | shout;
 wire [31:0] io_out = (io_fn == `FN_ADD | io_fn == `FN_SUB) ? io_adder_out : shift_logic; 
 
 endmodule
+`endif // __ALU

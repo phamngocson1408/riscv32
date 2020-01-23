@@ -1,3 +1,5 @@
+`include "include_module.v"
+`ifdef __FPToInt
 module FPToInt(
   input         clock,
   input         io_in_valid,
@@ -392,4 +394,4 @@ end
   end
 `endif
 endmodule
-
+`endif // __FPToInt

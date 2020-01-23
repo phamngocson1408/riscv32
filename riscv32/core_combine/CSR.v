@@ -1,3 +1,5 @@
+`include "include_module.v"
+`ifdef __CSRFile
 module CSRFile(
   input         clock,
   input         reset,
@@ -6094,3 +6096,4 @@ end
     end
   end
 endmodule
+`endif // __CSRFile

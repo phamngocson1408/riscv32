@@ -1,3 +1,5 @@
+`include "include_module.v"
+`ifdef __CompareRecFN
 module CompareRecFN(
   input  [32:0] io_a,
   input  [32:0] io_b,
@@ -181,4 +183,4 @@ module CompareRecFN(
   assign _T_61 = ordered == 1'h0; // @[CompareRecFN.scala 76:30:freechips.rocketchip.system.DefaultRV32Config.fir@142800.4]
   assign _T_62 = io_signaling & _T_61; // @[CompareRecFN.scala 76:27:freechips.rocketchip.system.DefaultRV32Config.fir@142801.4]
 endmodule
-
+`endif // __CompareRecFN

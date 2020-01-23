@@ -1,4 +1,5 @@
-
+`include "include_module.v"
+`ifdef __ICache
 module ICache(
   input         clock,
   input         reset,
@@ -980,3 +981,4 @@ end
   always @(posedge clock) begin
   end
 endmodule
+`endif // __ICache

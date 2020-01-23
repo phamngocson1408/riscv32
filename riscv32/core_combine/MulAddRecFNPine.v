@@ -1,3 +1,5 @@
+`include "include_module.v"
+`ifdef __MulAddRecFNPipe
 module MulAddRecFNPipe(
   input         clock,
   input         reset,
@@ -562,4 +564,4 @@ end
   end
 `endif // MY_ASSIGNMENT
 endmodule
-
+`endif // __MulAddRecFNPipe

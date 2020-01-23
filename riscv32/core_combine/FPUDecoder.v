@@ -1,3 +1,5 @@
+`include "include_module.v"
+`ifdef __FPUDecoder
 module FPUDecoder(
   input  [31:0] io_inst,
   output        io_sigs_wen,
@@ -173,4 +175,4 @@ assign io_sigs_wflags = ((io_inst & 32'h20000004) == 32'h0)
   assign _T_70 = _T_64 | decoder_4; // @[Decode.scala 15:30:freechips.rocketchip.system.DefaultRV32Config.fir@141600.4]
   assign _T_71 = _T_70 | _T_66; // @[Decode.scala 15:30:freechips.rocketchip.system.DefaultRV32Config.fir@141601.4]
 endmodule
-
+`endif // __FPUDecoder

@@ -1,39 +1,34 @@
-module FPU( // @[:freechips.rocketchip.system.DefaultRV32Config.fir@144295.2]
-  input         clock, // @[:freechips.rocketchip.system.DefaultRV32Config.fir@144296.4]
-  input         reset, // @[:freechips.rocketchip.system.DefaultRV32Config.fir@144297.4]
-  input  [31:0] io_inst, // @[:freechips.rocketchip.system.DefaultRV32Config.fir@144298.4]
-  input  [31:0] io_fromint_data, // @[:freechips.rocketchip.system.DefaultRV32Config.fir@144298.4]
-  input  [2:0]  io_fcsr_rm, // @[:freechips.rocketchip.system.DefaultRV32Config.fir@144298.4]
-  output        io_fcsr_flags_valid, // @[:freechips.rocketchip.system.DefaultRV32Config.fir@144298.4]
-  output [4:0]  io_fcsr_flags_bits, // @[:freechips.rocketchip.system.DefaultRV32Config.fir@144298.4]
-  output [31:0] io_store_data, // @[:freechips.rocketchip.system.DefaultRV32Config.fir@144298.4]
-  output [31:0] io_toint_data, // @[:freechips.rocketchip.system.DefaultRV32Config.fir@144298.4]
-  input         io_dmem_resp_val, // @[:freechips.rocketchip.system.DefaultRV32Config.fir@144298.4]
-  input  [4:0]  io_dmem_resp_tag, // @[:freechips.rocketchip.system.DefaultRV32Config.fir@144298.4]
-  input  [31:0] io_dmem_resp_data, // @[:freechips.rocketchip.system.DefaultRV32Config.fir@144298.4]
-  input         io_valid, // @[:freechips.rocketchip.system.DefaultRV32Config.fir@144298.4]
-  output        io_fcsr_rdy, // @[:freechips.rocketchip.system.DefaultRV32Config.fir@144298.4]
-  output        io_nack_mem, // @[:freechips.rocketchip.system.DefaultRV32Config.fir@144298.4]
-  output        io_illegal_rm, // @[:freechips.rocketchip.system.DefaultRV32Config.fir@144298.4]
-  input         io_killx, // @[:freechips.rocketchip.system.DefaultRV32Config.fir@144298.4]
-  input         io_killm, // @[:freechips.rocketchip.system.DefaultRV32Config.fir@144298.4]
-  output        io_dec_wen, // @[:freechips.rocketchip.system.DefaultRV32Config.fir@144298.4]
-  output        io_dec_ren1, // @[:freechips.rocketchip.system.DefaultRV32Config.fir@144298.4]
-  output        io_dec_ren2, // @[:freechips.rocketchip.system.DefaultRV32Config.fir@144298.4]
-  output        io_dec_ren3, // @[:freechips.rocketchip.system.DefaultRV32Config.fir@144298.4]
-  output        io_sboard_set, // @[:freechips.rocketchip.system.DefaultRV32Config.fir@144298.4]
-  output        io_sboard_clr, // @[:freechips.rocketchip.system.DefaultRV32Config.fir@144298.4]
-  output [4:0]  io_sboard_clra // @[:freechips.rocketchip.system.DefaultRV32Config.fir@144298.4]
+`include "include_module.v"
+`ifdef __FPU
+module FPU(
+  input         clock,
+  input         reset,
+  input  [31:0] io_inst,
+  input  [31:0] io_fromint_data,
+  input  [2:0]  io_fcsr_rm,
+  output        io_fcsr_flags_valid,
+  output [4:0]  io_fcsr_flags_bits,
+  output [31:0] io_store_data,
+  output [31:0] io_toint_data,
+  input         io_dmem_resp_val,
+  input  [4:0]  io_dmem_resp_tag,
+  input  [31:0] io_dmem_resp_data,
+  input         io_valid,
+  output        io_fcsr_rdy,
+  output        io_nack_mem,
+  output        io_illegal_rm,
+  input         io_killx,
+  input         io_killm,
+  output        io_dec_wen,
+  output        io_dec_ren1,
+  output        io_dec_ren2,
+  output        io_dec_ren3,
+  output        io_sboard_set,
+  output        io_sboard_clr,
+  output [4:0]  io_sboard_clra
 );
-
-`include "FPU_INC.v"
-
-`ifndef MY_DEFINE
-//******************************************************************************
-// IO_Declarations
-//******************************************************************************
-  wire [31:0] fp_decoder_io_inst; // @[FPU.scala 688:26:freechips.rocketchip.system.DefaultRV32Config.fir@144305.4]
-  wire  fp_decoder_io_sigs_wen; // @[FPU.scala 688:26:freechips.rocketchip.system.DefaultRV32Config.fir@144305.4]
+  wire [31:0] fp_decoder_io_inst;
+  wire  fp_decoder_io_sigs_wen;
   wire  fp_decoder_io_sigs_ren1; // @[FPU.scala 688:26:freechips.rocketchip.system.DefaultRV32Config.fir@144305.4]
   wire  fp_decoder_io_sigs_ren2; // @[FPU.scala 688:26:freechips.rocketchip.system.DefaultRV32Config.fir@144305.4]
   wire  fp_decoder_io_sigs_ren3; // @[FPU.scala 688:26:freechips.rocketchip.system.DefaultRV32Config.fir@144305.4]
@@ -48,6 +43,7 @@ module FPU( // @[:freechips.rocketchip.system.DefaultRV32Config.fir@144295.2]
   wire  fp_decoder_io_sigs_sqrt; // @[FPU.scala 688:26:freechips.rocketchip.system.DefaultRV32Config.fir@144305.4]
   wire  fp_decoder_io_sigs_wflags; // @[FPU.scala 688:26:freechips.rocketchip.system.DefaultRV32Config.fir@144305.4]
   reg [32:0] regfile [0:31]; // @[FPU.scala 729:20:freechips.rocketchip.system.DefaultRV32Config.fir@144422.4]
+  reg [63:0] _RAND_0;
   wire [32:0] regfile_ex_rs_0_data; // @[FPU.scala 729:20:freechips.rocketchip.system.DefaultRV32Config.fir@144422.4]
   wire [4:0] regfile_ex_rs_0_addr; // @[FPU.scala 729:20:freechips.rocketchip.system.DefaultRV32Config.fir@144422.4]
   wire [32:0] regfile_ex_rs_1_data; // @[FPU.scala 729:20:freechips.rocketchip.system.DefaultRV32Config.fir@144422.4]
@@ -120,189 +116,74 @@ module FPU( // @[:freechips.rocketchip.system.DefaultRV32Config.fir@144295.2]
   wire  divSqrt_io_outValid_sqrt; // @[FPU.scala 901:27:freechips.rocketchip.system.DefaultRV32Config.fir@144864.4]
   wire [32:0] divSqrt_io_out; // @[FPU.scala 901:27:freechips.rocketchip.system.DefaultRV32Config.fir@144864.4]
   wire [4:0] divSqrt_io_exceptionFlags; // @[FPU.scala 901:27:freechips.rocketchip.system.DefaultRV32Config.fir@144864.4]
-
-//******************************************************************************
-// Submodules_Initiations
-//******************************************************************************
-  FPUDecoder fp_decoder ( // @[FPU.scala 688:26:freechips.rocketchip.system.DefaultRV32Config.fir@144305.4]
-    .io_inst(fp_decoder_io_inst),
-    .io_sigs_wen(fp_decoder_io_sigs_wen),
-    .io_sigs_ren1(fp_decoder_io_sigs_ren1),
-    .io_sigs_ren2(fp_decoder_io_sigs_ren2),
-    .io_sigs_ren3(fp_decoder_io_sigs_ren3),
-    .io_sigs_swap12(fp_decoder_io_sigs_swap12),
-    .io_sigs_swap23(fp_decoder_io_sigs_swap23),
-    .io_sigs_singleOut(fp_decoder_io_sigs_singleOut),
-    .io_sigs_fromint(fp_decoder_io_sigs_fromint),
-    .io_sigs_toint(fp_decoder_io_sigs_toint),
-    .io_sigs_fastpipe(fp_decoder_io_sigs_fastpipe),
-    .io_sigs_fma(fp_decoder_io_sigs_fma),
-    .io_sigs_div(fp_decoder_io_sigs_div),
-    .io_sigs_sqrt(fp_decoder_io_sigs_sqrt),
-    .io_sigs_wflags(fp_decoder_io_sigs_wflags)
-  );
-  FPUFMAPipe sfma ( // @[FPU.scala 773:20:freechips.rocketchip.system.DefaultRV32Config.fir@144570.4]
-    .clock(sfma_clock),
-    .reset(sfma_reset),
-    .io_in_valid(sfma_io_in_valid),
-    .io_in_bits_ren3(sfma_io_in_bits_ren3),
-    .io_in_bits_swap23(sfma_io_in_bits_swap23),
-    .io_in_bits_rm(sfma_io_in_bits_rm),
-    .io_in_bits_fmaCmd(sfma_io_in_bits_fmaCmd),
-    .io_in_bits_in1(sfma_io_in_bits_in1),
-    .io_in_bits_in2(sfma_io_in_bits_in2),
-    .io_in_bits_in3(sfma_io_in_bits_in3),
-    .io_out_bits_data(sfma_io_out_bits_data),
-    .io_out_bits_exc(sfma_io_out_bits_exc)
-  );
-  FPToInt fpiu ( // @[FPU.scala 777:20:freechips.rocketchip.system.DefaultRV32Config.fir@144604.4]
-    .clock(fpiu_clock),
-    .io_in_valid(fpiu_io_in_valid),
-    .io_in_bits_ren2(fpiu_io_in_bits_ren2),
-    .io_in_bits_wflags(fpiu_io_in_bits_wflags),
-    .io_in_bits_rm(fpiu_io_in_bits_rm),
-    .io_in_bits_typ(fpiu_io_in_bits_typ),
-    .io_in_bits_in1(fpiu_io_in_bits_in1),
-    .io_in_bits_in2(fpiu_io_in_bits_in2),
-    .io_out_bits_in_rm(fpiu_io_out_bits_in_rm),
-    .io_out_bits_in_in1(fpiu_io_out_bits_in_in1),
-    .io_out_bits_in_in2(fpiu_io_out_bits_in_in2),
-    .io_out_bits_lt(fpiu_io_out_bits_lt),
-    .io_out_bits_store(fpiu_io_out_bits_store),
-    .io_out_bits_toint(fpiu_io_out_bits_toint),
-    .io_out_bits_exc(fpiu_io_out_bits_exc)
-  );
-  IntToFP ifpu ( // @[FPU.scala 787:20:freechips.rocketchip.system.DefaultRV32Config.fir@144649.4]
-    .clock(ifpu_clock),
-    .reset(ifpu_reset),
-    .io_in_valid(ifpu_io_in_valid),
-    .io_in_bits_wflags(ifpu_io_in_bits_wflags),
-    .io_in_bits_rm(ifpu_io_in_bits_rm),
-    .io_in_bits_typ(ifpu_io_in_bits_typ),
-    .io_in_bits_in1(ifpu_io_in_bits_in1),
-    .io_out_bits_data(ifpu_io_out_bits_data),
-    .io_out_bits_exc(ifpu_io_out_bits_exc)
-  );
-  FPToFP fpmu ( // @[FPU.scala 792:20:freechips.rocketchip.system.DefaultRV32Config.fir@144658.4]
-    .clock(fpmu_clock),
-    .reset(fpmu_reset),
-    .io_in_valid(fpmu_io_in_valid),
-    .io_in_bits_wflags(fpmu_io_in_bits_wflags),
-    .io_in_bits_rm(fpmu_io_in_bits_rm),
-    .io_in_bits_in1(fpmu_io_in_bits_in1),
-    .io_in_bits_in2(fpmu_io_in_bits_in2),
-    .io_out_bits_data(fpmu_io_out_bits_data),
-    .io_out_bits_exc(fpmu_io_out_bits_exc),
-    .io_lt(fpmu_io_lt)
-  );
-  DivSqrtRecFN_small divSqrt ( // @[FPU.scala 901:27:freechips.rocketchip.system.DefaultRV32Config.fir@144864.4]
-    .clock(divSqrt_clock),
-    .reset(divSqrt_reset),
-    .io_inReady(divSqrt_io_inReady),
-    .io_inValid(divSqrt_io_inValid),
-    .io_sqrtOp(divSqrt_io_sqrtOp),
-    .io_a(divSqrt_io_a),
-    .io_b(divSqrt_io_b),
-    .io_roundingMode(divSqrt_io_roundingMode),
-    .io_outValid_div(divSqrt_io_outValid_div),
-    .io_outValid_sqrt(divSqrt_io_outValid_sqrt),
-    .io_out(divSqrt_io_out),
-    .io_exceptionFlags(divSqrt_io_exceptionFlags)
-  );
-
-//******************************************************************************
-// Wires_Registers_Declarations
-//******************************************************************************
   reg  ex_reg_valid; // @[FPU.scala 692:25:freechips.rocketchip.system.DefaultRV32Config.fir@144310.4]
-  reg [31:0] ex_reg_inst; // @[Reg.scala 15:16:freechips.rocketchip.system.DefaultRV32Config.fir@144312.4]
-  reg  ex_reg_ctrl_ren2; // @[Reg.scala 15:16:freechips.rocketchip.system.DefaultRV32Config.fir@144316.4]
-  reg  ex_reg_ctrl_ren3; // @[Reg.scala 15:16:freechips.rocketchip.system.DefaultRV32Config.fir@144316.4]
-  reg  ex_reg_ctrl_swap23; // @[Reg.scala 15:16:freechips.rocketchip.system.DefaultRV32Config.fir@144316.4]
-  reg  ex_reg_ctrl_singleOut; // @[Reg.scala 15:16:freechips.rocketchip.system.DefaultRV32Config.fir@144316.4]
-  reg  ex_reg_ctrl_fromint; // @[Reg.scala 15:16:freechips.rocketchip.system.DefaultRV32Config.fir@144316.4]
-  reg  ex_reg_ctrl_toint; // @[Reg.scala 15:16:freechips.rocketchip.system.DefaultRV32Config.fir@144316.4]
-  reg  ex_reg_ctrl_fastpipe; // @[Reg.scala 15:16:freechips.rocketchip.system.DefaultRV32Config.fir@144316.4]
-  reg  ex_reg_ctrl_fma; // @[Reg.scala 15:16:freechips.rocketchip.system.DefaultRV32Config.fir@144316.4]
-  reg  ex_reg_ctrl_div; // @[Reg.scala 15:16:freechips.rocketchip.system.DefaultRV32Config.fir@144316.4]
-  reg  ex_reg_ctrl_sqrt; // @[Reg.scala 15:16:freechips.rocketchip.system.DefaultRV32Config.fir@144316.4]
-  reg  ex_reg_ctrl_wflags; // @[Reg.scala 15:16:freechips.rocketchip.system.DefaultRV32Config.fir@144316.4]
-  reg [4:0] ex_ra_0; // @[FPU.scala 695:31:freechips.rocketchip.system.DefaultRV32Config.fir@144335.4]
-  reg [4:0] ex_ra_1; // @[FPU.scala 695:31:freechips.rocketchip.system.DefaultRV32Config.fir@144336.4]
-  reg [4:0] ex_ra_2; // @[FPU.scala 695:31:freechips.rocketchip.system.DefaultRV32Config.fir@144337.4]
-  reg  load_wb; // @[FPU.scala 698:20:freechips.rocketchip.system.DefaultRV32Config.fir@144338.4]
-  reg [31:0] load_wb_data; // @[Reg.scala 15:16:freechips.rocketchip.system.DefaultRV32Config.fir@144345.4]
-  reg [4:0] load_wb_tag; // @[Reg.scala 15:16:freechips.rocketchip.system.DefaultRV32Config.fir@144349.4]
-  reg  mem_reg_valid; // @[FPU.scala 709:30:freechips.rocketchip.system.DefaultRV32Config.fir@144359.4]
-  wire  killm; // @[FPU.scala 710:25:freechips.rocketchip.system.DefaultRV32Config.fir@144360.4]
-  wire  killx; // @[FPU.scala 714:24:freechips.rocketchip.system.DefaultRV32Config.fir@144364.4]
-  reg [31:0] mem_reg_inst;
-  reg  wb_reg_valid;
-  reg  mem_ctrl_singleOut;
-  reg  mem_ctrl_fromint; // @[Reg.scala 15:16:freechips.rocketchip.system.DefaultRV32Config.fir@144384.4]
-  reg  mem_ctrl_toint; // @[Reg.scala 15:16:freechips.rocketchip.system.DefaultRV32Config.fir@144384.4]
-  reg  mem_ctrl_fastpipe; // @[Reg.scala 15:16:freechips.rocketchip.system.DefaultRV32Config.fir@144384.4]
-  reg  mem_ctrl_fma; // @[Reg.scala 15:16:freechips.rocketchip.system.DefaultRV32Config.fir@144384.4]
-  reg  mem_ctrl_div; // @[Reg.scala 15:16:freechips.rocketchip.system.DefaultRV32Config.fir@144384.4]
-  reg  mem_ctrl_sqrt; // @[Reg.scala 15:16:freechips.rocketchip.system.DefaultRV32Config.fir@144384.4]
-  reg  mem_ctrl_wflags; // @[Reg.scala 15:16:freechips.rocketchip.system.DefaultRV32Config.fir@144384.4]
-  reg  wb_ctrl_toint; // @[Reg.scala 15:16:freechips.rocketchip.system.DefaultRV32Config.fir@144403.4]
-  reg [4:0] divSqrt_waddr; // @[FPU.scala 799:26:freechips.rocketchip.system.DefaultRV32Config.fir@144672.4]
-  wire [1:0] memLatencyMask; // @[FPU.scala 818:78:freechips.rocketchip.system.DefaultRV32Config.fir@144684.4]
-  reg [1:0] wen; // @[FPU.scala 832:16:freechips.rocketchip.system.DefaultRV32Config.fir@144685.4]
-  reg [4:0] wbInfo_0_rd; // @[FPU.scala 833:19:freechips.rocketchip.system.DefaultRV32Config.fir@144686.4]
-  reg [1:0] wbInfo_0_pipeid; // @[FPU.scala 833:19:freechips.rocketchip.system.DefaultRV32Config.fir@144686.4]
-  reg [4:0] wbInfo_1_rd; // @[FPU.scala 833:19:freechips.rocketchip.system.DefaultRV32Config.fir@144686.4]
-  reg [1:0] wbInfo_1_pipeid; // @[FPU.scala 833:19:freechips.rocketchip.system.DefaultRV32Config.fir@144686.4]
-  wire  mem_wen; // @[FPU.scala 834:31:freechips.rocketchip.system.DefaultRV32Config.fir@144689.4]
-  reg  write_port_busy; // @[Reg.scala 15:16:freechips.rocketchip.system.DefaultRV32Config.fir@144708.4]
-  reg  divSqrt_killed; // @[FPU.scala 894:29:freechips.rocketchip.system.DefaultRV32Config.fir@144857.4]
-  wire  divSqrt_wen; // @[FPU.scala 916:66:freechips.rocketchip.system.DefaultRV32Config.fir@144891.4]
-  wire [32:0] divSqrt_wdata; // @[FPU.scala 916:66:freechips.rocketchip.system.DefaultRV32Config.fir@144891.4]
-  wire [4:0] wexc; // @[package.scala 32:71:freechips.rocketchip.system.DefaultRV32Config.fir@144774.4]
-  wire  wb_toint_valid; // @[FPU.scala 873:37:freechips.rocketchip.system.DefaultRV32Config.fir@144798.4]
-  reg [4:0] wb_toint_exc; // @[Reg.scala 15:16:freechips.rocketchip.system.DefaultRV32Config.fir@144799.4]
-  wire [4:0] divSqrt_flags; // @[FPU.scala 916:66:freechips.rocketchip.system.DefaultRV32Config.fir@144891.4]
-  wire  divSqrt_write_port_busy; // @[FPU.scala 881:65:freechips.rocketchip.system.DefaultRV32Config.fir@144816.4]
-  wire  divSqrt_inFlight; // @[FPU.scala 909:13:freechips.rocketchip.system.DefaultRV32Config.fir@144880.4]
-  wire  tag_2; // @[FPU.scala 900:17:freechips.rocketchip.system.DefaultRV32Config.fir@144863.4]
-`endif // MY_DEFINE
-
-  reg [63:0] _RAND_0;
   reg [31:0] _RAND_1;
+  reg [31:0] ex_reg_inst; // @[Reg.scala 15:16:freechips.rocketchip.system.DefaultRV32Config.fir@144312.4]
   reg [31:0] _RAND_2;
+  reg  ex_reg_ctrl_ren2; // @[Reg.scala 15:16:freechips.rocketchip.system.DefaultRV32Config.fir@144316.4]
   reg [31:0] _RAND_3;
+  reg  ex_reg_ctrl_ren3; // @[Reg.scala 15:16:freechips.rocketchip.system.DefaultRV32Config.fir@144316.4]
   reg [31:0] _RAND_4;
+  reg  ex_reg_ctrl_swap23; // @[Reg.scala 15:16:freechips.rocketchip.system.DefaultRV32Config.fir@144316.4]
   reg [31:0] _RAND_5;
+  reg  ex_reg_ctrl_singleOut; // @[Reg.scala 15:16:freechips.rocketchip.system.DefaultRV32Config.fir@144316.4]
   reg [31:0] _RAND_6;
+  reg  ex_reg_ctrl_fromint; // @[Reg.scala 15:16:freechips.rocketchip.system.DefaultRV32Config.fir@144316.4]
   reg [31:0] _RAND_7;
+  reg  ex_reg_ctrl_toint; // @[Reg.scala 15:16:freechips.rocketchip.system.DefaultRV32Config.fir@144316.4]
   reg [31:0] _RAND_8;
+  reg  ex_reg_ctrl_fastpipe; // @[Reg.scala 15:16:freechips.rocketchip.system.DefaultRV32Config.fir@144316.4]
   reg [31:0] _RAND_9;
+  reg  ex_reg_ctrl_fma; // @[Reg.scala 15:16:freechips.rocketchip.system.DefaultRV32Config.fir@144316.4]
   reg [31:0] _RAND_10;
+  reg  ex_reg_ctrl_div; // @[Reg.scala 15:16:freechips.rocketchip.system.DefaultRV32Config.fir@144316.4]
   reg [31:0] _RAND_11;
+  reg  ex_reg_ctrl_sqrt; // @[Reg.scala 15:16:freechips.rocketchip.system.DefaultRV32Config.fir@144316.4]
   reg [31:0] _RAND_12;
+  reg  ex_reg_ctrl_wflags; // @[Reg.scala 15:16:freechips.rocketchip.system.DefaultRV32Config.fir@144316.4]
   reg [31:0] _RAND_13;
+  reg [4:0] ex_ra_0; // @[FPU.scala 695:31:freechips.rocketchip.system.DefaultRV32Config.fir@144335.4]
   reg [31:0] _RAND_14;
+  reg [4:0] ex_ra_1; // @[FPU.scala 695:31:freechips.rocketchip.system.DefaultRV32Config.fir@144336.4]
   reg [31:0] _RAND_15;
+  reg [4:0] ex_ra_2; // @[FPU.scala 695:31:freechips.rocketchip.system.DefaultRV32Config.fir@144337.4]
   reg [31:0] _RAND_16;
+  reg  load_wb; // @[FPU.scala 698:20:freechips.rocketchip.system.DefaultRV32Config.fir@144338.4]
   reg [31:0] _RAND_17;
+  reg [31:0] load_wb_data; // @[Reg.scala 15:16:freechips.rocketchip.system.DefaultRV32Config.fir@144345.4]
   reg [31:0] _RAND_18;
+  reg [4:0] load_wb_tag; // @[Reg.scala 15:16:freechips.rocketchip.system.DefaultRV32Config.fir@144349.4]
   reg [31:0] _RAND_19;
+  reg  mem_reg_valid; // @[FPU.scala 709:30:freechips.rocketchip.system.DefaultRV32Config.fir@144359.4]
   reg [31:0] _RAND_20;
+  wire  killm; // @[FPU.scala 710:25:freechips.rocketchip.system.DefaultRV32Config.fir@144360.4]
   wire  _T_3; // @[FPU.scala 714:41:freechips.rocketchip.system.DefaultRV32Config.fir@144363.4]
+  wire  killx; // @[FPU.scala 714:24:freechips.rocketchip.system.DefaultRV32Config.fir@144364.4]
   wire  _T_4; // @[FPU.scala 715:36:freechips.rocketchip.system.DefaultRV32Config.fir@144365.4]
   wire  _T_5; // @[FPU.scala 715:33:freechips.rocketchip.system.DefaultRV32Config.fir@144366.4]
+  reg [31:0] mem_reg_inst; // @[Reg.scala 15:16:freechips.rocketchip.system.DefaultRV32Config.fir@144369.4]
   reg [31:0] _RAND_21;
   wire  _T_7; // @[FPU.scala 717:49:freechips.rocketchip.system.DefaultRV32Config.fir@144373.4]
   wire  _T_9; // @[FPU.scala 717:45:freechips.rocketchip.system.DefaultRV32Config.fir@144375.4]
+  reg  wb_reg_valid; // @[FPU.scala 717:25:freechips.rocketchip.system.DefaultRV32Config.fir@144376.4]
   reg [31:0] _RAND_22;
+  reg  mem_ctrl_singleOut; // @[Reg.scala 15:16:freechips.rocketchip.system.DefaultRV32Config.fir@144384.4]
   reg [31:0] _RAND_23;
+  reg  mem_ctrl_fromint; // @[Reg.scala 15:16:freechips.rocketchip.system.DefaultRV32Config.fir@144384.4]
   reg [31:0] _RAND_24;
+  reg  mem_ctrl_toint; // @[Reg.scala 15:16:freechips.rocketchip.system.DefaultRV32Config.fir@144384.4]
   reg [31:0] _RAND_25;
+  reg  mem_ctrl_fastpipe; // @[Reg.scala 15:16:freechips.rocketchip.system.DefaultRV32Config.fir@144384.4]
   reg [31:0] _RAND_26;
+  reg  mem_ctrl_fma; // @[Reg.scala 15:16:freechips.rocketchip.system.DefaultRV32Config.fir@144384.4]
   reg [31:0] _RAND_27;
+  reg  mem_ctrl_div; // @[Reg.scala 15:16:freechips.rocketchip.system.DefaultRV32Config.fir@144384.4]
   reg [31:0] _RAND_28;
+  reg  mem_ctrl_sqrt; // @[Reg.scala 15:16:freechips.rocketchip.system.DefaultRV32Config.fir@144384.4]
   reg [31:0] _RAND_29;
+  reg  mem_ctrl_wflags; // @[Reg.scala 15:16:freechips.rocketchip.system.DefaultRV32Config.fir@144384.4]
   reg [31:0] _RAND_30;
+  reg  wb_ctrl_toint; // @[Reg.scala 15:16:freechips.rocketchip.system.DefaultRV32Config.fir@144403.4]
   reg [31:0] _RAND_31;
   wire  _T_11; // @[rawFloatFromFN.scala 46:22:freechips.rocketchip.system.DefaultRV32Config.fir@144425.6]
   wire [7:0] _T_12; // @[rawFloatFromFN.scala 47:23:freechips.rocketchip.system.DefaultRV32Config.fir@144426.6]
@@ -401,18 +282,26 @@ module FPU( // @[:freechips.rocketchip.system.DefaultRV32Config.fir@144295.2]
   wire  _T_127; // @[FPU.scala 778:103:freechips.rocketchip.system.DefaultRV32Config.fir@144610.4]
   wire  _T_128; // @[FPU.scala 778:82:freechips.rocketchip.system.DefaultRV32Config.fir@144611.4]
   wire [32:0] _T_142; // @[FPU.scala 790:29:freechips.rocketchip.system.DefaultRV32Config.fir@144656.4]
+  reg [4:0] divSqrt_waddr; // @[FPU.scala 799:26:freechips.rocketchip.system.DefaultRV32Config.fir@144672.4]
   reg [31:0] _RAND_32;
   wire  _T_146; // @[FPU.scala 809:56:freechips.rocketchip.system.DefaultRV32Config.fir@144681.4]
   wire [1:0] _T_147; // @[FPU.scala 818:23:freechips.rocketchip.system.DefaultRV32Config.fir@144682.4]
   wire  _T_148; // @[FPU.scala 818:78:freechips.rocketchip.system.DefaultRV32Config.fir@144683.4]
   wire [1:0] _GEN_162; // @[FPU.scala 818:78:freechips.rocketchip.system.DefaultRV32Config.fir@144684.4]
+  wire [1:0] memLatencyMask; // @[FPU.scala 818:78:freechips.rocketchip.system.DefaultRV32Config.fir@144684.4]
+  reg [1:0] wen; // @[FPU.scala 832:16:freechips.rocketchip.system.DefaultRV32Config.fir@144685.4]
   reg [31:0] _RAND_33;
+  reg [4:0] wbInfo_0_rd; // @[FPU.scala 833:19:freechips.rocketchip.system.DefaultRV32Config.fir@144686.4]
   reg [31:0] _RAND_34;
+  reg [1:0] wbInfo_0_pipeid; // @[FPU.scala 833:19:freechips.rocketchip.system.DefaultRV32Config.fir@144686.4]
   reg [31:0] _RAND_35;
+  reg [4:0] wbInfo_1_rd; // @[FPU.scala 833:19:freechips.rocketchip.system.DefaultRV32Config.fir@144686.4]
   reg [31:0] _RAND_36;
+  reg [1:0] wbInfo_1_pipeid; // @[FPU.scala 833:19:freechips.rocketchip.system.DefaultRV32Config.fir@144686.4]
   reg [31:0] _RAND_37;
   wire  _T_149; // @[FPU.scala 834:48:freechips.rocketchip.system.DefaultRV32Config.fir@144687.4]
   wire  _T_150; // @[FPU.scala 834:69:freechips.rocketchip.system.DefaultRV32Config.fir@144688.4]
+  wire  mem_wen; // @[FPU.scala 834:31:freechips.rocketchip.system.DefaultRV32Config.fir@144689.4]
   wire [1:0] _T_151; // @[FPU.scala 818:23:freechips.rocketchip.system.DefaultRV32Config.fir@144690.4]
   wire [1:0] _T_152; // @[FPU.scala 818:23:freechips.rocketchip.system.DefaultRV32Config.fir@144691.4]
   wire  _T_153; // @[FPU.scala 809:56:freechips.rocketchip.system.DefaultRV32Config.fir@144692.4]
@@ -434,6 +323,7 @@ module FPU( // @[:freechips.rocketchip.system.DefaultRV32Config.fir@144295.2]
   wire [3:0] _T_166; // @[FPU.scala 835:101:freechips.rocketchip.system.DefaultRV32Config.fir@144705.4]
   wire  _T_167; // @[FPU.scala 835:128:freechips.rocketchip.system.DefaultRV32Config.fir@144706.4]
   wire  _T_168; // @[FPU.scala 835:93:freechips.rocketchip.system.DefaultRV32Config.fir@144707.4]
+  reg  write_port_busy; // @[Reg.scala 15:16:freechips.rocketchip.system.DefaultRV32Config.fir@144708.4]
   reg [31:0] _RAND_38;
   wire  _T_170; // @[FPU.scala 839:14:freechips.rocketchip.system.DefaultRV32Config.fir@144713.4]
   wire  _T_171; // @[FPU.scala 841:14:freechips.rocketchip.system.DefaultRV32Config.fir@144717.4]
@@ -448,30 +338,39 @@ module FPU( // @[:freechips.rocketchip.system.DefaultRV32Config.fir@144295.2]
   wire  _T_186; // @[FPU.scala 847:47:freechips.rocketchip.system.DefaultRV32Config.fir@144743.6]
   wire  _T_187; // @[FPU.scala 847:30:freechips.rocketchip.system.DefaultRV32Config.fir@144744.6]
   wire  _T_275; // @[FPU.scala 916:37:freechips.rocketchip.system.DefaultRV32Config.fir@144890.4]
+  reg  divSqrt_killed; // @[FPU.scala 894:29:freechips.rocketchip.system.DefaultRV32Config.fir@144857.4]
   reg [31:0] _RAND_39;
   wire  _T_276; // @[FPU.scala 917:24:freechips.rocketchip.system.DefaultRV32Config.fir@144892.6]
+  wire  divSqrt_wen; // @[FPU.scala 916:66:freechips.rocketchip.system.DefaultRV32Config.fir@144891.4]
   wire  _T_196; // @[package.scala 32:81:freechips.rocketchip.system.DefaultRV32Config.fir@144762.4]
   wire [32:0] _T_197; // @[package.scala 32:71:freechips.rocketchip.system.DefaultRV32Config.fir@144763.4]
   wire  _T_198; // @[package.scala 32:81:freechips.rocketchip.system.DefaultRV32Config.fir@144764.4]
   wire [32:0] _T_199; // @[package.scala 32:71:freechips.rocketchip.system.DefaultRV32Config.fir@144765.4]
   wire  _T_200; // @[package.scala 32:81:freechips.rocketchip.system.DefaultRV32Config.fir@144766.4]
   wire [32:0] _T_201; // @[package.scala 32:71:freechips.rocketchip.system.DefaultRV32Config.fir@144767.4]
+  wire [32:0] divSqrt_wdata; // @[FPU.scala 916:66:freechips.rocketchip.system.DefaultRV32Config.fir@144891.4]
   wire [4:0] _T_203; // @[package.scala 32:71:freechips.rocketchip.system.DefaultRV32Config.fir@144770.4]
   wire [4:0] _T_205; // @[package.scala 32:71:freechips.rocketchip.system.DefaultRV32Config.fir@144772.4]
+  wire [4:0] wexc; // @[package.scala 32:71:freechips.rocketchip.system.DefaultRV32Config.fir@144774.4]
   wire  _T_208; // @[FPU.scala 860:30:freechips.rocketchip.system.DefaultRV32Config.fir@144776.4]
+  wire  wb_toint_valid; // @[FPU.scala 873:37:freechips.rocketchip.system.DefaultRV32Config.fir@144798.4]
+  reg [4:0] wb_toint_exc; // @[Reg.scala 15:16:freechips.rocketchip.system.DefaultRV32Config.fir@144799.4]
   reg [31:0] _RAND_40;
   wire  _T_218; // @[FPU.scala 875:41:freechips.rocketchip.system.DefaultRV32Config.fir@144803.4]
   wire [4:0] _T_221; // @[FPU.scala 877:8:freechips.rocketchip.system.DefaultRV32Config.fir@144807.4]
+  wire [4:0] divSqrt_flags; // @[FPU.scala 916:66:freechips.rocketchip.system.DefaultRV32Config.fir@144891.4]
   wire [4:0] _T_222; // @[FPU.scala 878:8:freechips.rocketchip.system.DefaultRV32Config.fir@144808.4]
   wire [4:0] _T_223; // @[FPU.scala 877:48:freechips.rocketchip.system.DefaultRV32Config.fir@144809.4]
   wire [4:0] _T_225; // @[FPU.scala 879:8:freechips.rocketchip.system.DefaultRV32Config.fir@144811.4]
   wire  _T_227; // @[FPU.scala 881:47:freechips.rocketchip.system.DefaultRV32Config.fir@144814.4]
   wire  _T_228; // @[FPU.scala 881:72:freechips.rocketchip.system.DefaultRV32Config.fir@144815.4]
+  wire  divSqrt_write_port_busy; // @[FPU.scala 881:65:freechips.rocketchip.system.DefaultRV32Config.fir@144816.4]
   wire  _T_229; // @[FPU.scala 882:33:freechips.rocketchip.system.DefaultRV32Config.fir@144817.4]
   wire  _T_230; // @[FPU.scala 882:68:freechips.rocketchip.system.DefaultRV32Config.fir@144818.4]
   wire  _T_231; // @[FPU.scala 882:51:freechips.rocketchip.system.DefaultRV32Config.fir@144819.4]
   wire  _T_233; // @[FPU.scala 882:87:freechips.rocketchip.system.DefaultRV32Config.fir@144821.4]
   wire  _T_235; // @[FPU.scala 882:120:freechips.rocketchip.system.DefaultRV32Config.fir@144823.4]
+  wire  divSqrt_inFlight; // @[FPU.scala 909:13:freechips.rocketchip.system.DefaultRV32Config.fir@144880.4]
   wire  _T_236; // @[FPU.scala 882:131:freechips.rocketchip.system.DefaultRV32Config.fir@144824.4]
   wire  _T_238; // @[FPU.scala 883:34:freechips.rocketchip.system.DefaultRV32Config.fir@144827.4]
   reg  _T_244; // @[FPU.scala 886:55:freechips.rocketchip.system.DefaultRV32Config.fir@144835.4]
@@ -483,48 +382,558 @@ module FPU( // @[:freechips.rocketchip.system.DefaultRV32Config.fir@144295.2]
   wire  _T_257; // @[FPU.scala 891:67:freechips.rocketchip.system.DefaultRV32Config.fir@144852.4]
   wire  _T_258; // @[FPU.scala 891:87:freechips.rocketchip.system.DefaultRV32Config.fir@144853.4]
   wire  _T_259; // @[FPU.scala 891:73:freechips.rocketchip.system.DefaultRV32Config.fir@144854.4]
+  wire  tag_2; // @[FPU.scala 900:17:freechips.rocketchip.system.DefaultRV32Config.fir@144863.4]
   wire  _T_266; // @[FPU.scala 902:50:freechips.rocketchip.system.DefaultRV32Config.fir@144868.4]
   wire  _T_267; // @[FPU.scala 902:43:freechips.rocketchip.system.DefaultRV32Config.fir@144869.4]
   wire  _T_269; // @[FPU.scala 902:65:freechips.rocketchip.system.DefaultRV32Config.fir@144871.4]
   wire  _T_270; // @[FPU.scala 902:103:freechips.rocketchip.system.DefaultRV32Config.fir@144872.4]
   wire  _T_273; // @[FPU.scala 911:32:freechips.rocketchip.system.DefaultRV32Config.fir@144884.4]
+  FPUDecoder fp_decoder ( // @[FPU.scala 688:26:freechips.rocketchip.system.DefaultRV32Config.fir@144305.4]
+    .io_inst(fp_decoder_io_inst),
+    .io_sigs_wen(fp_decoder_io_sigs_wen),
+    .io_sigs_ren1(fp_decoder_io_sigs_ren1),
+    .io_sigs_ren2(fp_decoder_io_sigs_ren2),
+    .io_sigs_ren3(fp_decoder_io_sigs_ren3),
+    .io_sigs_swap12(fp_decoder_io_sigs_swap12),
+    .io_sigs_swap23(fp_decoder_io_sigs_swap23),
+    .io_sigs_singleOut(fp_decoder_io_sigs_singleOut),
+    .io_sigs_fromint(fp_decoder_io_sigs_fromint),
+    .io_sigs_toint(fp_decoder_io_sigs_toint),
+    .io_sigs_fastpipe(fp_decoder_io_sigs_fastpipe),
+    .io_sigs_fma(fp_decoder_io_sigs_fma),
+    .io_sigs_div(fp_decoder_io_sigs_div),
+    .io_sigs_sqrt(fp_decoder_io_sigs_sqrt),
+    .io_sigs_wflags(fp_decoder_io_sigs_wflags)
+  );
+  FPUFMAPipe sfma ( // @[FPU.scala 773:20:freechips.rocketchip.system.DefaultRV32Config.fir@144570.4]
+    .clock(sfma_clock),
+    .reset(sfma_reset),
+    .io_in_valid(sfma_io_in_valid),
+    .io_in_bits_ren3(sfma_io_in_bits_ren3),
+    .io_in_bits_swap23(sfma_io_in_bits_swap23),
+    .io_in_bits_rm(sfma_io_in_bits_rm),
+    .io_in_bits_fmaCmd(sfma_io_in_bits_fmaCmd),
+    .io_in_bits_in1(sfma_io_in_bits_in1),
+    .io_in_bits_in2(sfma_io_in_bits_in2),
+    .io_in_bits_in3(sfma_io_in_bits_in3),
+    .io_out_bits_data(sfma_io_out_bits_data),
+    .io_out_bits_exc(sfma_io_out_bits_exc)
+  );
+  FPToInt fpiu ( // @[FPU.scala 777:20:freechips.rocketchip.system.DefaultRV32Config.fir@144604.4]
+    .clock(fpiu_clock),
+    .io_in_valid(fpiu_io_in_valid),
+    .io_in_bits_ren2(fpiu_io_in_bits_ren2),
+    .io_in_bits_wflags(fpiu_io_in_bits_wflags),
+    .io_in_bits_rm(fpiu_io_in_bits_rm),
+    .io_in_bits_typ(fpiu_io_in_bits_typ),
+    .io_in_bits_in1(fpiu_io_in_bits_in1),
+    .io_in_bits_in2(fpiu_io_in_bits_in2),
+    .io_out_bits_in_rm(fpiu_io_out_bits_in_rm),
+    .io_out_bits_in_in1(fpiu_io_out_bits_in_in1),
+    .io_out_bits_in_in2(fpiu_io_out_bits_in_in2),
+    .io_out_bits_lt(fpiu_io_out_bits_lt),
+    .io_out_bits_store(fpiu_io_out_bits_store),
+    .io_out_bits_toint(fpiu_io_out_bits_toint),
+    .io_out_bits_exc(fpiu_io_out_bits_exc)
+  );
+  IntToFP ifpu ( // @[FPU.scala 787:20:freechips.rocketchip.system.DefaultRV32Config.fir@144649.4]
+    .clock(ifpu_clock),
+    .reset(ifpu_reset),
+    .io_in_valid(ifpu_io_in_valid),
+    .io_in_bits_wflags(ifpu_io_in_bits_wflags),
+    .io_in_bits_rm(ifpu_io_in_bits_rm),
+    .io_in_bits_typ(ifpu_io_in_bits_typ),
+    .io_in_bits_in1(ifpu_io_in_bits_in1),
+    .io_out_bits_data(ifpu_io_out_bits_data),
+    .io_out_bits_exc(ifpu_io_out_bits_exc)
+  );
+  FPToFP fpmu ( // @[FPU.scala 792:20:freechips.rocketchip.system.DefaultRV32Config.fir@144658.4]
+    .clock(fpmu_clock),
+    .reset(fpmu_reset),
+    .io_in_valid(fpmu_io_in_valid),
+    .io_in_bits_wflags(fpmu_io_in_bits_wflags),
+    .io_in_bits_rm(fpmu_io_in_bits_rm),
+    .io_in_bits_in1(fpmu_io_in_bits_in1),
+    .io_in_bits_in2(fpmu_io_in_bits_in2),
+    .io_out_bits_data(fpmu_io_out_bits_data),
+    .io_out_bits_exc(fpmu_io_out_bits_exc),
+    .io_lt(fpmu_io_lt)
+  );
+  DivSqrtRecFN_small divSqrt ( // @[FPU.scala 901:27:freechips.rocketchip.system.DefaultRV32Config.fir@144864.4]
+    .clock(divSqrt_clock),
+    .reset(divSqrt_reset),
+    .io_inReady(divSqrt_io_inReady),
+    .io_inValid(divSqrt_io_inValid),
+    .io_sqrtOp(divSqrt_io_sqrtOp),
+    .io_a(divSqrt_io_a),
+    .io_b(divSqrt_io_b),
+    .io_roundingMode(divSqrt_io_roundingMode),
+    .io_outValid_div(divSqrt_io_outValid_div),
+    .io_outValid_sqrt(divSqrt_io_outValid_sqrt),
+    .io_out(divSqrt_io_out),
+    .io_exceptionFlags(divSqrt_io_exceptionFlags)
+  );
 
-`ifndef WIRE_REG_ASS
-//******************************************************************************
-// Wires_Registers_Assignments
-//******************************************************************************
+`define MY_ASSIGNMENT
+`ifdef MY_ASSIGNMENT
+  assign regfile_ex_rs_0_addr = ex_ra_0;
+  assign regfile_ex_rs_0_data = regfile[regfile_ex_rs_0_addr];
+  assign regfile_ex_rs_1_addr = ex_ra_1;
+  assign regfile_ex_rs_1_data = regfile[regfile_ex_rs_1_addr];
+  assign regfile_ex_rs_2_addr = ex_ra_2;
+  assign regfile_ex_rs_2_data = regfile[regfile_ex_rs_2_addr];
+
+  assign _T_14 = load_wb_data[30:23] == 8'h0;
+  assign _T_15 = load_wb_data[22:0] == 23'h0;
+  assign _T_60 = load_wb_data[22] ? 5'h0 
+		: load_wb_data[21] ? 5'h1 
+		: load_wb_data[20] ? 5'h2 
+		: load_wb_data[19] ? 5'h3 
+		: load_wb_data[18] ? 5'h4 
+		: load_wb_data[17] ? 5'h5 
+		: load_wb_data[16] ? 5'h6 
+		: load_wb_data[15] ? 5'h7 
+		: load_wb_data[14] ? 5'h8 
+		: load_wb_data[13] ? 5'h9 
+		: load_wb_data[12] ? 5'ha 
+		: load_wb_data[11] ? 5'hb 
+		: load_wb_data[10] ? 5'hc 
+		: load_wb_data[9] ? 5'hd 
+		: load_wb_data[8] ? 5'he 
+		: load_wb_data[7] ? 5'hf 
+		: load_wb_data[6] ? 5'h10 
+		: load_wb_data[5] ? 5'h11 
+		: load_wb_data[4] ? 5'h12 
+		: load_wb_data[3] ? 5'h13 
+		: load_wb_data[2] ? 5'h14 
+		: load_wb_data[1] ? 5'h15 
+		: 5'h16
+		;
+  assign _T_61 = {{31'd0}, load_wb_data[22:0]} << _T_60;
+  assign _T_65 = _T_14 ? ({{4'd0}, _T_60} ^ 9'h1ff) : {{1'd0}, load_wb_data[30:23]};
+  assign _T_66 = _T_14 ? 2'h2 : 2'h1;
+  assign _T_67 = 8'h80 | {{6'd0}, _T_66};
+  assign _T_69 = _T_65 + {{1'd0}, _T_67};
+  assign _T_75 = (_T_69[8:7] == 2'h3) & !_T_15;
+  assign _T_78 = {1'b0,$signed(_T_69)};
+  assign _T_79 = (_T_14 & _T_15) == 1'h0; 
+  assign _T_80 = _T_14 ? {_T_61[21:0], 1'h0} : load_wb_data[22:0];
+  assign _T_82 = {1'h0,_T_79,_T_80};
+  assign _T_84 = (_T_14 & _T_15) ? 3'h0 : _T_78[8:6];
+  assign _T_86 = _T_84 | {{2'd0}, _T_75};
+  assign regfile__T_91_data = {load_wb_data[31],_T_86,_T_78[5:0],_T_82[22:0]};
+
+  assign regfile__T_91_addr = load_wb_tag;
+  assign regfile__T_91_mask = 1'h1;
+  assign regfile__T_91_en = load_wb;
+
+  assign _T_201 = wbInfo_0_pipeid == 2'h3 ? sfma_io_out_bits_data 
+		: wbInfo_0_pipeid == 2'h2 ? sfma_io_out_bits_data 
+		: wbInfo_0_pipeid == 2'h1 ? ifpu_io_out_bits_data 
+		: fpmu_io_out_bits_data;
+  assign regfile__T_214_data = divSqrt_wen ? divSqrt_wdata : _T_201;
+
+  assign regfile__T_214_addr = divSqrt_wen ? divSqrt_waddr : wbInfo_0_rd;
+  assign regfile__T_214_mask = 1'h1;
+  assign regfile__T_214_en = wen[0] | divSqrt_wen;
+
+  assign killm = io_killm | io_nack_mem;
+  assign killx = io_killx | (mem_reg_valid & killm);
+
+  assign _T_147 = (mem_ctrl_fma & mem_ctrl_singleOut) ? 2'h2 : 2'h0;
+  assign memLatencyMask = {{1'd0}, (mem_ctrl_fastpipe | mem_ctrl_fromint)} | _T_147;
+
+  assign mem_wen = mem_reg_valid & (mem_ctrl_fma | mem_ctrl_fastpipe | mem_ctrl_fromint);
+
+  assign divSqrt_wen = (divSqrt_io_outValid_div | divSqrt_io_outValid_sqrt) & !divSqrt_killed;
+  assign divSqrt_wdata = divSqrt_io_out;
+
+  assign wexc = (wbInfo_0_pipeid == 2'h3) ? sfma_io_out_bits_exc 
+		: (wbInfo_0_pipeid == 2'h2) ? sfma_io_out_bits_exc 
+		: (wbInfo_0_pipeid == 2'h1) ? ifpu_io_out_bits_exc 
+		: fpmu_io_out_bits_exc;
+
+  assign wb_toint_valid = wb_reg_valid & wb_ctrl_toint;
+
+  assign divSqrt_flags = divSqrt_io_exceptionFlags;
+  assign divSqrt_write_port_busy = (mem_ctrl_div | mem_ctrl_sqrt) & (wen != 2'h0);
+  assign divSqrt_inFlight = divSqrt_io_inReady == 1'h0;
+
+  assign tag_2 = mem_ctrl_singleOut == 1'h0; 
+
+  assign io_fcsr_flags_valid = wb_toint_valid | divSqrt_wen | wen[0];
+  assign _T_221 = wb_toint_valid ? wb_toint_exc : 5'h0;
+  assign _T_222 = divSqrt_wen ? divSqrt_flags : 5'h0;
+  assign _T_225 = wen[0] ? wexc : 5'h0;
+  assign io_fcsr_flags_bits = _T_221 | _T_222 | _T_225;
+  assign io_store_data = fpiu_io_out_bits_store;
+  assign io_toint_data = fpiu_io_out_bits_toint;
+  assign _T_236 = (ex_reg_valid & ex_reg_ctrl_wflags) 
+		| (mem_reg_valid & mem_ctrl_wflags) 
+		| wb_toint_valid 
+		| (wen != 2'h0) 
+		| divSqrt_inFlight;
+  assign io_fcsr_rdy = _T_236 == 1'h0;
+  assign io_nack_mem = write_port_busy | divSqrt_write_port_busy | divSqrt_inFlight;
+  assign io_illegal_rm = (io_inst[14:12] == 3'h5) 
+			| (io_inst[14:12] == 3'h6) 
+			| ((io_inst[14:12] == 3'h7) & (io_fcsr_rm >= 3'h5));
+  assign io_dec_wen = fp_decoder_io_sigs_wen;
+  assign io_dec_ren1 = fp_decoder_io_sigs_ren1;
+  assign io_dec_ren2 = fp_decoder_io_sigs_ren2;
+  assign io_dec_ren3 = fp_decoder_io_sigs_ren3;
+  assign io_sboard_set = wb_reg_valid & _T_244;
+  assign io_sboard_clr = (divSqrt_io_outValid_div | divSqrt_io_outValid_sqrt) & !divSqrt_killed;
+  assign io_sboard_clra = divSqrt_wen ? divSqrt_waddr : wbInfo_0_rd;
+  assign fp_decoder_io_inst = io_inst; 
+
+  assign sfma_clock = clock;
+  assign sfma_reset = reset;
+  assign sfma_io_in_valid = ex_reg_valid & ex_reg_ctrl_fma & ex_reg_ctrl_singleOut;
+  assign sfma_io_in_bits_ren3 = ex_reg_ctrl_ren3;
+  assign sfma_io_in_bits_swap23 = ex_reg_ctrl_swap23;
+  assign sfma_io_in_bits_rm = (ex_reg_inst[14:12] == 3'h7) ? io_fcsr_rm : ex_reg_inst[14:12];
+  assign sfma_io_in_bits_fmaCmd = ex_reg_inst[3:2] | {{1'd0}, (!ex_reg_ctrl_ren3 & ex_reg_inst[27])};
+  assign sfma_io_in_bits_in1 = regfile_ex_rs_0_data;
+  assign sfma_io_in_bits_in2 = regfile_ex_rs_1_data;
+  assign sfma_io_in_bits_in3 = regfile_ex_rs_2_data;
+
+  assign fpiu_clock = clock;
+  assign fpiu_io_in_valid = ex_reg_valid & (ex_reg_ctrl_toint | ex_reg_ctrl_div | ex_reg_ctrl_sqrt | (ex_reg_ctrl_fastpipe & ex_reg_ctrl_wflags));
+  assign fpiu_io_in_bits_ren2 = ex_reg_ctrl_ren2;
+  assign fpiu_io_in_bits_wflags = ex_reg_ctrl_wflags;
+  assign fpiu_io_in_bits_rm = (ex_reg_inst[14:12] == 3'h7) ? io_fcsr_rm : ex_reg_inst[14:12];
+  assign fpiu_io_in_bits_typ = ex_reg_inst[21:20];
+  assign fpiu_io_in_bits_in1 = regfile_ex_rs_0_data;
+  assign fpiu_io_in_bits_in2 = regfile_ex_rs_1_data;
+
+  assign ifpu_clock = clock;
+  assign ifpu_reset = reset;
+  assign ifpu_io_in_valid = ex_reg_valid & ex_reg_ctrl_fromint;
+  assign ifpu_io_in_bits_wflags = fpiu_io_in_bits_wflags;
+  assign ifpu_io_in_bits_rm = fpiu_io_in_bits_rm;
+  assign ifpu_io_in_bits_typ = fpiu_io_in_bits_typ;
+  assign _T_142 = {{1'd0}, io_fromint_data};
+  assign ifpu_io_in_bits_in1 = _T_142[31:0];
+
+  assign fpmu_clock = clock;
+  assign fpmu_reset = reset;
+  assign fpmu_io_in_valid = ex_reg_valid & ex_reg_ctrl_fastpipe;
+  assign fpmu_io_in_bits_wflags = fpiu_io_in_bits_wflags;
+  assign fpmu_io_in_bits_rm = fpiu_io_in_bits_rm;
+  assign fpmu_io_in_bits_in1 = fpiu_io_in_bits_in1;
+  assign fpmu_io_in_bits_in2 = fpiu_io_in_bits_in2;
+  assign fpmu_io_lt = fpiu_io_out_bits_lt;
+
+  assign divSqrt_clock = clock;
+  assign divSqrt_reset = reset;
+  assign divSqrt_io_inValid = mem_reg_valid & !tag_2 & (mem_ctrl_div | mem_ctrl_sqrt) & !divSqrt_inFlight;
+  assign divSqrt_io_sqrtOp = mem_ctrl_sqrt;
+  assign divSqrt_io_a = fpiu_io_out_bits_in_in1;
+  assign divSqrt_io_b = fpiu_io_out_bits_in_in2;
+  assign divSqrt_io_roundingMode = fpiu_io_out_bits_in_rm;
+
+  integer initvar;
+always @(posedge clock) begin
+	if (reset) begin
+		for (initvar = 0; initvar < 32; initvar = initvar+1)
+			regfile[initvar] = 33'h0;
+	end
+	else begin
+		if(regfile__T_91_en & regfile__T_91_mask) begin
+			regfile[regfile__T_91_addr] <= regfile__T_91_data;
+		end
+		if(regfile__T_214_en & regfile__T_214_mask) begin
+			regfile[regfile__T_214_addr] <= regfile__T_214_data;
+		end
+	end
+end
+
+always @(posedge clock) begin
+	if (reset) begin
+		ex_reg_valid <= 1'h0;
+
+		ex_reg_inst <= 32'h00;
+		ex_reg_ctrl_ren2 <= 1'h0;
+		ex_reg_ctrl_ren3 <= 1'h0;
+		ex_reg_ctrl_swap23 <= 1'h0;
+		ex_reg_ctrl_singleOut <= 1'h0;
+		ex_reg_ctrl_fromint <= 1'h0;
+		ex_reg_ctrl_toint <= 1'h0;
+		ex_reg_ctrl_fastpipe <= 1'h0;
+		ex_reg_ctrl_fma <= 1'h0;
+		ex_reg_ctrl_div <= 1'h0;
+		ex_reg_ctrl_sqrt <= 1'h0;
+		ex_reg_ctrl_wflags <= 1'h0;
+	end
+	else begin
+		ex_reg_valid <= io_valid;
+
+		if (io_valid) begin
+			ex_reg_inst <= io_inst;
+			ex_reg_ctrl_ren2 <= fp_decoder_io_sigs_ren2;
+			ex_reg_ctrl_ren3 <= fp_decoder_io_sigs_ren3;
+			ex_reg_ctrl_swap23 <= fp_decoder_io_sigs_swap23;
+			ex_reg_ctrl_singleOut <= fp_decoder_io_sigs_singleOut;
+			ex_reg_ctrl_fromint <= fp_decoder_io_sigs_fromint;
+			ex_reg_ctrl_toint <= fp_decoder_io_sigs_toint;
+			ex_reg_ctrl_fastpipe <= fp_decoder_io_sigs_fastpipe;
+			ex_reg_ctrl_fma <= fp_decoder_io_sigs_fma;
+			ex_reg_ctrl_div <= fp_decoder_io_sigs_div;
+			ex_reg_ctrl_sqrt <= fp_decoder_io_sigs_sqrt;
+			ex_reg_ctrl_wflags <= fp_decoder_io_sigs_wflags;
+		end
+	end
+end
+
+always @(posedge clock) begin
+	if (reset) begin
+		ex_ra_0 <= 5'h00;
+		ex_ra_1 <= 5'h00;
+		ex_ra_2 <= 5'h00;
+	end
+	if (io_valid) begin
+		if (fp_decoder_io_sigs_ren2 & fp_decoder_io_sigs_swap12) begin
+	      		ex_ra_0 <= io_inst[24:20];
+	    	end
+		else if (fp_decoder_io_sigs_ren1 & !fp_decoder_io_sigs_swap12) begin
+	          	ex_ra_0 <= io_inst[19:15];
+	    	end
+	
+		if (fp_decoder_io_sigs_ren2 & !fp_decoder_io_sigs_swap12 & !fp_decoder_io_sigs_swap23) begin
+		      	ex_ra_1 <= io_inst[24:20];
+		end
+		else if (fp_decoder_io_sigs_ren1 & fp_decoder_io_sigs_swap12) begin
+	  	 	ex_ra_1 <= io_inst[19:15];
+	  	end
+
+	  	if (fp_decoder_io_sigs_ren3) begin
+	  		ex_ra_2 <= io_inst[31:27];
+	  	end
+		else if (fp_decoder_io_sigs_ren2 & fp_decoder_io_sigs_swap23) begin
+	        	ex_ra_2 <= io_inst[24:20];
+	      	end
+	end
+end
+
+always @(posedge clock) begin
+	if (reset) begin
+		load_wb <= 1'h0;
+		load_wb_data <= 32'h00;
+		load_wb_tag <= 5'h00;
+	end 
+	else begin
+		load_wb <= io_dmem_resp_val;
+		if (io_dmem_resp_val) begin
+		  	load_wb_data <= io_dmem_resp_data;
+		end
+		if (io_dmem_resp_val) begin
+		  	load_wb_tag <= io_dmem_resp_tag;
+		end
+	end
+end
+
+always @(posedge clock) begin
+	if (reset) begin
+		mem_reg_valid <= 1'h0;
+	end 
+	else begin
+		mem_reg_valid <= ex_reg_valid & !killx;
+	end
+end
+
+always @(posedge clock) begin
+	if (reset) begin
+		mem_reg_inst <= 32'h00;
+		wb_reg_valid <= 1'h0;
+
+		mem_ctrl_singleOut <= 1'h0;
+		mem_ctrl_fromint <= 1'h0;
+		mem_ctrl_toint <= 1'h0;
+		mem_ctrl_fastpipe <= 1'h0;
+		mem_ctrl_fma <= 1'h0;
+		mem_ctrl_div <= 1'h0;
+		mem_ctrl_sqrt <= 1'h0;
+		mem_ctrl_wflags <= 1'h0;
+
+      		wb_ctrl_toint <= 1'h0;
+
+
+	end 
+	else begin
+    		if (ex_reg_valid) begin
+			mem_reg_inst <= ex_reg_inst;
+
+			mem_ctrl_singleOut <= ex_reg_ctrl_singleOut;
+			mem_ctrl_fromint <= ex_reg_ctrl_fromint;
+			mem_ctrl_toint <= ex_reg_ctrl_toint;
+			mem_ctrl_fastpipe <= ex_reg_ctrl_fastpipe;
+			mem_ctrl_fma <= ex_reg_ctrl_fma;
+			mem_ctrl_div <= ex_reg_ctrl_div;
+			mem_ctrl_sqrt <= ex_reg_ctrl_sqrt;
+			mem_ctrl_wflags <= ex_reg_ctrl_wflags;
+		end
+
+		wb_reg_valid <= mem_reg_valid & !killm;
+
+    		if (mem_reg_valid) begin
+      			wb_ctrl_toint <= mem_ctrl_toint;
+    		end
+
+	end
+end
+
+always @(posedge clock) begin
+	if (reset) begin
+		divSqrt_killed <= 1'h0;
+		divSqrt_waddr <= 5'h00;
+	end
+	else begin
+		if (divSqrt_io_inValid & divSqrt_io_inReady) begin
+      			divSqrt_killed <= killm;
+			divSqrt_waddr <= mem_reg_inst[11:7];
+    		end
+
+	end
+end
+
+  assign _T_151 = ex_reg_ctrl_fastpipe ? 2'h2 : 2'h0;
+  assign _T_152 = ex_reg_ctrl_fromint ? 2'h2 : 2'h0;
+  assign _T_154 = (ex_reg_ctrl_fma & ex_reg_ctrl_singleOut) ? 3'h4 : 3'h0;
+  assign _T_160 = ex_reg_ctrl_fastpipe ? 3'h4 : 3'h0;
+  assign _T_161 = ex_reg_ctrl_fromint ? 3'h4 : 3'h0;
+  assign _T_163 = (ex_reg_ctrl_fma & ex_reg_ctrl_singleOut) ? 4'h8 : 4'h0;
+always @(posedge clock) begin
+	if (reset) begin
+		wen <= 2'h0;
+	 	wbInfo_0_rd <= 5'h00;
+	 	wbInfo_0_pipeid <= 2'h0;
+	 	wbInfo_1_rd <= 5'h00;
+	 	wbInfo_1_pipeid <= 2'h0;
+		write_port_busy <= 1'h0;
+		wb_toint_exc <= 5'h00;
+	end
+	else begin
+		if (mem_wen & !killm) begin
+			wen <= {1'd0, wen[1]} | memLatencyMask;
+		end
+		else begin
+			wen <= {1'd0, wen[1]};
+		end
+
+		if (mem_wen & !write_port_busy & memLatencyMask[0]) begin
+			wbInfo_0_rd <= mem_reg_inst[11:7];
+			wbInfo_0_pipeid <= {{1'd0}, mem_ctrl_fromint} | _T_147;
+		end
+		else if (wen[1]) begin
+		    	wbInfo_0_rd <= wbInfo_1_rd;
+			wbInfo_0_pipeid <= wbInfo_1_pipeid;
+		end
+
+		if (mem_wen & !write_port_busy & memLatencyMask[1]) begin
+			wbInfo_1_rd <= mem_reg_inst[11:7];
+			wbInfo_1_pipeid <= {{1'd0}, mem_ctrl_fromint} | _T_147;
+		end
+
+    		if (ex_reg_valid) begin
+      			write_port_busy <= (mem_wen & (({{1'd0}, memLatencyMask} & (({{1'd0}, (_T_151 | _T_152)}) | _T_154)) != 3'h0)) | (({{2'd0}, wen} & ({{1'd0}, (_T_160 | _T_161)} | _T_163)) != 4'h0);
+    		end
+
+		if (mem_ctrl_toint) begin
+			wb_toint_exc <= fpiu_io_out_bits_exc;
+		end
+
+	end
+end
+
+always @(posedge clock) begin
+	if (reset) begin
+		_T_244 <= 1'h0;
+	end
+	else begin
+		_T_244 <= mem_ctrl_div | mem_ctrl_sqrt;
+	end
+end
+
+`endif // MY_ASSIGNMENT
+
+`ifndef MY_ASSIGNMENT
   assign regfile_ex_rs_0_addr = ex_ra_0;
   assign regfile_ex_rs_0_data = regfile[regfile_ex_rs_0_addr]; // @[FPU.scala 729:20:freechips.rocketchip.system.DefaultRV32Config.fir@144422.4]
   assign regfile_ex_rs_1_addr = ex_ra_1;
   assign regfile_ex_rs_1_data = regfile[regfile_ex_rs_1_addr]; // @[FPU.scala 729:20:freechips.rocketchip.system.DefaultRV32Config.fir@144422.4]
   assign regfile_ex_rs_2_addr = ex_ra_2;
   assign regfile_ex_rs_2_data = regfile[regfile_ex_rs_2_addr]; // @[FPU.scala 729:20:freechips.rocketchip.system.DefaultRV32Config.fir@144422.4]
+
+  assign _T_14 = _T_12 == 8'h0; // @[rawFloatFromFN.scala 50:34:freechips.rocketchip.system.DefaultRV32Config.fir@144428.6]
+  assign _T_15 = _T_13 == 23'h0; // @[rawFloatFromFN.scala 51:38:freechips.rocketchip.system.DefaultRV32Config.fir@144429.6]
+  assign _T_60 = _T_38 ? 5'h0 : _T_59; // @[Mux.scala 47:69:freechips.rocketchip.system.DefaultRV32Config.fir@144474.6]
+  assign _T_61 = _GEN_155 << _T_60; // @[rawFloatFromFN.scala 54:36:freechips.rocketchip.system.DefaultRV32Config.fir@144475.6]
+  assign _T_65 = _T_14 ? _T_64 : {{1'd0}, _T_12}; // @[rawFloatFromFN.scala 56:16:freechips.rocketchip.system.DefaultRV32Config.fir@144479.6]
+  assign _T_66 = _T_14 ? 2'h2 : 2'h1; // @[rawFloatFromFN.scala 60:27:freechips.rocketchip.system.DefaultRV32Config.fir@144480.6]
+  assign _T_67 = 8'h80 | _GEN_157; // @[rawFloatFromFN.scala 60:22:freechips.rocketchip.system.DefaultRV32Config.fir@144481.6]
+  assign _T_69 = _T_65 + _GEN_158; // @[rawFloatFromFN.scala 59:15:freechips.rocketchip.system.DefaultRV32Config.fir@144483.6]
+  assign _T_75 = _T_72 & _T_74; // @[rawFloatFromFN.scala 66:33:freechips.rocketchip.system.DefaultRV32Config.fir@144490.6]
+  assign _T_78 = {1'b0,$signed(_T_69)}; // @[rawFloatFromFN.scala 70:48:freechips.rocketchip.system.DefaultRV32Config.fir@144497.6]
+  assign _T_79 = _T_70 == 1'h0; // @[rawFloatFromFN.scala 72:29:freechips.rocketchip.system.DefaultRV32Config.fir@144499.6]
+  assign _T_80 = _T_14 ? _T_63 : _T_13; // @[rawFloatFromFN.scala 72:42:freechips.rocketchip.system.DefaultRV32Config.fir@144500.6]
+  assign _T_82 = {1'h0,_T_79,_T_80}; // @[Cat.scala 29:58:freechips.rocketchip.system.DefaultRV32Config.fir@144502.6]
+  assign _T_84 = _T_70 ? 3'h0 : _T_83; // @[recFNFromFN.scala 48:16:freechips.rocketchip.system.DefaultRV32Config.fir@144505.6]
+  assign _T_86 = _T_84 | _GEN_159; // @[recFNFromFN.scala 48:79:freechips.rocketchip.system.DefaultRV32Config.fir@144507.6]
   assign regfile__T_91_data = {_T_90,_T_89};
+
   assign regfile__T_91_addr = load_wb_tag;
   assign regfile__T_91_mask = 1'h1;
   assign regfile__T_91_en = load_wb;
+
+  assign _T_201 = _T_200 ? sfma_io_out_bits_data : _T_199; // @[package.scala 32:71:freechips.rocketchip.system.DefaultRV32Config.fir@144767.4]
   assign regfile__T_214_data = divSqrt_wen ? divSqrt_wdata : _T_201;
+
   assign regfile__T_214_addr = divSqrt_wen ? divSqrt_waddr : wbInfo_0_rd;
   assign regfile__T_214_mask = 1'h1;
   assign regfile__T_214_en = _T_208 | divSqrt_wen;
 
   assign killm = io_killm | io_nack_mem; // @[FPU.scala 710:25:freechips.rocketchip.system.DefaultRV32Config.fir@144360.4]
   assign killx = io_killx | _T_3; // @[FPU.scala 714:24:freechips.rocketchip.system.DefaultRV32Config.fir@144364.4]
+
+  assign _T_147 = _T_146 ? 2'h2 : 2'h0; // @[FPU.scala 818:23:freechips.rocketchip.system.DefaultRV32Config.fir@144682.4]
   assign memLatencyMask = _GEN_162 | _T_147; // @[FPU.scala 818:78:freechips.rocketchip.system.DefaultRV32Config.fir@144684.4]
+
   assign mem_wen = mem_reg_valid & _T_150; // @[FPU.scala 834:31:freechips.rocketchip.system.DefaultRV32Config.fir@144689.4]
-  assign wexc = _T_200 ? sfma_io_out_bits_exc : _T_205; // @[package.scala 32:71:freechips.rocketchip.system.DefaultRV32Config.fir@144774.4]
-  assign wb_toint_valid = wb_reg_valid & wb_ctrl_toint; // @[FPU.scala 873:37:freechips.rocketchip.system.DefaultRV32Config.fir@144798.4]
-  assign divSqrt_write_port_busy = _T_227 & _T_228; // @[FPU.scala 881:65:freechips.rocketchip.system.DefaultRV32Config.fir@144816.4]
+
   assign divSqrt_wen = _T_275 & _T_276; // @[FPU.scala 916:66:freechips.rocketchip.system.DefaultRV32Config.fir@144891.4]
   assign divSqrt_wdata = divSqrt_io_out; // @[FPU.scala 916:66:freechips.rocketchip.system.DefaultRV32Config.fir@144891.4]
+
+  assign wexc = _T_200 ? sfma_io_out_bits_exc : _T_205; // @[package.scala 32:71:freechips.rocketchip.system.DefaultRV32Config.fir@144774.4]
+
+  assign wb_toint_valid = wb_reg_valid & wb_ctrl_toint; // @[FPU.scala 873:37:freechips.rocketchip.system.DefaultRV32Config.fir@144798.4]
+
   assign divSqrt_flags = divSqrt_io_exceptionFlags; // @[FPU.scala 916:66:freechips.rocketchip.system.DefaultRV32Config.fir@144891.4]
+  assign divSqrt_write_port_busy = _T_227 & _T_228; // @[FPU.scala 881:65:freechips.rocketchip.system.DefaultRV32Config.fir@144816.4]
   assign divSqrt_inFlight = divSqrt_io_inReady == 1'h0; // @[FPU.scala 909:13:freechips.rocketchip.system.DefaultRV32Config.fir@144880.4]
+
   assign tag_2 = mem_ctrl_singleOut == 1'h0; // @[FPU.scala 900:17:freechips.rocketchip.system.DefaultRV32Config.fir@144863.4]
 
-//******************************************************************************
-// Submodule_IO_Assignments
-//******************************************************************************
+  assign io_fcsr_flags_valid = _T_218 | _T_208; // @[FPU.scala 875:23:freechips.rocketchip.system.DefaultRV32Config.fir@144806.4]
+  assign _T_221 = wb_toint_valid ? wb_toint_exc : 5'h0; // @[FPU.scala 877:8:freechips.rocketchip.system.DefaultRV32Config.fir@144807.4]
+  assign _T_222 = divSqrt_wen ? divSqrt_flags : 5'h0; // @[FPU.scala 878:8:freechips.rocketchip.system.DefaultRV32Config.fir@144808.4]
+  assign _T_225 = _T_208 ? wexc : 5'h0; // @[FPU.scala 879:8:freechips.rocketchip.system.DefaultRV32Config.fir@144811.4]
+  assign io_fcsr_flags_bits = _T_223 | _T_225; // @[FPU.scala 876:22:freechips.rocketchip.system.DefaultRV32Config.fir@144813.4]
+  assign io_store_data = fpiu_io_out_bits_store; // @[FPU.scala 780:17:freechips.rocketchip.system.DefaultRV32Config.fir@144641.4]
+  assign io_toint_data = fpiu_io_out_bits_toint; // @[FPU.scala 781:17:freechips.rocketchip.system.DefaultRV32Config.fir@144642.4]
+  assign _T_236 = _T_235 | divSqrt_inFlight; // @[FPU.scala 882:131:freechips.rocketchip.system.DefaultRV32Config.fir@144824.4]
+  assign io_fcsr_rdy = _T_236 == 1'h0; // @[FPU.scala 882:15:freechips.rocketchip.system.DefaultRV32Config.fir@144826.4]
+  assign io_nack_mem = _T_238 | divSqrt_inFlight; // @[FPU.scala 883:15:freechips.rocketchip.system.DefaultRV32Config.fir@144829.4]
+  assign io_illegal_rm = _T_255 | _T_259; // @[FPU.scala 891:17:freechips.rocketchip.system.DefaultRV32Config.fir@144856.4]
+  assign io_dec_wen = fp_decoder_io_sigs_wen; // @[FPU.scala 884:10:freechips.rocketchip.system.DefaultRV32Config.fir@144830.4]
+  assign io_dec_ren1 = fp_decoder_io_sigs_ren1; // @[FPU.scala 884:10:freechips.rocketchip.system.DefaultRV32Config.fir@144830.4]
+  assign io_dec_ren2 = fp_decoder_io_sigs_ren2; // @[FPU.scala 884:10:freechips.rocketchip.system.DefaultRV32Config.fir@144830.4]
+  assign io_dec_ren3 = fp_decoder_io_sigs_ren3; // @[FPU.scala 884:10:freechips.rocketchip.system.DefaultRV32Config.fir@144830.4]
+  assign io_sboard_set = wb_reg_valid & _T_244; // @[FPU.scala 886:17:freechips.rocketchip.system.DefaultRV32Config.fir@144838.4]
+  assign io_sboard_clr = _T_275 & _T_276; // @[FPU.scala 887:17:freechips.rocketchip.system.DefaultRV32Config.fir@144844.4]
+  assign io_sboard_clra = divSqrt_wen ? divSqrt_waddr : wbInfo_0_rd; // @[FPU.scala 888:18:freechips.rocketchip.system.DefaultRV32Config.fir@144845.4]
   assign fp_decoder_io_inst = io_inst; // @[FPU.scala 689:22:freechips.rocketchip.system.DefaultRV32Config.fir@144309.4]
+
   assign sfma_clock = clock; // @[:freechips.rocketchip.system.DefaultRV32Config.fir@144572.4]
   assign sfma_reset = reset; // @[:freechips.rocketchip.system.DefaultRV32Config.fir@144573.4]
   assign sfma_io_in_valid = _T_114 & ex_reg_ctrl_singleOut; // @[FPU.scala 774:20:freechips.rocketchip.system.DefaultRV32Config.fir@144576.4]
@@ -535,21 +944,25 @@ module FPU( // @[:freechips.rocketchip.system.DefaultRV32Config.fir@144295.2]
   assign sfma_io_in_bits_in1 = regfile_ex_rs_0_data; // @[FPU.scala 775:19:freechips.rocketchip.system.DefaultRV32Config.fir@144603.4]
   assign sfma_io_in_bits_in2 = regfile_ex_rs_1_data; // @[FPU.scala 775:19:freechips.rocketchip.system.DefaultRV32Config.fir@144603.4]
   assign sfma_io_in_bits_in3 = regfile_ex_rs_2_data; // @[FPU.scala 775:19:freechips.rocketchip.system.DefaultRV32Config.fir@144603.4]
+
   assign fpiu_clock = clock; // @[:freechips.rocketchip.system.DefaultRV32Config.fir@144606.4]
   assign fpiu_io_in_valid = ex_reg_valid & _T_128; // @[FPU.scala 778:20:freechips.rocketchip.system.DefaultRV32Config.fir@144613.4]
+  assign fpiu_io_in_bits_rm = _T_112 ? io_fcsr_rm : _T_111; // @[FPU.scala 779:19:freechips.rocketchip.system.DefaultRV32Config.fir@144640.4]
   assign fpiu_io_in_bits_ren2 = ex_reg_ctrl_ren2; // @[FPU.scala 779:19:freechips.rocketchip.system.DefaultRV32Config.fir@144640.4]
   assign fpiu_io_in_bits_wflags = ex_reg_ctrl_wflags; // @[FPU.scala 779:19:freechips.rocketchip.system.DefaultRV32Config.fir@144640.4]
-  assign fpiu_io_in_bits_rm = _T_112 ? io_fcsr_rm : _T_111; // @[FPU.scala 779:19:freechips.rocketchip.system.DefaultRV32Config.fir@144640.4]
   assign fpiu_io_in_bits_typ = ex_reg_inst[21:20]; // @[FPU.scala 779:19:freechips.rocketchip.system.DefaultRV32Config.fir@144640.4]
   assign fpiu_io_in_bits_in1 = regfile_ex_rs_0_data; // @[FPU.scala 779:19:freechips.rocketchip.system.DefaultRV32Config.fir@144640.4]
   assign fpiu_io_in_bits_in2 = regfile_ex_rs_1_data; // @[FPU.scala 779:19:freechips.rocketchip.system.DefaultRV32Config.fir@144640.4]
+
   assign ifpu_clock = clock; // @[:freechips.rocketchip.system.DefaultRV32Config.fir@144651.4]
   assign ifpu_reset = reset; // @[:freechips.rocketchip.system.DefaultRV32Config.fir@144652.4]
   assign ifpu_io_in_valid = ex_reg_valid & ex_reg_ctrl_fromint; // @[FPU.scala 788:20:freechips.rocketchip.system.DefaultRV32Config.fir@144654.4]
   assign ifpu_io_in_bits_wflags = fpiu_io_in_bits_wflags; // @[FPU.scala 789:19:freechips.rocketchip.system.DefaultRV32Config.fir@144655.4]
   assign ifpu_io_in_bits_rm = fpiu_io_in_bits_rm; // @[FPU.scala 789:19:freechips.rocketchip.system.DefaultRV32Config.fir@144655.4]
   assign ifpu_io_in_bits_typ = fpiu_io_in_bits_typ; // @[FPU.scala 789:19:freechips.rocketchip.system.DefaultRV32Config.fir@144655.4]
+  assign _T_142 = {{1'd0}, io_fromint_data}; // @[FPU.scala 790:29:freechips.rocketchip.system.DefaultRV32Config.fir@144656.4]
   assign ifpu_io_in_bits_in1 = _T_142[31:0]; // @[FPU.scala 789:19:freechips.rocketchip.system.DefaultRV32Config.fir@144655.4 FPU.scala 790:23:freechips.rocketchip.system.DefaultRV32Config.fir@144657.4]
+
   assign fpmu_clock = clock; // @[:freechips.rocketchip.system.DefaultRV32Config.fir@144660.4]
   assign fpmu_reset = reset; // @[:freechips.rocketchip.system.DefaultRV32Config.fir@144661.4]
   assign fpmu_io_in_valid = ex_reg_valid & ex_reg_ctrl_fastpipe; // @[FPU.scala 793:20:freechips.rocketchip.system.DefaultRV32Config.fir@144663.4]
@@ -566,25 +979,221 @@ module FPU( // @[:freechips.rocketchip.system.DefaultRV32Config.fir@144295.2]
   assign divSqrt_io_b = fpiu_io_out_bits_in_in2; // @[FPU.scala 905:20:freechips.rocketchip.system.DefaultRV32Config.fir@144877.4]
   assign divSqrt_io_roundingMode = fpiu_io_out_bits_in_rm; // @[FPU.scala 906:31:freechips.rocketchip.system.DefaultRV32Config.fir@144878.4]
 
-//******************************************************************************
-// Outputs_Assignments
-//******************************************************************************
-  assign io_fcsr_flags_valid = _T_218 | _T_208; // @[FPU.scala 875:23:freechips.rocketchip.system.DefaultRV32Config.fir@144806.4]
-  assign io_fcsr_flags_bits = _T_223 | _T_225; // @[FPU.scala 876:22:freechips.rocketchip.system.DefaultRV32Config.fir@144813.4]
-  assign io_store_data = fpiu_io_out_bits_store; // @[FPU.scala 780:17:freechips.rocketchip.system.DefaultRV32Config.fir@144641.4]
-  assign io_toint_data = fpiu_io_out_bits_toint; // @[FPU.scala 781:17:freechips.rocketchip.system.DefaultRV32Config.fir@144642.4]
-  assign io_fcsr_rdy = _T_236 == 1'h0; // @[FPU.scala 882:15:freechips.rocketchip.system.DefaultRV32Config.fir@144826.4]
-  assign io_nack_mem = _T_238 | divSqrt_inFlight; // @[FPU.scala 883:15:freechips.rocketchip.system.DefaultRV32Config.fir@144829.4]
-  assign io_illegal_rm = _T_255 | _T_259; // @[FPU.scala 891:17:freechips.rocketchip.system.DefaultRV32Config.fir@144856.4]
-  assign io_dec_wen = fp_decoder_io_sigs_wen; // @[FPU.scala 884:10:freechips.rocketchip.system.DefaultRV32Config.fir@144830.4]
-  assign io_dec_ren1 = fp_decoder_io_sigs_ren1; // @[FPU.scala 884:10:freechips.rocketchip.system.DefaultRV32Config.fir@144830.4]
-  assign io_dec_ren2 = fp_decoder_io_sigs_ren2; // @[FPU.scala 884:10:freechips.rocketchip.system.DefaultRV32Config.fir@144830.4]
-  assign io_dec_ren3 = fp_decoder_io_sigs_ren3; // @[FPU.scala 884:10:freechips.rocketchip.system.DefaultRV32Config.fir@144830.4]
-  assign io_sboard_set = wb_reg_valid & _T_244; // @[FPU.scala 886:17:freechips.rocketchip.system.DefaultRV32Config.fir@144838.4]
-  assign io_sboard_clr = _T_275 & _T_276; // @[FPU.scala 887:17:freechips.rocketchip.system.DefaultRV32Config.fir@144844.4]
-  assign io_sboard_clra = divSqrt_wen ? divSqrt_waddr : wbInfo_0_rd; // @[FPU.scala 888:18:freechips.rocketchip.system.DefaultRV32Config.fir@144845.4]
+always @(posedge clock) begin
+    if(regfile__T_91_en & regfile__T_91_mask) begin
+      regfile[regfile__T_91_addr] <= regfile__T_91_data; // @[FPU.scala 729:20:freechips.rocketchip.system.DefaultRV32Config.fir@144422.4]
+    end
+    if(regfile__T_214_en & regfile__T_214_mask) begin
+      regfile[regfile__T_214_addr] <= regfile__T_214_data; // @[FPU.scala 729:20:freechips.rocketchip.system.DefaultRV32Config.fir@144422.4]
+    end
+    if (reset) begin
+      ex_reg_valid <= 1'h0;
+    end else begin
+      ex_reg_valid <= io_valid;
+    end
+    if (io_valid) begin
+      ex_reg_inst <= io_inst;
+    end
+    if (io_valid) begin
+      ex_reg_ctrl_ren2 <= fp_decoder_io_sigs_ren2;
+    end
+    if (io_valid) begin
+      ex_reg_ctrl_ren3 <= fp_decoder_io_sigs_ren3;
+    end
+    if (io_valid) begin
+      ex_reg_ctrl_swap23 <= fp_decoder_io_sigs_swap23;
+    end
+    if (io_valid) begin
+      ex_reg_ctrl_singleOut <= fp_decoder_io_sigs_singleOut;
+    end
+    if (io_valid) begin
+      ex_reg_ctrl_fromint <= fp_decoder_io_sigs_fromint;
+    end
+    if (io_valid) begin
+      ex_reg_ctrl_toint <= fp_decoder_io_sigs_toint;
+    end
+    if (io_valid) begin
+      ex_reg_ctrl_fastpipe <= fp_decoder_io_sigs_fastpipe;
+    end
+    if (io_valid) begin
+      ex_reg_ctrl_fma <= fp_decoder_io_sigs_fma;
+    end
+    if (io_valid) begin
+      ex_reg_ctrl_div <= fp_decoder_io_sigs_div;
+    end
+    if (io_valid) begin
+      ex_reg_ctrl_sqrt <= fp_decoder_io_sigs_sqrt;
+    end
+    if (io_valid) begin
+      ex_reg_ctrl_wflags <= fp_decoder_io_sigs_wflags;
+    end
+    if (io_valid) begin
+      if (fp_decoder_io_sigs_ren2) begin
+        if (fp_decoder_io_sigs_swap12) begin
+          ex_ra_0 <= _T_104;
+        end else begin
+          if (fp_decoder_io_sigs_ren1) begin
+            if (_T_101) begin
+              ex_ra_0 <= _T_102;
+            end
+          end
+        end
+      end else begin
+        if (fp_decoder_io_sigs_ren1) begin
+          if (_T_101) begin
+            ex_ra_0 <= _T_102;
+          end
+        end
+      end
+    end
+    if (io_valid) begin
+      if (fp_decoder_io_sigs_ren2) begin
+        if (_T_108) begin
+          ex_ra_1 <= _T_104;
+        end else begin
+          if (fp_decoder_io_sigs_ren1) begin
+            if (fp_decoder_io_sigs_swap12) begin
+              ex_ra_1 <= _T_102;
+            end
+          end
+        end
+      end else begin
+        if (fp_decoder_io_sigs_ren1) begin
+          if (fp_decoder_io_sigs_swap12) begin
+            ex_ra_1 <= _T_102;
+          end
+        end
+      end
+    end
+    if (io_valid) begin
+      if (fp_decoder_io_sigs_ren3) begin
+        ex_ra_2 <= _T_110;
+      end else begin
+        if (fp_decoder_io_sigs_ren2) begin
+          if (fp_decoder_io_sigs_swap23) begin
+            ex_ra_2 <= _T_104;
+          end
+        end
+      end
+    end
+    load_wb <= io_dmem_resp_val;
+    if (io_dmem_resp_val) begin
+      load_wb_data <= io_dmem_resp_data;
+    end
+    if (io_dmem_resp_val) begin
+      load_wb_tag <= io_dmem_resp_tag;
+    end
+    if (reset) begin
+      mem_reg_valid <= 1'h0;
+    end else begin
+      mem_reg_valid <= _T_5;
+    end
+    if (ex_reg_valid) begin
+      mem_reg_inst <= ex_reg_inst;
+    end
+    if (reset) begin
+      wb_reg_valid <= 1'h0;
+    end else begin
+      wb_reg_valid <= _T_9;
+    end
+    if (ex_reg_valid) begin
+      mem_ctrl_singleOut <= ex_reg_ctrl_singleOut;
+    end
+    if (ex_reg_valid) begin
+      mem_ctrl_fromint <= ex_reg_ctrl_fromint;
+    end
+    if (ex_reg_valid) begin
+      mem_ctrl_toint <= ex_reg_ctrl_toint;
+    end
+    if (ex_reg_valid) begin
+      mem_ctrl_fastpipe <= ex_reg_ctrl_fastpipe;
+    end
+    if (ex_reg_valid) begin
+      mem_ctrl_fma <= ex_reg_ctrl_fma;
+    end
+    if (ex_reg_valid) begin
+      mem_ctrl_div <= ex_reg_ctrl_div;
+    end
+    if (ex_reg_valid) begin
+      mem_ctrl_sqrt <= ex_reg_ctrl_sqrt;
+    end
+    if (ex_reg_valid) begin
+      mem_ctrl_wflags <= ex_reg_ctrl_wflags;
+    end
+    if (mem_reg_valid) begin
+      wb_ctrl_toint <= mem_ctrl_toint;
+    end
+    if (_T_273) begin
+      divSqrt_waddr <= _T_184;
+    end
+    if (_T_273) begin
+      divSqrt_killed <= killm;
+    end
+    if (reset) begin
+      wen <= 2'h0;
+    end else begin
+      if (mem_wen) begin
+        if (_T_7) begin
+          wen <= _T_174;
+        end else begin
+          wen <= {{1'd0}, _T_171};
+        end
+      end else begin
+        wen <= {{1'd0}, _T_171};
+      end
+    end
+    if (mem_wen) begin
+      if (_T_177) begin
+        wbInfo_0_rd <= _T_184;
+      end else begin
+        if (_T_170) begin
+          wbInfo_0_rd <= wbInfo_1_rd;
+        end
+      end
+    end else begin
+      if (_T_170) begin
+        wbInfo_0_rd <= wbInfo_1_rd;
+      end
+    end
+    if (mem_wen) begin
+      if (_T_177) begin
+        wbInfo_0_pipeid <= _T_183;
+      end else begin
+        if (_T_170) begin
+          wbInfo_0_pipeid <= wbInfo_1_pipeid;
+        end
+      end
+    end else begin
+      if (_T_170) begin
+        wbInfo_0_pipeid <= wbInfo_1_pipeid;
+      end
+    end
+    if (mem_wen) begin
+      if (_T_187) begin
+        wbInfo_1_rd <= _T_184;
+      end
+    end
+    if (mem_wen) begin
+      if (_T_187) begin
+        wbInfo_1_pipeid <= _T_183;
+      end
+    end
+    if (ex_reg_valid) begin
+      write_port_busy <= _T_168;
+    end
+    if (mem_ctrl_toint) begin
+      wb_toint_exc <= fpiu_io_out_bits_exc;
+    end
+    _T_244 <= mem_ctrl_div | mem_ctrl_sqrt;
+end
+  assign _T_151 = ex_reg_ctrl_fastpipe ? 2'h2 : 2'h0; // @[FPU.scala 818:23:freechips.rocketchip.system.DefaultRV32Config.fir@144690.4]
+  assign _T_152 = ex_reg_ctrl_fromint ? 2'h2 : 2'h0; // @[FPU.scala 818:23:freechips.rocketchip.system.DefaultRV32Config.fir@144691.4]
+  assign _T_154 = _T_153 ? 3'h4 : 3'h0; // @[FPU.scala 818:23:freechips.rocketchip.system.DefaultRV32Config.fir@144693.4]
+  assign _T_160 = ex_reg_ctrl_fastpipe ? 3'h4 : 3'h0; // @[FPU.scala 818:23:freechips.rocketchip.system.DefaultRV32Config.fir@144699.4]
+  assign _T_161 = ex_reg_ctrl_fromint ? 3'h4 : 3'h0; // @[FPU.scala 818:23:freechips.rocketchip.system.DefaultRV32Config.fir@144700.4]
+  assign _T_163 = _T_153 ? 4'h8 : 4'h0; // @[FPU.scala 818:23:freechips.rocketchip.system.DefaultRV32Config.fir@144702.4]
 
-`endif // WIRE_REG_ASS
+`endif // MY_ASSIGNMENT
 
   assign _T_3 = mem_reg_valid & killm; // @[FPU.scala 714:41:freechips.rocketchip.system.DefaultRV32Config.fir@144363.4]
   assign _T_4 = killx == 1'h0; // @[FPU.scala 715:36:freechips.rocketchip.system.DefaultRV32Config.fir@144365.4]
@@ -594,8 +1203,6 @@ module FPU( // @[:freechips.rocketchip.system.DefaultRV32Config.fir@144295.2]
   assign _T_11 = load_wb_data[31]; // @[rawFloatFromFN.scala 46:22:freechips.rocketchip.system.DefaultRV32Config.fir@144425.6]
   assign _T_12 = load_wb_data[30:23]; // @[rawFloatFromFN.scala 47:23:freechips.rocketchip.system.DefaultRV32Config.fir@144426.6]
   assign _T_13 = load_wb_data[22:0]; // @[rawFloatFromFN.scala 48:25:freechips.rocketchip.system.DefaultRV32Config.fir@144427.6]
-  assign _T_14 = _T_12 == 8'h0; // @[rawFloatFromFN.scala 50:34:freechips.rocketchip.system.DefaultRV32Config.fir@144428.6]
-  assign _T_15 = _T_13 == 23'h0; // @[rawFloatFromFN.scala 51:38:freechips.rocketchip.system.DefaultRV32Config.fir@144429.6]
   assign _T_17 = _T_13[1]; // @[primitives.scala 92:52:freechips.rocketchip.system.DefaultRV32Config.fir@144431.6]
   assign _T_18 = _T_13[2]; // @[primitives.scala 92:52:freechips.rocketchip.system.DefaultRV32Config.fir@144432.6]
   assign _T_19 = _T_13[3]; // @[primitives.scala 92:52:freechips.rocketchip.system.DefaultRV32Config.fir@144433.6]
@@ -639,32 +1246,19 @@ module FPU( // @[:freechips.rocketchip.system.DefaultRV32Config.fir@144295.2]
   assign _T_57 = _T_35 ? 5'h3 : _T_56; // @[Mux.scala 47:69:freechips.rocketchip.system.DefaultRV32Config.fir@144471.6]
   assign _T_58 = _T_36 ? 5'h2 : _T_57; // @[Mux.scala 47:69:freechips.rocketchip.system.DefaultRV32Config.fir@144472.6]
   assign _T_59 = _T_37 ? 5'h1 : _T_58; // @[Mux.scala 47:69:freechips.rocketchip.system.DefaultRV32Config.fir@144473.6]
-  assign _T_60 = _T_38 ? 5'h0 : _T_59; // @[Mux.scala 47:69:freechips.rocketchip.system.DefaultRV32Config.fir@144474.6]
   assign _GEN_155 = {{31'd0}, _T_13}; // @[rawFloatFromFN.scala 54:36:freechips.rocketchip.system.DefaultRV32Config.fir@144475.6]
-  assign _T_61 = _GEN_155 << _T_60; // @[rawFloatFromFN.scala 54:36:freechips.rocketchip.system.DefaultRV32Config.fir@144475.6]
   assign _T_62 = _T_61[21:0]; // @[rawFloatFromFN.scala 54:47:freechips.rocketchip.system.DefaultRV32Config.fir@144476.6]
   assign _T_63 = {_T_62, 1'h0}; // @[rawFloatFromFN.scala 54:64:freechips.rocketchip.system.DefaultRV32Config.fir@144477.6]
   assign _GEN_156 = {{4'd0}, _T_60}; // @[rawFloatFromFN.scala 57:26:freechips.rocketchip.system.DefaultRV32Config.fir@144478.6]
   assign _T_64 = _GEN_156 ^ 9'h1ff; // @[rawFloatFromFN.scala 57:26:freechips.rocketchip.system.DefaultRV32Config.fir@144478.6]
-  assign _T_65 = _T_14 ? _T_64 : {{1'd0}, _T_12}; // @[rawFloatFromFN.scala 56:16:freechips.rocketchip.system.DefaultRV32Config.fir@144479.6]
-  assign _T_66 = _T_14 ? 2'h2 : 2'h1; // @[rawFloatFromFN.scala 60:27:freechips.rocketchip.system.DefaultRV32Config.fir@144480.6]
   assign _GEN_157 = {{6'd0}, _T_66}; // @[rawFloatFromFN.scala 60:22:freechips.rocketchip.system.DefaultRV32Config.fir@144481.6]
-  assign _T_67 = 8'h80 | _GEN_157; // @[rawFloatFromFN.scala 60:22:freechips.rocketchip.system.DefaultRV32Config.fir@144481.6]
   assign _GEN_158 = {{1'd0}, _T_67}; // @[rawFloatFromFN.scala 59:15:freechips.rocketchip.system.DefaultRV32Config.fir@144482.6]
-  assign _T_69 = _T_65 + _GEN_158; // @[rawFloatFromFN.scala 59:15:freechips.rocketchip.system.DefaultRV32Config.fir@144483.6]
   assign _T_70 = _T_14 & _T_15; // @[rawFloatFromFN.scala 62:34:freechips.rocketchip.system.DefaultRV32Config.fir@144484.6]
   assign _T_71 = _T_69[8:7]; // @[rawFloatFromFN.scala 63:37:freechips.rocketchip.system.DefaultRV32Config.fir@144485.6]
   assign _T_72 = _T_71 == 2'h3; // @[rawFloatFromFN.scala 63:62:freechips.rocketchip.system.DefaultRV32Config.fir@144486.6]
   assign _T_74 = _T_15 == 1'h0; // @[rawFloatFromFN.scala 66:36:freechips.rocketchip.system.DefaultRV32Config.fir@144489.6]
-  assign _T_75 = _T_72 & _T_74; // @[rawFloatFromFN.scala 66:33:freechips.rocketchip.system.DefaultRV32Config.fir@144490.6]
-  assign _T_78 = {1'b0,$signed(_T_69)}; // @[rawFloatFromFN.scala 70:48:freechips.rocketchip.system.DefaultRV32Config.fir@144497.6]
-  assign _T_79 = _T_70 == 1'h0; // @[rawFloatFromFN.scala 72:29:freechips.rocketchip.system.DefaultRV32Config.fir@144499.6]
-  assign _T_80 = _T_14 ? _T_63 : _T_13; // @[rawFloatFromFN.scala 72:42:freechips.rocketchip.system.DefaultRV32Config.fir@144500.6]
-  assign _T_82 = {1'h0,_T_79,_T_80}; // @[Cat.scala 29:58:freechips.rocketchip.system.DefaultRV32Config.fir@144502.6]
   assign _T_83 = _T_78[8:6]; // @[recFNFromFN.scala 48:53:freechips.rocketchip.system.DefaultRV32Config.fir@144504.6]
-  assign _T_84 = _T_70 ? 3'h0 : _T_83; // @[recFNFromFN.scala 48:16:freechips.rocketchip.system.DefaultRV32Config.fir@144505.6]
   assign _GEN_159 = {{2'd0}, _T_75}; // @[recFNFromFN.scala 48:79:freechips.rocketchip.system.DefaultRV32Config.fir@144507.6]
-  assign _T_86 = _T_84 | _GEN_159; // @[recFNFromFN.scala 48:79:freechips.rocketchip.system.DefaultRV32Config.fir@144507.6]
   assign _T_87 = _T_78[5:0]; // @[recFNFromFN.scala 50:23:freechips.rocketchip.system.DefaultRV32Config.fir@144508.6]
   assign _T_88 = _T_82[22:0]; // @[recFNFromFN.scala 51:22:freechips.rocketchip.system.DefaultRV32Config.fir@144509.6]
   assign _T_89 = {_T_87,_T_88}; // @[Cat.scala 29:58:freechips.rocketchip.system.DefaultRV32Config.fir@144510.6]
@@ -687,17 +1281,12 @@ module FPU( // @[:freechips.rocketchip.system.DefaultRV32Config.fir@144295.2]
   assign _T_126 = _T_125 | ex_reg_ctrl_sqrt; // @[FPU.scala 778:66:freechips.rocketchip.system.DefaultRV32Config.fir@144609.4]
   assign _T_127 = ex_reg_ctrl_fastpipe & ex_reg_ctrl_wflags; // @[FPU.scala 778:103:freechips.rocketchip.system.DefaultRV32Config.fir@144610.4]
   assign _T_128 = _T_126 | _T_127; // @[FPU.scala 778:82:freechips.rocketchip.system.DefaultRV32Config.fir@144611.4]
-  assign _T_142 = {{1'd0}, io_fromint_data}; // @[FPU.scala 790:29:freechips.rocketchip.system.DefaultRV32Config.fir@144656.4]
   assign _T_146 = mem_ctrl_fma & mem_ctrl_singleOut; // @[FPU.scala 809:56:freechips.rocketchip.system.DefaultRV32Config.fir@144681.4]
-  assign _T_147 = _T_146 ? 2'h2 : 2'h0; // @[FPU.scala 818:23:freechips.rocketchip.system.DefaultRV32Config.fir@144682.4]
   assign _T_148 = mem_ctrl_fastpipe | mem_ctrl_fromint; // @[FPU.scala 818:78:freechips.rocketchip.system.DefaultRV32Config.fir@144683.4]
   assign _GEN_162 = {{1'd0}, _T_148}; // @[FPU.scala 818:78:freechips.rocketchip.system.DefaultRV32Config.fir@144684.4]
   assign _T_149 = mem_ctrl_fma | mem_ctrl_fastpipe; // @[FPU.scala 834:48:freechips.rocketchip.system.DefaultRV32Config.fir@144687.4]
   assign _T_150 = _T_149 | mem_ctrl_fromint; // @[FPU.scala 834:69:freechips.rocketchip.system.DefaultRV32Config.fir@144688.4]
-  assign _T_151 = ex_reg_ctrl_fastpipe ? 2'h2 : 2'h0; // @[FPU.scala 818:23:freechips.rocketchip.system.DefaultRV32Config.fir@144690.4]
-  assign _T_152 = ex_reg_ctrl_fromint ? 2'h2 : 2'h0; // @[FPU.scala 818:23:freechips.rocketchip.system.DefaultRV32Config.fir@144691.4]
   assign _T_153 = ex_reg_ctrl_fma & ex_reg_ctrl_singleOut; // @[FPU.scala 809:56:freechips.rocketchip.system.DefaultRV32Config.fir@144692.4]
-  assign _T_154 = _T_153 ? 3'h4 : 3'h0; // @[FPU.scala 818:23:freechips.rocketchip.system.DefaultRV32Config.fir@144693.4]
   assign _T_155 = _T_151 | _T_152; // @[FPU.scala 818:78:freechips.rocketchip.system.DefaultRV32Config.fir@144694.4]
   assign _GEN_163 = {{1'd0}, _T_155}; // @[FPU.scala 818:78:freechips.rocketchip.system.DefaultRV32Config.fir@144695.4]
   assign _T_156 = _GEN_163 | _T_154; // @[FPU.scala 818:78:freechips.rocketchip.system.DefaultRV32Config.fir@144695.4]
@@ -705,9 +1294,6 @@ module FPU( // @[:freechips.rocketchip.system.DefaultRV32Config.fir@144295.2]
   assign _T_157 = _GEN_164 & _T_156; // @[FPU.scala 835:62:freechips.rocketchip.system.DefaultRV32Config.fir@144696.4]
   assign _T_158 = _T_157 != 3'h0; // @[FPU.scala 835:89:freechips.rocketchip.system.DefaultRV32Config.fir@144697.4]
   assign _T_159 = mem_wen & _T_158; // @[FPU.scala 835:43:freechips.rocketchip.system.DefaultRV32Config.fir@144698.4]
-  assign _T_160 = ex_reg_ctrl_fastpipe ? 3'h4 : 3'h0; // @[FPU.scala 818:23:freechips.rocketchip.system.DefaultRV32Config.fir@144699.4]
-  assign _T_161 = ex_reg_ctrl_fromint ? 3'h4 : 3'h0; // @[FPU.scala 818:23:freechips.rocketchip.system.DefaultRV32Config.fir@144700.4]
-  assign _T_163 = _T_153 ? 4'h8 : 4'h0; // @[FPU.scala 818:23:freechips.rocketchip.system.DefaultRV32Config.fir@144702.4]
   assign _T_164 = _T_160 | _T_161; // @[FPU.scala 818:78:freechips.rocketchip.system.DefaultRV32Config.fir@144703.4]
   assign _GEN_165 = {{1'd0}, _T_164}; // @[FPU.scala 818:78:freechips.rocketchip.system.DefaultRV32Config.fir@144704.4]
   assign _T_165 = _GEN_165 | _T_163; // @[FPU.scala 818:78:freechips.rocketchip.system.DefaultRV32Config.fir@144704.4]
@@ -734,15 +1320,11 @@ module FPU( // @[:freechips.rocketchip.system.DefaultRV32Config.fir@144295.2]
   assign _T_198 = wbInfo_0_pipeid == 2'h2; // @[package.scala 32:81:freechips.rocketchip.system.DefaultRV32Config.fir@144764.4]
   assign _T_199 = _T_198 ? sfma_io_out_bits_data : _T_197; // @[package.scala 32:71:freechips.rocketchip.system.DefaultRV32Config.fir@144765.4]
   assign _T_200 = wbInfo_0_pipeid == 2'h3; // @[package.scala 32:81:freechips.rocketchip.system.DefaultRV32Config.fir@144766.4]
-  assign _T_201 = _T_200 ? sfma_io_out_bits_data : _T_199; // @[package.scala 32:71:freechips.rocketchip.system.DefaultRV32Config.fir@144767.4]
   assign _T_203 = _T_196 ? ifpu_io_out_bits_exc : fpmu_io_out_bits_exc; // @[package.scala 32:71:freechips.rocketchip.system.DefaultRV32Config.fir@144770.4]
   assign _T_205 = _T_198 ? sfma_io_out_bits_exc : _T_203; // @[package.scala 32:71:freechips.rocketchip.system.DefaultRV32Config.fir@144772.4]
   assign _T_208 = wen[0]; // @[FPU.scala 860:30:freechips.rocketchip.system.DefaultRV32Config.fir@144776.4]
   assign _T_218 = wb_toint_valid | divSqrt_wen; // @[FPU.scala 875:41:freechips.rocketchip.system.DefaultRV32Config.fir@144803.4]
-  assign _T_221 = wb_toint_valid ? wb_toint_exc : 5'h0; // @[FPU.scala 877:8:freechips.rocketchip.system.DefaultRV32Config.fir@144807.4]
-  assign _T_222 = divSqrt_wen ? divSqrt_flags : 5'h0; // @[FPU.scala 878:8:freechips.rocketchip.system.DefaultRV32Config.fir@144808.4]
   assign _T_223 = _T_221 | _T_222; // @[FPU.scala 877:48:freechips.rocketchip.system.DefaultRV32Config.fir@144809.4]
-  assign _T_225 = _T_208 ? wexc : 5'h0; // @[FPU.scala 879:8:freechips.rocketchip.system.DefaultRV32Config.fir@144811.4]
   assign _T_227 = mem_ctrl_div | mem_ctrl_sqrt; // @[FPU.scala 881:47:freechips.rocketchip.system.DefaultRV32Config.fir@144814.4]
   assign _T_228 = wen != 2'h0; // @[FPU.scala 881:72:freechips.rocketchip.system.DefaultRV32Config.fir@144815.4]
   assign _T_229 = ex_reg_valid & ex_reg_ctrl_wflags; // @[FPU.scala 882:33:freechips.rocketchip.system.DefaultRV32Config.fir@144817.4]
@@ -750,7 +1332,6 @@ module FPU( // @[:freechips.rocketchip.system.DefaultRV32Config.fir@144295.2]
   assign _T_231 = _T_229 | _T_230; // @[FPU.scala 882:51:freechips.rocketchip.system.DefaultRV32Config.fir@144819.4]
   assign _T_233 = _T_231 | wb_toint_valid; // @[FPU.scala 882:87:freechips.rocketchip.system.DefaultRV32Config.fir@144821.4]
   assign _T_235 = _T_233 | _T_228; // @[FPU.scala 882:120:freechips.rocketchip.system.DefaultRV32Config.fir@144823.4]
-  assign _T_236 = _T_235 | divSqrt_inFlight; // @[FPU.scala 882:131:freechips.rocketchip.system.DefaultRV32Config.fir@144824.4]
   assign _T_238 = write_port_busy | divSqrt_write_port_busy; // @[FPU.scala 883:34:freechips.rocketchip.system.DefaultRV32Config.fir@144827.4]
   assign _T_252 = io_inst[14:12]; // @[FPU.scala 891:27:freechips.rocketchip.system.DefaultRV32Config.fir@144847.4]
   assign _T_253 = _T_252 == 3'h5; // @[package.scala 15:47:freechips.rocketchip.system.DefaultRV32Config.fir@144848.4]
@@ -966,213 +1547,7 @@ initial begin
   `endif // RANDOMIZE
 end
   always @(posedge clock) begin
-`ifndef WIRE_REG_ASS
-    if(regfile__T_91_en & regfile__T_91_mask) begin
-      regfile[regfile__T_91_addr] <= regfile__T_91_data; // @[FPU.scala 729:20:freechips.rocketchip.system.DefaultRV32Config.fir@144422.4]
-    end
-    if(regfile__T_214_en & regfile__T_214_mask) begin
-      regfile[regfile__T_214_addr] <= regfile__T_214_data; // @[FPU.scala 729:20:freechips.rocketchip.system.DefaultRV32Config.fir@144422.4]
-    end
-    if (reset) begin
-      ex_reg_valid <= 1'h0;
-    end else begin
-      ex_reg_valid <= io_valid;
-    end
-    if (io_valid) begin
-      ex_reg_inst <= io_inst;
-    end
-    if (io_valid) begin
-      ex_reg_ctrl_ren2 <= fp_decoder_io_sigs_ren2;
-    end
-    if (io_valid) begin
-      ex_reg_ctrl_ren3 <= fp_decoder_io_sigs_ren3;
-    end
-    if (io_valid) begin
-      ex_reg_ctrl_swap23 <= fp_decoder_io_sigs_swap23;
-    end
-    if (io_valid) begin
-      ex_reg_ctrl_singleOut <= fp_decoder_io_sigs_singleOut;
-    end
-    if (io_valid) begin
-      ex_reg_ctrl_fromint <= fp_decoder_io_sigs_fromint;
-    end
-    if (io_valid) begin
-      ex_reg_ctrl_toint <= fp_decoder_io_sigs_toint;
-    end
-    if (io_valid) begin
-      ex_reg_ctrl_fastpipe <= fp_decoder_io_sigs_fastpipe;
-    end
-    if (io_valid) begin
-      ex_reg_ctrl_fma <= fp_decoder_io_sigs_fma;
-    end
-    if (io_valid) begin
-      ex_reg_ctrl_div <= fp_decoder_io_sigs_div;
-    end
-    if (io_valid) begin
-      ex_reg_ctrl_sqrt <= fp_decoder_io_sigs_sqrt;
-    end
-    if (io_valid) begin
-      ex_reg_ctrl_wflags <= fp_decoder_io_sigs_wflags;
-    end
-    if (io_valid) begin
-      if (fp_decoder_io_sigs_ren2) begin
-        if (fp_decoder_io_sigs_swap12) begin
-          ex_ra_0 <= _T_104;
-        end else begin
-          if (fp_decoder_io_sigs_ren1) begin
-            if (_T_101) begin
-              ex_ra_0 <= _T_102;
-            end
-          end
-        end
-      end else begin
-        if (fp_decoder_io_sigs_ren1) begin
-          if (_T_101) begin
-            ex_ra_0 <= _T_102;
-          end
-        end
-      end
-    end
-    if (io_valid) begin
-      if (fp_decoder_io_sigs_ren2) begin
-        if (_T_108) begin
-          ex_ra_1 <= _T_104;
-        end else begin
-          if (fp_decoder_io_sigs_ren1) begin
-            if (fp_decoder_io_sigs_swap12) begin
-              ex_ra_1 <= _T_102;
-            end
-          end
-        end
-      end else begin
-        if (fp_decoder_io_sigs_ren1) begin
-          if (fp_decoder_io_sigs_swap12) begin
-            ex_ra_1 <= _T_102;
-          end
-        end
-      end
-    end
-    if (io_valid) begin
-      if (fp_decoder_io_sigs_ren3) begin
-        ex_ra_2 <= _T_110;
-      end else begin
-        if (fp_decoder_io_sigs_ren2) begin
-          if (fp_decoder_io_sigs_swap23) begin
-            ex_ra_2 <= _T_104;
-          end
-        end
-      end
-    end
-    load_wb <= io_dmem_resp_val;
-    if (io_dmem_resp_val) begin
-      load_wb_data <= io_dmem_resp_data;
-    end
-    if (io_dmem_resp_val) begin
-      load_wb_tag <= io_dmem_resp_tag;
-    end
-    if (reset) begin
-      mem_reg_valid <= 1'h0;
-    end else begin
-      mem_reg_valid <= _T_5;
-    end
-    if (ex_reg_valid) begin
-      mem_reg_inst <= ex_reg_inst;
-    end
-    if (reset) begin
-      wb_reg_valid <= 1'h0;
-    end else begin
-      wb_reg_valid <= _T_9;
-    end
-    if (ex_reg_valid) begin
-      mem_ctrl_singleOut <= ex_reg_ctrl_singleOut;
-    end
-    if (ex_reg_valid) begin
-      mem_ctrl_fromint <= ex_reg_ctrl_fromint;
-    end
-    if (ex_reg_valid) begin
-      mem_ctrl_toint <= ex_reg_ctrl_toint;
-    end
-    if (ex_reg_valid) begin
-      mem_ctrl_fastpipe <= ex_reg_ctrl_fastpipe;
-    end
-    if (ex_reg_valid) begin
-      mem_ctrl_fma <= ex_reg_ctrl_fma;
-    end
-    if (ex_reg_valid) begin
-      mem_ctrl_div <= ex_reg_ctrl_div;
-    end
-    if (ex_reg_valid) begin
-      mem_ctrl_sqrt <= ex_reg_ctrl_sqrt;
-    end
-    if (ex_reg_valid) begin
-      mem_ctrl_wflags <= ex_reg_ctrl_wflags;
-    end
-    if (mem_reg_valid) begin
-      wb_ctrl_toint <= mem_ctrl_toint;
-    end
-    if (_T_273) begin
-      divSqrt_waddr <= _T_184;
-    end
-    if (reset) begin
-      wen <= 2'h0;
-    end else begin
-      if (mem_wen) begin
-        if (_T_7) begin
-          wen <= _T_174;
-        end else begin
-          wen <= {{1'd0}, _T_171};
-        end
-      end else begin
-        wen <= {{1'd0}, _T_171};
-      end
-    end
-    if (mem_wen) begin
-      if (_T_177) begin
-        wbInfo_0_rd <= _T_184;
-      end else begin
-        if (_T_170) begin
-          wbInfo_0_rd <= wbInfo_1_rd;
-        end
-      end
-    end else begin
-      if (_T_170) begin
-        wbInfo_0_rd <= wbInfo_1_rd;
-      end
-    end
-    if (mem_wen) begin
-      if (_T_177) begin
-        wbInfo_0_pipeid <= _T_183;
-      end else begin
-        if (_T_170) begin
-          wbInfo_0_pipeid <= wbInfo_1_pipeid;
-        end
-      end
-    end else begin
-      if (_T_170) begin
-        wbInfo_0_pipeid <= wbInfo_1_pipeid;
-      end
-    end
-    if (mem_wen) begin
-      if (_T_187) begin
-        wbInfo_1_rd <= _T_184;
-      end
-    end
-    if (mem_wen) begin
-      if (_T_187) begin
-        wbInfo_1_pipeid <= _T_183;
-      end
-    end
-    if (ex_reg_valid) begin
-      write_port_busy <= _T_168;
-    end
-    if (_T_273) begin
-      divSqrt_killed <= killm;
-    end
-    if (mem_ctrl_toint) begin
-      wb_toint_exc <= fpiu_io_out_bits_exc;
-    end
-    _T_244 <= mem_ctrl_div | mem_ctrl_sqrt;
-`endif // WIRE_REG_ASS
   end
 endmodule
+`endif // __FPU
 

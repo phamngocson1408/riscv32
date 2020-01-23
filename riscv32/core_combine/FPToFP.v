@@ -1,3 +1,5 @@
+`include "include_module.v"
+`ifdef __FPToFP
 module FPToFP(
   input         clock,
   input         reset,
@@ -236,4 +238,4 @@ end
   end
 `endif //MY_ASSIGNMENT
 endmodule
-
+`endif __FPToFP

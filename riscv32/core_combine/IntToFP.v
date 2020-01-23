@@ -1,3 +1,5 @@
+`include "include_module.v"
+`ifdef __IntToFP
 module IntToFP(
   input         clock,
   input         reset,
@@ -377,4 +379,4 @@ end
   end
 `endif // MY_ASSIGNEMNT
 endmodule
-
+`endif // __IntToFP

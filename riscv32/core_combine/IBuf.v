@@ -1,3 +1,5 @@
+`include "include_module.v"
+`ifdef __IBuf
 module IBuf(
   input         clock,
   input         reset,
@@ -556,4 +558,4 @@ end
 `endif // WIRE_REG_ASSINGMENTS
   end
 endmodule
-
+`endif // __IBuf

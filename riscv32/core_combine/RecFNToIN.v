@@ -1,3 +1,5 @@
+`include "include_module.v"
+`ifdef __RecFNToIN
 module RecFNToIN(
   input  [32:0] io_in,
   input  [2:0]  io_roundingMode,
@@ -273,4 +275,4 @@ module RecFNToIN(
   assign _T_85 = invalidExc | common_overflow; // @[RecFNToIN.scala 142:30:freechips.rocketchip.system.DefaultRV32Config.fir@142942.4]
   assign _T_87 = {invalidExc,overflow}; // @[Cat.scala 29:58:freechips.rocketchip.system.DefaultRV32Config.fir@142945.4]
 endmodule
-
+`endif // __RecFNToIN

@@ -14,7 +14,7 @@ bb_vsrcs = \
 sim_vsrcs = \
     $(riscv32_dir)/$(long_name).v \
     $(riscv32_dir)/$(long_name).behav_srams.v \
-    $(riscv32_dir)/core/*.v \
+    $(core_dir)/*.v \
     $(vsrc)/$(TB).v \
     $(vsrc)/SimDTM.v \
     $(vsrc)/SimJTAG.v \

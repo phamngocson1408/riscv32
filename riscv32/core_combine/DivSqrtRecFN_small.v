@@ -1,3 +1,5 @@
+`include "include_module.v"
+`ifdef __DivSqrtRecFN_small
 module DivSqrtRecFN_small(
   input         clock,
   input         reset,
@@ -102,4 +104,4 @@ module DivSqrtRecFN_small(
   assign roundRawFNToRecFN_io_roundingMode = divSqrtRecFNToRaw_io_roundingModeOut;
   assign roundRawFNToRecFN_io_detectTininess = 1'h1;
 endmodule
-
+`endif // __DivSqrtRecFN_small

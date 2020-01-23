@@ -1,3 +1,5 @@
+`include "include_module.v"
+`ifdef __FPUFMAPipe
 module FPUFMAPipe(
   input         clock,
   input         reset,
@@ -200,4 +202,4 @@ end
   end
 `endif // MY_ASSIGNEMNT
 endmodule
-
+`endif // __FPUFMAPipe

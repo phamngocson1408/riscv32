@@ -1,3 +1,5 @@
+`include "include_module.v"
+`ifdef __RoundAnyRawFNToRecFN
 module RoundAnyRawFNToRecFN(
   input         io_invalidExc,
   input         io_infiniteExc,
@@ -504,4 +506,4 @@ module RoundAnyRawFNToRecFN(
   assign _T_204 = {underflow,inexact}; // @[Cat.scala 29:58:freechips.rocketchip.system.DefaultRV32Config.fir@142457.4]
   assign _T_206 = {io_invalidExc,io_infiniteExc,overflow}; // @[Cat.scala 29:58:freechips.rocketchip.system.DefaultRV32Config.fir@142459.4]
 endmodule
-
+`endif // __RoundAnyRawFNToRecFN

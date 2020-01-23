@@ -1,3 +1,5 @@
+`include "include_module.v"
+`ifdef __TLDebugModule
 module TLDebugModule(
   input         clock,
   input         reset,
@@ -284,4 +286,4 @@ module TLDebugModule(
   assign dmInner_io_innerCtrl_safe_widx_valid = dmOuter_io_innerCtrl_safe_widx_valid;
   assign dmInner_io_innerCtrl_safe_source_reset_n = dmOuter_io_innerCtrl_safe_source_reset_n;
 endmodule
-
+`endif // __TLDebugModule

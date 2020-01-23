@@ -1,3 +1,5 @@
+`include "include_module.v"
+`ifdef __AsyncResetRegVec_w32_i0
 module AsyncResetRegVec_w32_i0(
   input         clock,
   input         reset,
@@ -16,4 +18,4 @@ module AsyncResetRegVec_w32_i0(
   end
 
 endmodule
-
+`endif // __AsyncResetRegVec_w32_i0

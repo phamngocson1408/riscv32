@@ -1,3 +1,5 @@
+`include "include_module.v"
+`ifdef __TLDebugModuleInner
 module TLDebugModuleInner(
   input         clock,
   input         reset,
@@ -6058,4 +6060,4 @@ end
   assign _GEN_2761 = _T_19709 == 1'h0; // @[Debug.scala 1611:13:freechips.rocketchip.system.DefaultRV32Config.fir@108667.14]
   assign _GEN_2762 = _GEN_2750 & _GEN_2761; // @[Debug.scala 1611:13:freechips.rocketchip.system.DefaultRV32Config.fir@108667.14]
 endmodule
-
+`endif // __TLDebugModuleInner

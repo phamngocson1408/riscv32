@@ -1,3 +1,5 @@
+`include "include_module.v"
+`ifdef __DMIToTL
 module DMIToTL(
   input         auto_out_a_ready,
   output        auto_out_a_valid,
@@ -41,4 +43,4 @@ module DMIToTL(
   assign io_dmi_resp_bits_data = auto_out_d_bits_data;
   assign io_dmi_resp_bits_resp = {{1'd0}, (auto_out_d_bits_corrupt | auto_out_d_bits_denied)};
 endmodule
-
+`endif // __DMIToTL

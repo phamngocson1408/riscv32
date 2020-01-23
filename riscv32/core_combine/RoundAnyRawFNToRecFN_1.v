@@ -1,3 +1,5 @@
+`include "include_module.v"
+`ifdef __RoundAnyRawFNToRecFN_1
 module RoundAnyRawFNToRecFN_1(
   input         io_in_isZero,
   input         io_in_sign,
@@ -165,4 +167,4 @@ module RoundAnyRawFNToRecFN_1(
   assign _T_101 = {io_in_sign,expOut}; // @[Cat.scala 29:58:freechips.rocketchip.system.DefaultRV32Config.fir@143294.4]
   assign _T_103 = {1'h0,inexact}; // @[Cat.scala 29:58:freechips.rocketchip.system.DefaultRV32Config.fir@143297.4]
 endmodule
-
+`endif // __RoundAnyRawFNToRecFN_1

@@ -1,3 +1,5 @@
+`include "include_module.v"
+`ifdef __MulAddRecFNToRaw_postMul
 module MulAddRecFNToRaw_postMul(
   input         io_fromPreMul_isSigNaNAny,
   input         io_fromPreMul_isNaNAOrB,
@@ -683,4 +685,4 @@ module MulAddRecFNToRaw_postMul(
   assign _T_283 = _T_281 & _T_282; // @[MulAddRecFN.scala 293:28:freechips.rocketchip.system.DefaultRV32Config.fir@142194.4]
   assign _T_285 = _T_283 & _T_284; // @[MulAddRecFN.scala 293:49:freechips.rocketchip.system.DefaultRV32Config.fir@142196.4]
 endmodule
-
+`endif // __MulAddRecFNToRaw_postMul

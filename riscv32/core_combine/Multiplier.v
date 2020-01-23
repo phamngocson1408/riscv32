@@ -1,3 +1,5 @@
+`include "include_module.v"
+`ifdef __MulDiv
 `timescale 1ns / 10ps
 module MulDiv(
   input         clock,
@@ -354,5 +356,5 @@ end
     end
   end
 endmodule
-
+`endif // __MulDiv
 

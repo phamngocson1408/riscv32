@@ -1,3 +1,5 @@
+`include "include_module.v"
+`ifdef __TLDebugModuleInnerAsync
 module TLDebugModuleInnerAsync(
   input         clock,
   input         reset,
@@ -390,4 +392,4 @@ end
     clock_en <= dmactive_synced | reset;
   end
 endmodule
-
+`endif // __TLDebugModuleInnerAsync

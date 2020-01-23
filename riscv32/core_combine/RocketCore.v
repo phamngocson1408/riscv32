@@ -1,3 +1,5 @@
+`include "include_module.v"
+`ifdef __Rocket
 module Rocket(
   input         clock,
   input         reset,
@@ -4133,4 +4135,4 @@ end
 `endif // EVALUATE
   end
 endmodule
-
+`endif // __Rocket

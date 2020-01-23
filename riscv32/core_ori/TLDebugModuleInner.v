@@ -1,3 +1,5 @@
+`include "include_module.v"
+`ifdef __TLDebugModuleInner
 module TLDebugModuleInner( // @[:freechips.rocketchip.system.DefaultRV32Config.fir@78918.2]
   input         clock, // @[:freechips.rocketchip.system.DefaultRV32Config.fir@78919.4]
   input         reset, // @[:freechips.rocketchip.system.DefaultRV32Config.fir@78920.4]
@@ -3953,4 +3955,5 @@ end
     `endif // SYNTHESIS
   end
 endmodule
+`endif // __TLDebugModuleInner
 

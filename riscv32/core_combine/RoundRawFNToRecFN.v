@@ -1,3 +1,5 @@
+`include "include_module.v"
+`ifdef __RoundRawFNToRecFN
 module RoundRawFNToRecFN(
   input         io_invalidExc,
   input         io_infiniteExc,
@@ -54,4 +56,4 @@ module RoundRawFNToRecFN(
   assign roundAnyRawFNToRecFN_io_detectTininess = io_detectTininess;
 
 endmodule
-
+`endif // __RoundRawFNToRecFN

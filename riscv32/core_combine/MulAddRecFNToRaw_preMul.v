@@ -1,3 +1,5 @@
+`include "include_module.v"
+`ifdef __MulAddRecFNToRaw_preMul
 module MulAddRecFNToRaw_preMul(
   input  [1:0]  io_op,
   input  [32:0] io_a,
@@ -381,4 +383,4 @@ module MulAddRecFNToRaw_preMul(
   assign _T_131 = _T_130 == 1'h0; // @[common.scala 81:49:freechips.rocketchip.system.DefaultRV32Config.fir@141805.4]
   assign _T_132 = rawC_isNaN & _T_131; // @[common.scala 81:46:freechips.rocketchip.system.DefaultRV32Config.fir@141806.4]
 endmodule
-
+`endif // __MulAddRecFNToRaw_preMul

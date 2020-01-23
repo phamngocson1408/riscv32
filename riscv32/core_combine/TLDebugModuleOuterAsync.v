@@ -1,3 +1,5 @@
+`include "include_module.v"
+`ifdef __TLDebugModuleOuterAsync
 module TLDebugModuleOuterAsync(
   input         clock, 
   input         reset,
@@ -427,4 +429,4 @@ module TLDebugModuleOuterAsync(
   assign AsyncQueueSource_io_async_safe_ridx_valid = io_innerCtrl_safe_ridx_valid;
   assign AsyncQueueSource_io_async_safe_sink_reset_n = io_innerCtrl_safe_sink_reset_n;
 endmodule
-
+`endif // __TLDebugModuleOuterAsync

@@ -1,3 +1,5 @@
+`include "include_module.v"
+`ifdef __BreakpointUnit
 module BreakpointUnit( // @[:freechips.rocketchip.system.DefaultRV32Config.fir@154827.2]
   input         io_status_debug, // @[:freechips.rocketchip.system.DefaultRV32Config.fir@154830.4]
   input  [1:0]  io_status_prv, // @[:freechips.rocketchip.system.DefaultRV32Config.fir@154830.4]
@@ -98,4 +100,4 @@ module BreakpointUnit( // @[:freechips.rocketchip.system.DefaultRV32Config.fir@1
   assign io_debug_ld = _T_38 & io_bp_0_control_action; // @[Breakpoint.scala 76:15:freechips.rocketchip.system.DefaultRV32Config.fir@154839.4 Breakpoint.scala 92:73:freechips.rocketchip.system.DefaultRV32Config.fir@154955.6]
   assign io_debug_st = _T_70 & io_bp_0_control_action; // @[Breakpoint.scala 77:15:freechips.rocketchip.system.DefaultRV32Config.fir@154840.4 Breakpoint.scala 93:73:freechips.rocketchip.system.DefaultRV32Config.fir@154965.6]
 endmodule
-
+`endif // __BreakpointUnit

@@ -1,3 +1,5 @@
+`include "include_module.v"
+`ifdef __DivSqrtRecFNToRaw_small
 module DivSqrtRecFNToRaw_small(
   input         clock,
   input         reset,
@@ -188,4 +190,4 @@ module DivSqrtRecFNToRaw_small(
   assign _T_31 = io_b[22:0]; // @[rawFloatFromRecFN.scala 60:51:freechips.rocketchip.system.DefaultRV32Config.fir@143971.4]
   assign _T_32 = {1'h0,_T_30}; // @[Cat.scala 29:58:freechips.rocketchip.system.DefaultRV32Config.fir@143972.4]
 endmodule
-
+`endif // __DivSqrtRecFNToRaw_small

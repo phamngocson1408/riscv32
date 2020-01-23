@@ -1,247 +1,88 @@
-module ALU( // @[:freechips.rocketchip.system.DefaultRV32Config.fir@154983.2]
-  input  [3:0]  io_fn, // @[:freechips.rocketchip.system.DefaultRV32Config.fir@154986.4]
-  input  [31:0] io_in2, // @[:freechips.rocketchip.system.DefaultRV32Config.fir@154986.4]
-  input  [31:0] io_in1, // @[:freechips.rocketchip.system.DefaultRV32Config.fir@154986.4]
-  output [31:0] io_out, // @[:freechips.rocketchip.system.DefaultRV32Config.fir@154986.4]
-  output [31:0] io_adder_out, // @[:freechips.rocketchip.system.DefaultRV32Config.fir@154986.4]
-  output        io_cmp_out // @[:freechips.rocketchip.system.DefaultRV32Config.fir@154986.4]
+`include "include_module.v"
+`ifdef __ALU
+module ALU( 
+  input  [3:0]  io_fn, 
+  input  [31:0] io_in2,
+  input  [31:0] io_in1,
+  output [31:0] io_out,
+  output [31:0] io_adder_out,
+  output        io_cmp_out
 );
-  wire  _T; // @[ALU.scala 40:29:freechips.rocketchip.system.DefaultRV32Config.fir@154991.4]
-  wire [31:0] _T_1; // @[ALU.scala 62:35:freechips.rocketchip.system.DefaultRV32Config.fir@154992.4]
-  wire [31:0] in2_inv; // @[ALU.scala 62:20:freechips.rocketchip.system.DefaultRV32Config.fir@154993.4]
-  wire [31:0] in1_xor_in2; // @[ALU.scala 63:28:freechips.rocketchip.system.DefaultRV32Config.fir@154994.4]
-  wire [31:0] _T_3; // @[ALU.scala 64:26:freechips.rocketchip.system.DefaultRV32Config.fir@154996.4]
-  wire [31:0] _GEN_0; // @[ALU.scala 64:36:freechips.rocketchip.system.DefaultRV32Config.fir@154998.4]
-  wire  _T_7; // @[ALU.scala 68:15:freechips.rocketchip.system.DefaultRV32Config.fir@155001.4]
-  wire  _T_8; // @[ALU.scala 68:34:freechips.rocketchip.system.DefaultRV32Config.fir@155002.4]
-  wire  _T_9; // @[ALU.scala 68:24:freechips.rocketchip.system.DefaultRV32Config.fir@155003.4]
-  wire  _T_10; // @[ALU.scala 68:56:freechips.rocketchip.system.DefaultRV32Config.fir@155004.4]
-  wire  _T_11; // @[ALU.scala 42:35:freechips.rocketchip.system.DefaultRV32Config.fir@155005.4]
-  wire  _T_14; // @[ALU.scala 69:8:freechips.rocketchip.system.DefaultRV32Config.fir@155008.4]
-  wire  slt; // @[ALU.scala 68:8:freechips.rocketchip.system.DefaultRV32Config.fir@155009.4]
-  wire  _T_15; // @[ALU.scala 43:35:freechips.rocketchip.system.DefaultRV32Config.fir@155010.4]
-  wire  _T_17; // @[ALU.scala 44:26:freechips.rocketchip.system.DefaultRV32Config.fir@155012.4]
-  wire  _T_18; // @[ALU.scala 70:68:freechips.rocketchip.system.DefaultRV32Config.fir@155013.4]
-  wire  _T_19; // @[ALU.scala 70:41:freechips.rocketchip.system.DefaultRV32Config.fir@155014.4]
-  wire [4:0] shamt; // @[ALU.scala 74:28:freechips.rocketchip.system.DefaultRV32Config.fir@155017.4]
-  wire  _T_21; // @[ALU.scala 82:24:freechips.rocketchip.system.DefaultRV32Config.fir@155018.4]
-  wire  _T_22; // @[ALU.scala 82:44:freechips.rocketchip.system.DefaultRV32Config.fir@155019.4]
-  wire  _T_23; // @[ALU.scala 82:35:freechips.rocketchip.system.DefaultRV32Config.fir@155020.4]
-  wire [15:0] _T_26; // @[Bitwise.scala 102:21:freechips.rocketchip.system.DefaultRV32Config.fir@155023.4]
-  wire [31:0] _T_27; // @[Bitwise.scala 102:31:freechips.rocketchip.system.DefaultRV32Config.fir@155024.4]
-  wire [15:0] _T_28; // @[Bitwise.scala 102:46:freechips.rocketchip.system.DefaultRV32Config.fir@155025.4]
-  wire [31:0] _T_29; // @[Bitwise.scala 102:65:freechips.rocketchip.system.DefaultRV32Config.fir@155026.4]
-  wire [31:0] _T_31; // @[Bitwise.scala 102:75:freechips.rocketchip.system.DefaultRV32Config.fir@155028.4]
-  wire [31:0] _T_32; // @[Bitwise.scala 102:39:freechips.rocketchip.system.DefaultRV32Config.fir@155029.4]
-  wire [23:0] _T_36; // @[Bitwise.scala 102:21:freechips.rocketchip.system.DefaultRV32Config.fir@155033.4]
-  wire [31:0] _GEN_1; // @[Bitwise.scala 102:31:freechips.rocketchip.system.DefaultRV32Config.fir@155034.4]
-  wire [31:0] _T_37; // @[Bitwise.scala 102:31:freechips.rocketchip.system.DefaultRV32Config.fir@155034.4]
-  wire [23:0] _T_38; // @[Bitwise.scala 102:46:freechips.rocketchip.system.DefaultRV32Config.fir@155035.4]
-  wire [31:0] _T_39; // @[Bitwise.scala 102:65:freechips.rocketchip.system.DefaultRV32Config.fir@155036.4]
-  wire [31:0] _T_41; // @[Bitwise.scala 102:75:freechips.rocketchip.system.DefaultRV32Config.fir@155038.4]
-  wire [31:0] _T_42; // @[Bitwise.scala 102:39:freechips.rocketchip.system.DefaultRV32Config.fir@155039.4]
-  wire [27:0] _T_46; // @[Bitwise.scala 102:21:freechips.rocketchip.system.DefaultRV32Config.fir@155043.4]
-  wire [31:0] _GEN_2; // @[Bitwise.scala 102:31:freechips.rocketchip.system.DefaultRV32Config.fir@155044.4]
-  wire [31:0] _T_47; // @[Bitwise.scala 102:31:freechips.rocketchip.system.DefaultRV32Config.fir@155044.4]
-  wire [27:0] _T_48; // @[Bitwise.scala 102:46:freechips.rocketchip.system.DefaultRV32Config.fir@155045.4]
-  wire [31:0] _T_49; // @[Bitwise.scala 102:65:freechips.rocketchip.system.DefaultRV32Config.fir@155046.4]
-  wire [31:0] _T_51; // @[Bitwise.scala 102:75:freechips.rocketchip.system.DefaultRV32Config.fir@155048.4]
-  wire [31:0] _T_52; // @[Bitwise.scala 102:39:freechips.rocketchip.system.DefaultRV32Config.fir@155049.4]
-  wire [29:0] _T_56; // @[Bitwise.scala 102:21:freechips.rocketchip.system.DefaultRV32Config.fir@155053.4]
-  wire [31:0] _GEN_3; // @[Bitwise.scala 102:31:freechips.rocketchip.system.DefaultRV32Config.fir@155054.4]
-  wire [31:0] _T_57; // @[Bitwise.scala 102:31:freechips.rocketchip.system.DefaultRV32Config.fir@155054.4]
-  wire [29:0] _T_58; // @[Bitwise.scala 102:46:freechips.rocketchip.system.DefaultRV32Config.fir@155055.4]
-  wire [31:0] _T_59; // @[Bitwise.scala 102:65:freechips.rocketchip.system.DefaultRV32Config.fir@155056.4]
-  wire [31:0] _T_61; // @[Bitwise.scala 102:75:freechips.rocketchip.system.DefaultRV32Config.fir@155058.4]
-  wire [31:0] _T_62; // @[Bitwise.scala 102:39:freechips.rocketchip.system.DefaultRV32Config.fir@155059.4]
-  wire [30:0] _T_66; // @[Bitwise.scala 102:21:freechips.rocketchip.system.DefaultRV32Config.fir@155063.4]
-  wire [31:0] _GEN_4; // @[Bitwise.scala 102:31:freechips.rocketchip.system.DefaultRV32Config.fir@155064.4]
-  wire [31:0] _T_67; // @[Bitwise.scala 102:31:freechips.rocketchip.system.DefaultRV32Config.fir@155064.4]
-  wire [30:0] _T_68; // @[Bitwise.scala 102:46:freechips.rocketchip.system.DefaultRV32Config.fir@155065.4]
-  wire [31:0] _T_69; // @[Bitwise.scala 102:65:freechips.rocketchip.system.DefaultRV32Config.fir@155066.4]
-  wire [31:0] _T_71; // @[Bitwise.scala 102:75:freechips.rocketchip.system.DefaultRV32Config.fir@155068.4]
-  wire [31:0] _T_72; // @[Bitwise.scala 102:39:freechips.rocketchip.system.DefaultRV32Config.fir@155069.4]
-  wire [31:0] shin; // @[ALU.scala 82:17:freechips.rocketchip.system.DefaultRV32Config.fir@155070.4]
-  wire  _T_74; // @[ALU.scala 83:41:freechips.rocketchip.system.DefaultRV32Config.fir@155072.4]
-  wire  _T_75; // @[ALU.scala 83:35:freechips.rocketchip.system.DefaultRV32Config.fir@155073.4]
-  wire [32:0] _T_76; // @[Cat.scala 29:58:freechips.rocketchip.system.DefaultRV32Config.fir@155074.4]
-  wire [32:0] _T_77; // @[ALU.scala 83:57:freechips.rocketchip.system.DefaultRV32Config.fir@155075.4]
-  wire [32:0] _T_78; // @[ALU.scala 83:64:freechips.rocketchip.system.DefaultRV32Config.fir@155076.4]
-  wire [31:0] shout_r; // @[ALU.scala 83:73:freechips.rocketchip.system.DefaultRV32Config.fir@155077.4]
-  wire [15:0] _T_81; // @[Bitwise.scala 102:21:freechips.rocketchip.system.DefaultRV32Config.fir@155080.4]
-  wire [31:0] _T_82; // @[Bitwise.scala 102:31:freechips.rocketchip.system.DefaultRV32Config.fir@155081.4]
-  wire [15:0] _T_83; // @[Bitwise.scala 102:46:freechips.rocketchip.system.DefaultRV32Config.fir@155082.4]
-  wire [31:0] _T_84; // @[Bitwise.scala 102:65:freechips.rocketchip.system.DefaultRV32Config.fir@155083.4]
-  wire [31:0] _T_86; // @[Bitwise.scala 102:75:freechips.rocketchip.system.DefaultRV32Config.fir@155085.4]
-  wire [31:0] _T_87; // @[Bitwise.scala 102:39:freechips.rocketchip.system.DefaultRV32Config.fir@155086.4]
-  wire [23:0] _T_91; // @[Bitwise.scala 102:21:freechips.rocketchip.system.DefaultRV32Config.fir@155090.4]
-  wire [31:0] _GEN_5; // @[Bitwise.scala 102:31:freechips.rocketchip.system.DefaultRV32Config.fir@155091.4]
-  wire [31:0] _T_92; // @[Bitwise.scala 102:31:freechips.rocketchip.system.DefaultRV32Config.fir@155091.4]
-  wire [23:0] _T_93; // @[Bitwise.scala 102:46:freechips.rocketchip.system.DefaultRV32Config.fir@155092.4]
-  wire [31:0] _T_94; // @[Bitwise.scala 102:65:freechips.rocketchip.system.DefaultRV32Config.fir@155093.4]
-  wire [31:0] _T_96; // @[Bitwise.scala 102:75:freechips.rocketchip.system.DefaultRV32Config.fir@155095.4]
-  wire [31:0] _T_97; // @[Bitwise.scala 102:39:freechips.rocketchip.system.DefaultRV32Config.fir@155096.4]
-  wire [27:0] _T_101; // @[Bitwise.scala 102:21:freechips.rocketchip.system.DefaultRV32Config.fir@155100.4]
-  wire [31:0] _GEN_6; // @[Bitwise.scala 102:31:freechips.rocketchip.system.DefaultRV32Config.fir@155101.4]
-  wire [31:0] _T_102; // @[Bitwise.scala 102:31:freechips.rocketchip.system.DefaultRV32Config.fir@155101.4]
-  wire [27:0] _T_103; // @[Bitwise.scala 102:46:freechips.rocketchip.system.DefaultRV32Config.fir@155102.4]
-  wire [31:0] _T_104; // @[Bitwise.scala 102:65:freechips.rocketchip.system.DefaultRV32Config.fir@155103.4]
-  wire [31:0] _T_106; // @[Bitwise.scala 102:75:freechips.rocketchip.system.DefaultRV32Config.fir@155105.4]
-  wire [31:0] _T_107; // @[Bitwise.scala 102:39:freechips.rocketchip.system.DefaultRV32Config.fir@155106.4]
-  wire [29:0] _T_111; // @[Bitwise.scala 102:21:freechips.rocketchip.system.DefaultRV32Config.fir@155110.4]
-  wire [31:0] _GEN_7; // @[Bitwise.scala 102:31:freechips.rocketchip.system.DefaultRV32Config.fir@155111.4]
-  wire [31:0] _T_112; // @[Bitwise.scala 102:31:freechips.rocketchip.system.DefaultRV32Config.fir@155111.4]
-  wire [29:0] _T_113; // @[Bitwise.scala 102:46:freechips.rocketchip.system.DefaultRV32Config.fir@155112.4]
-  wire [31:0] _T_114; // @[Bitwise.scala 102:65:freechips.rocketchip.system.DefaultRV32Config.fir@155113.4]
-  wire [31:0] _T_116; // @[Bitwise.scala 102:75:freechips.rocketchip.system.DefaultRV32Config.fir@155115.4]
-  wire [31:0] _T_117; // @[Bitwise.scala 102:39:freechips.rocketchip.system.DefaultRV32Config.fir@155116.4]
-  wire [30:0] _T_121; // @[Bitwise.scala 102:21:freechips.rocketchip.system.DefaultRV32Config.fir@155120.4]
-  wire [31:0] _GEN_8; // @[Bitwise.scala 102:31:freechips.rocketchip.system.DefaultRV32Config.fir@155121.4]
-  wire [31:0] _T_122; // @[Bitwise.scala 102:31:freechips.rocketchip.system.DefaultRV32Config.fir@155121.4]
-  wire [30:0] _T_123; // @[Bitwise.scala 102:46:freechips.rocketchip.system.DefaultRV32Config.fir@155122.4]
-  wire [31:0] _T_124; // @[Bitwise.scala 102:65:freechips.rocketchip.system.DefaultRV32Config.fir@155123.4]
-  wire [31:0] _T_126; // @[Bitwise.scala 102:75:freechips.rocketchip.system.DefaultRV32Config.fir@155125.4]
-  wire [31:0] shout_l; // @[Bitwise.scala 102:39:freechips.rocketchip.system.DefaultRV32Config.fir@155126.4]
-  wire [31:0] _T_130; // @[ALU.scala 85:18:freechips.rocketchip.system.DefaultRV32Config.fir@155130.4]
-  wire  _T_131; // @[ALU.scala 86:25:freechips.rocketchip.system.DefaultRV32Config.fir@155131.4]
-  wire [31:0] _T_132; // @[ALU.scala 86:18:freechips.rocketchip.system.DefaultRV32Config.fir@155132.4]
-  wire [31:0] shout; // @[ALU.scala 85:74:freechips.rocketchip.system.DefaultRV32Config.fir@155133.4]
-  wire  _T_133; // @[ALU.scala 89:25:freechips.rocketchip.system.DefaultRV32Config.fir@155134.4]
-  wire  _T_134; // @[ALU.scala 89:45:freechips.rocketchip.system.DefaultRV32Config.fir@155135.4]
-  wire  _T_135; // @[ALU.scala 89:36:freechips.rocketchip.system.DefaultRV32Config.fir@155136.4]
-  wire [31:0] _T_136; // @[ALU.scala 89:18:freechips.rocketchip.system.DefaultRV32Config.fir@155137.4]
-  wire  _T_138; // @[ALU.scala 90:44:freechips.rocketchip.system.DefaultRV32Config.fir@155139.4]
-  wire  _T_139; // @[ALU.scala 90:35:freechips.rocketchip.system.DefaultRV32Config.fir@155140.4]
-  wire [31:0] _T_140; // @[ALU.scala 90:63:freechips.rocketchip.system.DefaultRV32Config.fir@155141.4]
-  wire [31:0] _T_141; // @[ALU.scala 90:18:freechips.rocketchip.system.DefaultRV32Config.fir@155142.4]
-  wire [31:0] logic_; // @[ALU.scala 89:78:freechips.rocketchip.system.DefaultRV32Config.fir@155143.4]
-  wire  _T_142; // @[ALU.scala 41:30:freechips.rocketchip.system.DefaultRV32Config.fir@155144.4]
-  wire  _T_143; // @[ALU.scala 91:35:freechips.rocketchip.system.DefaultRV32Config.fir@155145.4]
-  wire [31:0] _GEN_9; // @[ALU.scala 91:43:freechips.rocketchip.system.DefaultRV32Config.fir@155146.4]
-  wire [31:0] _T_144; // @[ALU.scala 91:43:freechips.rocketchip.system.DefaultRV32Config.fir@155146.4]
-  wire [31:0] shift_logic; // @[ALU.scala 91:51:freechips.rocketchip.system.DefaultRV32Config.fir@155147.4]
-  wire  _T_145; // @[ALU.scala 92:23:freechips.rocketchip.system.DefaultRV32Config.fir@155148.4]
-  wire  _T_146; // @[ALU.scala 92:43:freechips.rocketchip.system.DefaultRV32Config.fir@155149.4]
-  wire  _T_147; // @[ALU.scala 92:34:freechips.rocketchip.system.DefaultRV32Config.fir@155150.4]
-  assign _T = io_fn[3]; // @[ALU.scala 40:29:freechips.rocketchip.system.DefaultRV32Config.fir@154991.4]
-  assign _T_1 = ~ io_in2; // @[ALU.scala 62:35:freechips.rocketchip.system.DefaultRV32Config.fir@154992.4]
-  assign in2_inv = _T ? _T_1 : io_in2; // @[ALU.scala 62:20:freechips.rocketchip.system.DefaultRV32Config.fir@154993.4]
-  assign in1_xor_in2 = io_in1 ^ in2_inv; // @[ALU.scala 63:28:freechips.rocketchip.system.DefaultRV32Config.fir@154994.4]
-  assign _T_3 = io_in1 + in2_inv; // @[ALU.scala 64:26:freechips.rocketchip.system.DefaultRV32Config.fir@154996.4]
-  assign _GEN_0 = {{31'd0}, _T}; // @[ALU.scala 64:36:freechips.rocketchip.system.DefaultRV32Config.fir@154998.4]
-  assign _T_7 = io_in1[31]; // @[ALU.scala 68:15:freechips.rocketchip.system.DefaultRV32Config.fir@155001.4]
-  assign _T_8 = io_in2[31]; // @[ALU.scala 68:34:freechips.rocketchip.system.DefaultRV32Config.fir@155002.4]
-  assign _T_9 = _T_7 == _T_8; // @[ALU.scala 68:24:freechips.rocketchip.system.DefaultRV32Config.fir@155003.4]
-  assign _T_10 = io_adder_out[31]; // @[ALU.scala 68:56:freechips.rocketchip.system.DefaultRV32Config.fir@155004.4]
-  assign _T_11 = io_fn[1]; // @[ALU.scala 42:35:freechips.rocketchip.system.DefaultRV32Config.fir@155005.4]
-  assign _T_14 = _T_11 ? _T_8 : _T_7; // @[ALU.scala 69:8:freechips.rocketchip.system.DefaultRV32Config.fir@155008.4]
-  assign slt = _T_9 ? _T_10 : _T_14; // @[ALU.scala 68:8:freechips.rocketchip.system.DefaultRV32Config.fir@155009.4]
-  assign _T_15 = io_fn[0]; // @[ALU.scala 43:35:freechips.rocketchip.system.DefaultRV32Config.fir@155010.4]
-  assign _T_17 = _T == 1'h0; // @[ALU.scala 44:26:freechips.rocketchip.system.DefaultRV32Config.fir@155012.4]
-  assign _T_18 = in1_xor_in2 == 32'h0; // @[ALU.scala 70:68:freechips.rocketchip.system.DefaultRV32Config.fir@155013.4]
-  assign _T_19 = _T_17 ? _T_18 : slt; // @[ALU.scala 70:41:freechips.rocketchip.system.DefaultRV32Config.fir@155014.4]
-  assign shamt = io_in2[4:0]; // @[ALU.scala 74:28:freechips.rocketchip.system.DefaultRV32Config.fir@155017.4]
-  assign _T_21 = io_fn == 4'h5; // @[ALU.scala 82:24:freechips.rocketchip.system.DefaultRV32Config.fir@155018.4]
-  assign _T_22 = io_fn == 4'hb; // @[ALU.scala 82:44:freechips.rocketchip.system.DefaultRV32Config.fir@155019.4]
-  assign _T_23 = _T_21 | _T_22; // @[ALU.scala 82:35:freechips.rocketchip.system.DefaultRV32Config.fir@155020.4]
-  assign _T_26 = io_in1[31:16]; // @[Bitwise.scala 102:21:freechips.rocketchip.system.DefaultRV32Config.fir@155023.4]
-  assign _T_27 = {{16'd0}, _T_26}; // @[Bitwise.scala 102:31:freechips.rocketchip.system.DefaultRV32Config.fir@155024.4]
-  assign _T_28 = io_in1[15:0]; // @[Bitwise.scala 102:46:freechips.rocketchip.system.DefaultRV32Config.fir@155025.4]
-  assign _T_29 = {_T_28, 16'h0}; // @[Bitwise.scala 102:65:freechips.rocketchip.system.DefaultRV32Config.fir@155026.4]
-  assign _T_31 = _T_29 & 32'hffff0000; // @[Bitwise.scala 102:75:freechips.rocketchip.system.DefaultRV32Config.fir@155028.4]
-  assign _T_32 = _T_27 | _T_31; // @[Bitwise.scala 102:39:freechips.rocketchip.system.DefaultRV32Config.fir@155029.4]
-  assign _T_36 = _T_32[31:8]; // @[Bitwise.scala 102:21:freechips.rocketchip.system.DefaultRV32Config.fir@155033.4]
-  assign _GEN_1 = {{8'd0}, _T_36}; // @[Bitwise.scala 102:31:freechips.rocketchip.system.DefaultRV32Config.fir@155034.4]
-  assign _T_37 = _GEN_1 & 32'hff00ff; // @[Bitwise.scala 102:31:freechips.rocketchip.system.DefaultRV32Config.fir@155034.4]
-  assign _T_38 = _T_32[23:0]; // @[Bitwise.scala 102:46:freechips.rocketchip.system.DefaultRV32Config.fir@155035.4]
-  assign _T_39 = {_T_38, 8'h0}; // @[Bitwise.scala 102:65:freechips.rocketchip.system.DefaultRV32Config.fir@155036.4]
-  assign _T_41 = _T_39 & 32'hff00ff00; // @[Bitwise.scala 102:75:freechips.rocketchip.system.DefaultRV32Config.fir@155038.4]
-  assign _T_42 = _T_37 | _T_41; // @[Bitwise.scala 102:39:freechips.rocketchip.system.DefaultRV32Config.fir@155039.4]
-  assign _T_46 = _T_42[31:4]; // @[Bitwise.scala 102:21:freechips.rocketchip.system.DefaultRV32Config.fir@155043.4]
-  assign _GEN_2 = {{4'd0}, _T_46}; // @[Bitwise.scala 102:31:freechips.rocketchip.system.DefaultRV32Config.fir@155044.4]
-  assign _T_47 = _GEN_2 & 32'hf0f0f0f; // @[Bitwise.scala 102:31:freechips.rocketchip.system.DefaultRV32Config.fir@155044.4]
-  assign _T_48 = _T_42[27:0]; // @[Bitwise.scala 102:46:freechips.rocketchip.system.DefaultRV32Config.fir@155045.4]
-  assign _T_49 = {_T_48, 4'h0}; // @[Bitwise.scala 102:65:freechips.rocketchip.system.DefaultRV32Config.fir@155046.4]
-  assign _T_51 = _T_49 & 32'hf0f0f0f0; // @[Bitwise.scala 102:75:freechips.rocketchip.system.DefaultRV32Config.fir@155048.4]
-  assign _T_52 = _T_47 | _T_51; // @[Bitwise.scala 102:39:freechips.rocketchip.system.DefaultRV32Config.fir@155049.4]
-  assign _T_56 = _T_52[31:2]; // @[Bitwise.scala 102:21:freechips.rocketchip.system.DefaultRV32Config.fir@155053.4]
-  assign _GEN_3 = {{2'd0}, _T_56}; // @[Bitwise.scala 102:31:freechips.rocketchip.system.DefaultRV32Config.fir@155054.4]
-  assign _T_57 = _GEN_3 & 32'h33333333; // @[Bitwise.scala 102:31:freechips.rocketchip.system.DefaultRV32Config.fir@155054.4]
-  assign _T_58 = _T_52[29:0]; // @[Bitwise.scala 102:46:freechips.rocketchip.system.DefaultRV32Config.fir@155055.4]
-  assign _T_59 = {_T_58, 2'h0}; // @[Bitwise.scala 102:65:freechips.rocketchip.system.DefaultRV32Config.fir@155056.4]
-  assign _T_61 = _T_59 & 32'hcccccccc; // @[Bitwise.scala 102:75:freechips.rocketchip.system.DefaultRV32Config.fir@155058.4]
-  assign _T_62 = _T_57 | _T_61; // @[Bitwise.scala 102:39:freechips.rocketchip.system.DefaultRV32Config.fir@155059.4]
-  assign _T_66 = _T_62[31:1]; // @[Bitwise.scala 102:21:freechips.rocketchip.system.DefaultRV32Config.fir@155063.4]
-  assign _GEN_4 = {{1'd0}, _T_66}; // @[Bitwise.scala 102:31:freechips.rocketchip.system.DefaultRV32Config.fir@155064.4]
-  assign _T_67 = _GEN_4 & 32'h55555555; // @[Bitwise.scala 102:31:freechips.rocketchip.system.DefaultRV32Config.fir@155064.4]
-  assign _T_68 = _T_62[30:0]; // @[Bitwise.scala 102:46:freechips.rocketchip.system.DefaultRV32Config.fir@155065.4]
-  assign _T_69 = {_T_68, 1'h0}; // @[Bitwise.scala 102:65:freechips.rocketchip.system.DefaultRV32Config.fir@155066.4]
-  assign _T_71 = _T_69 & 32'haaaaaaaa; // @[Bitwise.scala 102:75:freechips.rocketchip.system.DefaultRV32Config.fir@155068.4]
-  assign _T_72 = _T_67 | _T_71; // @[Bitwise.scala 102:39:freechips.rocketchip.system.DefaultRV32Config.fir@155069.4]
-  assign shin = _T_23 ? io_in1 : _T_72; // @[ALU.scala 82:17:freechips.rocketchip.system.DefaultRV32Config.fir@155070.4]
-  assign _T_74 = shin[31]; // @[ALU.scala 83:41:freechips.rocketchip.system.DefaultRV32Config.fir@155072.4]
-  assign _T_75 = _T & _T_74; // @[ALU.scala 83:35:freechips.rocketchip.system.DefaultRV32Config.fir@155073.4]
-  assign _T_76 = {_T_75,shin}; // @[Cat.scala 29:58:freechips.rocketchip.system.DefaultRV32Config.fir@155074.4]
-  assign _T_77 = $signed(_T_76); // @[ALU.scala 83:57:freechips.rocketchip.system.DefaultRV32Config.fir@155075.4]
-  assign _T_78 = $signed(_T_77) >>> shamt; // @[ALU.scala 83:64:freechips.rocketchip.system.DefaultRV32Config.fir@155076.4]
-  assign shout_r = _T_78[31:0]; // @[ALU.scala 83:73:freechips.rocketchip.system.DefaultRV32Config.fir@155077.4]
-  assign _T_81 = shout_r[31:16]; // @[Bitwise.scala 102:21:freechips.rocketchip.system.DefaultRV32Config.fir@155080.4]
-  assign _T_82 = {{16'd0}, _T_81}; // @[Bitwise.scala 102:31:freechips.rocketchip.system.DefaultRV32Config.fir@155081.4]
-  assign _T_83 = shout_r[15:0]; // @[Bitwise.scala 102:46:freechips.rocketchip.system.DefaultRV32Config.fir@155082.4]
-  assign _T_84 = {_T_83, 16'h0}; // @[Bitwise.scala 102:65:freechips.rocketchip.system.DefaultRV32Config.fir@155083.4]
-  assign _T_86 = _T_84 & 32'hffff0000; // @[Bitwise.scala 102:75:freechips.rocketchip.system.DefaultRV32Config.fir@155085.4]
-  assign _T_87 = _T_82 | _T_86; // @[Bitwise.scala 102:39:freechips.rocketchip.system.DefaultRV32Config.fir@155086.4]
-  assign _T_91 = _T_87[31:8]; // @[Bitwise.scala 102:21:freechips.rocketchip.system.DefaultRV32Config.fir@155090.4]
-  assign _GEN_5 = {{8'd0}, _T_91}; // @[Bitwise.scala 102:31:freechips.rocketchip.system.DefaultRV32Config.fir@155091.4]
-  assign _T_92 = _GEN_5 & 32'hff00ff; // @[Bitwise.scala 102:31:freechips.rocketchip.system.DefaultRV32Config.fir@155091.4]
-  assign _T_93 = _T_87[23:0]; // @[Bitwise.scala 102:46:freechips.rocketchip.system.DefaultRV32Config.fir@155092.4]
-  assign _T_94 = {_T_93, 8'h0}; // @[Bitwise.scala 102:65:freechips.rocketchip.system.DefaultRV32Config.fir@155093.4]
-  assign _T_96 = _T_94 & 32'hff00ff00; // @[Bitwise.scala 102:75:freechips.rocketchip.system.DefaultRV32Config.fir@155095.4]
-  assign _T_97 = _T_92 | _T_96; // @[Bitwise.scala 102:39:freechips.rocketchip.system.DefaultRV32Config.fir@155096.4]
-  assign _T_101 = _T_97[31:4]; // @[Bitwise.scala 102:21:freechips.rocketchip.system.DefaultRV32Config.fir@155100.4]
-  assign _GEN_6 = {{4'd0}, _T_101}; // @[Bitwise.scala 102:31:freechips.rocketchip.system.DefaultRV32Config.fir@155101.4]
-  assign _T_102 = _GEN_6 & 32'hf0f0f0f; // @[Bitwise.scala 102:31:freechips.rocketchip.system.DefaultRV32Config.fir@155101.4]
-  assign _T_103 = _T_97[27:0]; // @[Bitwise.scala 102:46:freechips.rocketchip.system.DefaultRV32Config.fir@155102.4]
-  assign _T_104 = {_T_103, 4'h0}; // @[Bitwise.scala 102:65:freechips.rocketchip.system.DefaultRV32Config.fir@155103.4]
-  assign _T_106 = _T_104 & 32'hf0f0f0f0; // @[Bitwise.scala 102:75:freechips.rocketchip.system.DefaultRV32Config.fir@155105.4]
-  assign _T_107 = _T_102 | _T_106; // @[Bitwise.scala 102:39:freechips.rocketchip.system.DefaultRV32Config.fir@155106.4]
-  assign _T_111 = _T_107[31:2]; // @[Bitwise.scala 102:21:freechips.rocketchip.system.DefaultRV32Config.fir@155110.4]
-  assign _GEN_7 = {{2'd0}, _T_111}; // @[Bitwise.scala 102:31:freechips.rocketchip.system.DefaultRV32Config.fir@155111.4]
-  assign _T_112 = _GEN_7 & 32'h33333333; // @[Bitwise.scala 102:31:freechips.rocketchip.system.DefaultRV32Config.fir@155111.4]
-  assign _T_113 = _T_107[29:0]; // @[Bitwise.scala 102:46:freechips.rocketchip.system.DefaultRV32Config.fir@155112.4]
-  assign _T_114 = {_T_113, 2'h0}; // @[Bitwise.scala 102:65:freechips.rocketchip.system.DefaultRV32Config.fir@155113.4]
-  assign _T_116 = _T_114 & 32'hcccccccc; // @[Bitwise.scala 102:75:freechips.rocketchip.system.DefaultRV32Config.fir@155115.4]
-  assign _T_117 = _T_112 | _T_116; // @[Bitwise.scala 102:39:freechips.rocketchip.system.DefaultRV32Config.fir@155116.4]
-  assign _T_121 = _T_117[31:1]; // @[Bitwise.scala 102:21:freechips.rocketchip.system.DefaultRV32Config.fir@155120.4]
-  assign _GEN_8 = {{1'd0}, _T_121}; // @[Bitwise.scala 102:31:freechips.rocketchip.system.DefaultRV32Config.fir@155121.4]
-  assign _T_122 = _GEN_8 & 32'h55555555; // @[Bitwise.scala 102:31:freechips.rocketchip.system.DefaultRV32Config.fir@155121.4]
-  assign _T_123 = _T_117[30:0]; // @[Bitwise.scala 102:46:freechips.rocketchip.system.DefaultRV32Config.fir@155122.4]
-  assign _T_124 = {_T_123, 1'h0}; // @[Bitwise.scala 102:65:freechips.rocketchip.system.DefaultRV32Config.fir@155123.4]
-  assign _T_126 = _T_124 & 32'haaaaaaaa; // @[Bitwise.scala 102:75:freechips.rocketchip.system.DefaultRV32Config.fir@155125.4]
-  assign shout_l = _T_122 | _T_126; // @[Bitwise.scala 102:39:freechips.rocketchip.system.DefaultRV32Config.fir@155126.4]
-  assign _T_130 = _T_23 ? shout_r : 32'h0; // @[ALU.scala 85:18:freechips.rocketchip.system.DefaultRV32Config.fir@155130.4]
-  assign _T_131 = io_fn == 4'h1; // @[ALU.scala 86:25:freechips.rocketchip.system.DefaultRV32Config.fir@155131.4]
-  assign _T_132 = _T_131 ? shout_l : 32'h0; // @[ALU.scala 86:18:freechips.rocketchip.system.DefaultRV32Config.fir@155132.4]
-  assign shout = _T_130 | _T_132; // @[ALU.scala 85:74:freechips.rocketchip.system.DefaultRV32Config.fir@155133.4]
-  assign _T_133 = io_fn == 4'h4; // @[ALU.scala 89:25:freechips.rocketchip.system.DefaultRV32Config.fir@155134.4]
-  assign _T_134 = io_fn == 4'h6; // @[ALU.scala 89:45:freechips.rocketchip.system.DefaultRV32Config.fir@155135.4]
-  assign _T_135 = _T_133 | _T_134; // @[ALU.scala 89:36:freechips.rocketchip.system.DefaultRV32Config.fir@155136.4]
-  assign _T_136 = _T_135 ? in1_xor_in2 : 32'h0; // @[ALU.scala 89:18:freechips.rocketchip.system.DefaultRV32Config.fir@155137.4]
-  assign _T_138 = io_fn == 4'h7; // @[ALU.scala 90:44:freechips.rocketchip.system.DefaultRV32Config.fir@155139.4]
-  assign _T_139 = _T_134 | _T_138; // @[ALU.scala 90:35:freechips.rocketchip.system.DefaultRV32Config.fir@155140.4]
-  assign _T_140 = io_in1 & io_in2; // @[ALU.scala 90:63:freechips.rocketchip.system.DefaultRV32Config.fir@155141.4]
-  assign _T_141 = _T_139 ? _T_140 : 32'h0; // @[ALU.scala 90:18:freechips.rocketchip.system.DefaultRV32Config.fir@155142.4]
-  assign logic_ = _T_136 | _T_141; // @[ALU.scala 89:78:freechips.rocketchip.system.DefaultRV32Config.fir@155143.4]
-  assign _T_142 = io_fn >= 4'hc; // @[ALU.scala 41:30:freechips.rocketchip.system.DefaultRV32Config.fir@155144.4]
-  assign _T_143 = _T_142 & slt; // @[ALU.scala 91:35:freechips.rocketchip.system.DefaultRV32Config.fir@155145.4]
-  assign _GEN_9 = {{31'd0}, _T_143}; // @[ALU.scala 91:43:freechips.rocketchip.system.DefaultRV32Config.fir@155146.4]
-  assign _T_144 = _GEN_9 | logic_; // @[ALU.scala 91:43:freechips.rocketchip.system.DefaultRV32Config.fir@155146.4]
-  assign shift_logic = _T_144 | shout; // @[ALU.scala 91:51:freechips.rocketchip.system.DefaultRV32Config.fir@155147.4]
-  assign _T_145 = io_fn == 4'h0; // @[ALU.scala 92:23:freechips.rocketchip.system.DefaultRV32Config.fir@155148.4]
-  assign _T_146 = io_fn == 4'ha; // @[ALU.scala 92:43:freechips.rocketchip.system.DefaultRV32Config.fir@155149.4]
-  assign _T_147 = _T_145 | _T_146; // @[ALU.scala 92:34:freechips.rocketchip.system.DefaultRV32Config.fir@155150.4]
-  assign io_out = _T_147 ? io_adder_out : shift_logic; // @[ALU.scala 94:10:freechips.rocketchip.system.DefaultRV32Config.fir@155152.4]
-  assign io_adder_out = _T_3 + _GEN_0; // @[ALU.scala 64:16:freechips.rocketchip.system.DefaultRV32Config.fir@155000.4]
-  assign io_cmp_out = _T_15 ^ _T_19; // @[ALU.scala 70:14:freechips.rocketchip.system.DefaultRV32Config.fir@155016.4]
-endmodule
 
+`define FN_ADD  	0
+`define FN_SL   	1
+`define FN_SEQ  	2
+`define FN_SNE  	3
+`define FN_XOR  	4
+`define FN_SR   	5
+`define FN_OR   	6
+`define FN_AND  	7
+`define FN_SUB  	10
+`define FN_SRA  	11
+`define FN_SLT  	12
+`define FN_SGE  	13
+`define FN_SLTU 	14
+`define FN_SGEU 	15
+
+`define FN_DIV  	FN_XOR
+`define FN_DIVU 	FN_SR
+`define FN_REM  	FN_OR
+`define FN_REMU 	FN_AND
+
+`define FN_MUL    	FN_ADD
+`define FN_MULH   	FN_SL
+`define FN_MULHSU 	FN_SEQ
+`define FN_MULHU  	FN_SNE
+
+wire isSub = io_fn[3];
+wire isCmp = io_fn >= `FN_SLT;
+wire cmpUnsigned = io_fn[1];
+wire cmpInverted = io_fn[0];
+wire cmpEq = !io_fn[3];
+
+// ADD, SUB
+wire [31:0] in2_inv = (isSub) ? ~io_in2 : io_in2;
+wire [31:0] adder_temp = io_in1 + in2_inv;
+assign io_adder_out = adder_temp + {31'h00, isSub};
+
+// SLT, SLTU
+wire slt = (io_in1[31] == io_in2[31]) ? io_adder_out[31]
+	: (cmpUnsigned) ? io_in2[31]
+	: io_in1[31];
+wire [31:0] in1_xor_in2 = io_in1 ^ in2_inv;
+wire cmp_temp = (cmpEq) ? (in1_xor_in2 == 32'h00) : slt;
+assign io_cmp_out = cmpInverted ^ cmp_temp;
+
+// SLL, SRL, SRA
+wire [4:0] shamt = io_in2[4:0];
+
+function [31:0] reverse;
+	input [31:0] in;
+	reg [31:0] out;
+	integer i;
+	begin
+		for (i = 0; i < 32; i = i + 1) begin
+			out[31 - i] = in[i];
+		end
+	reverse = out;
+	end
+endfunction
+
+wire [31:0] io_in1_rev = reverse(io_in1);
+wire [31:0] shin = (io_fn == `FN_SR | io_fn == `FN_SRA) ? io_in1 : io_in1_rev;
+wire [32:0] shin_cat = {isSub & shin[31], shin};
+wire [32:0] shin_cat_sign = $signed(shin_cat);
+wire [32:0] shin_cat_shift = $signed(shin_cat_sign) >>> shamt;
+wire [31:0] shout_r = shin_cat_shift[31:0];
+wire [31:0] shout_l = reverse(shout_r);
+wire [31:0] shout_temp1 = (io_fn == `FN_SR | io_fn == `FN_SRA) ? shout_r : 32'h00;
+wire [31:0] shout_temp2 = (io_fn == `FN_SL) ? shout_l : 32'h00;
+wire [31:0] shout = shout_temp1 | shout_temp2;
+
+// AND, OR, XOR
+wire [31:0] logic_ = ((io_fn == `FN_XOR | io_fn == `FN_OR) ? in1_xor_in2 : 0) | ((io_fn == `FN_OR || io_fn == `FN_AND) ? (io_in1 & io_in2) : 0);
+wire [31:0] shift_logic = {31'h00, (isCmp && slt)} | logic_ | shout;
+wire [31:0] io_out = (io_fn == `FN_ADD | io_fn == `FN_SUB) ? io_adder_out : shift_logic; 
+
+endmodule
+`endif // __ALU

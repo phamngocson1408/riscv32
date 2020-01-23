@@ -1,3 +1,5 @@
+`include "include_module.v"
+`ifdef __INToRecFN
 module INToRecFN(
   input         io_signedIn,
   input  [31:0] io_in,
@@ -230,4 +232,4 @@ module INToRecFN(
   assign _T_75 = ~ _T_69; // @[rawFloatFromIN.scala 63:39:freechips.rocketchip.system.DefaultRV32Config.fir@143392.4]
   assign _T_76 = {2'h2,_T_75}; // @[Cat.scala 29:58:freechips.rocketchip.system.DefaultRV32Config.fir@143393.4]
 endmodule
-
+`endif // __INToRecFN

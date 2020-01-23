@@ -1,3 +1,5 @@
+`include "include_module.v"
+`ifdef __FPU
 module FPU( // @[:freechips.rocketchip.system.DefaultRV32Config.fir@144295.2]
   input         clock, // @[:freechips.rocketchip.system.DefaultRV32Config.fir@144296.4]
   input         reset, // @[:freechips.rocketchip.system.DefaultRV32Config.fir@144297.4]
@@ -1139,4 +1141,5 @@ end
     _T_244 <= mem_ctrl_div | mem_ctrl_sqrt;
   end
 endmodule
+`endif // __FPU
 

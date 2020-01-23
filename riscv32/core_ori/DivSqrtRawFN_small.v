@@ -1,3 +1,5 @@
+`include "include_module.v"
+`ifdef __DivSqrtRawFN_small
 module DivSqrtRawFN_small( // @[:freechips.rocketchip.system.DefaultRV32Config.fir@143674.2]
   input         clock, // @[:freechips.rocketchip.system.DefaultRV32Config.fir@143675.4]
   input         reset, // @[:freechips.rocketchip.system.DefaultRV32Config.fir@143676.4]
@@ -529,4 +531,5 @@ end
     sigX_Z <= _GEN_12[25:0];
   end
 endmodule
+`endif // __DivSqrtRawFN_small
 

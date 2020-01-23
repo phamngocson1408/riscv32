@@ -1,3 +1,5 @@
+`include "include_module.v"
+`ifdef __TLDebugModuleOuter
 module TLDebugModuleOuter(
   input         clock,
   input         reset,
@@ -421,4 +423,4 @@ module TLDebugModuleOuter(
   assign _T_560 = _T_441 | _T_391; // @[Debug.scala 566:77:freechips.rocketchip.system.DefaultRV32Config.fir@73418.4]
   assign _T_561 = _T_560 | setresethaltreqWrEn; // @[Debug.scala 566:96:freechips.rocketchip.system.DefaultRV32Config.fir@73419.4]
 endmodule
-
+`endif // __TLDebugModuleOuter

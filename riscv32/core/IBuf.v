@@ -91,7 +91,7 @@ wire [1:0] nIC_0 = io_imem_bits_btb_taken ? nIC_1 : 2'h2;
 assign nIC = nIC_0 - {{1'd0}, pcWordBits};
 
 wire [1:0] nReady_0 = RVCExpander_io_rvc ? 2'h1 : 2'h2;
-wire [1:0] _T_98 = RVCExpander_io_rvc | valid[1] | buf_replay[0];
+wire _T_98 = RVCExpander_io_rvc | valid[1] | buf_replay[0];
 assign nReady = _T_98 ? nReady_0 : 2'h0;
 
 wire [1:0] _GEN_57 = {{1'd0}, nBufValid};

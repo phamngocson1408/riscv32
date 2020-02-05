@@ -412,7 +412,7 @@ always @(posedge clock) begin
 end
 
     `ifndef SYNTHESIS
-  assign _T_254 = (!s1_valid | ((s1_tag_hit_0 + s1_tag_hit_1 + s1_tag_hit_2 + s1_tag_hit_3) <= 3'h1) | reset) == 1'h0;
+  wire _T_254 = (!s1_valid | ((s1_tag_hit_0 + s1_tag_hit_1 + s1_tag_hit_2 + s1_tag_hit_3) <= 3'h1) | reset) == 1'h0;
     `endif
 always @(posedge clock) begin
     `ifndef SYNTHESIS

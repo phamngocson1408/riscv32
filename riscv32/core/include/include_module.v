@@ -31,5 +31,6 @@
 `define __MulAddRecFNPipe		// TestDriver.testHarness.dut.tile.fpuOpt.sfma.fma
 `define __MulAddRecFNToRaw_postMul	// TestDriver.testHarness.dut.tile.fpuOpt.sfma.fma.mulAddRecFNToRaw_postMul
 `define __MulAddRecFNToRaw_preMul	// TestDriver.testHarness.dut.tile.fpuOpt.sfma.fma.mulAddRecFNToRaw_preMul
+`define __Frontend			// TestDriver.testHarness.dut.tile.frontend
 `define __ICache			// TestDriver.testHarness.dut.tile.frontend.icache
 `define __MaxPeriodFibonacciLFSR	// TestDriver.testHarness.dut.tile.frontend.icache.MaxPeriodFibonacciLFSR

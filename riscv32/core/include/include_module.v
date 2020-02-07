@@ -7,6 +7,7 @@
               				// TestDriver.testHarness.dut.debug_1.dmOuter.dmOuter.HAWINDOWSELReg
 `define __AsyncResetRegVec_w1_i0	// TestDriver.testHarness.dut.debug_1.dmOuter.dmOuter.debugInterrupts
       					// TestDriver.testHarness.dut.debug_1.dmOuter.dmOuter.hrmaskReg
+`define __RocketTile			// TestDriver.testHarness.dut.tile
 `define __Rocket			// TestDriver.testHarness.dut.tile.core
 `define __ALU				// TestDriver.testHarness.dut.tile.core.alu
 `define __BreakpointUnit		// TestDriver.testHarness.dut.tile.core.bpu
@@ -33,5 +34,6 @@
 `define __MulAddRecFNToRaw_preMul	// TestDriver.testHarness.dut.tile.fpuOpt.sfma.fma.mulAddRecFNToRaw_preMul
 `define __Frontend			// TestDriver.testHarness.dut.tile.frontend
 `define __BTB				// TestDriver.testHarness.dut.tile.frontend.btb
+`define __ShiftQueue			// TestDriver.testHarness.dut.tile.frontend.fq
 `define __ICache			// TestDriver.testHarness.dut.tile.frontend.icache
 `define __MaxPeriodFibonacciLFSR	// TestDriver.testHarness.dut.tile.frontend.icache.MaxPeriodFibonacciLFSR

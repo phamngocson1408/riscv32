@@ -37,3 +37,4 @@
 `define __ShiftQueue			// TestDriver.testHarness.dut.tile.frontend.fq
 `define __ICache			// TestDriver.testHarness.dut.tile.frontend.icache
 `define __MaxPeriodFibonacciLFSR	// TestDriver.testHarness.dut.tile.frontend.icache.MaxPeriodFibonacciLFSR
+`define __PTW				// TestDriver.testHarness.dut.tile.ptw

@@ -1,6 +1,7 @@
 //`define __IntXing			// TestDriver.testHarness.dut.asyncXing
 //`define __SynchronizerShiftReg_w2_d3	// TestDriver.testHarness.dut.asyncXing.SynchronizerShiftReg_w2_d3
 //`define __PeripheryBus_1		// TestDriver.testHarness.dut.cbus
+`define __CLINT				// TestDriver.testHarness.dut.clint
 //`define __TLDebugModule			// TestDriver.testHarness.dut.debug_1
 //`define __TLDebugModuleInnerAsync	// TestDriver.testHarness.dut.debug_1.dmInner
 //`define __TLDebugModuleInner		// TestDriver.testHarness.dut.debug_1.dmInner.dmInner
@@ -9,12 +10,13 @@
 //`define __AsyncResetRegVec_w32_i0	// TestDriver.testHarness.dut.debug_1.dmOuter.dmOuter.DMCONTROL
 //              				// TestDriver.testHarness.dut.debug_1.dmOuter.dmOuter.HAWINDOWSELReg
 //`define __AsyncResetRegVec_w1_i0	// TestDriver.testHarness.dut.debug_1.dmOuter.dmOuter.debugInterrupts
-//      					// TestDriver.testHarness.dut.debug_1.dmOuter.dmOuter.hrmaskReg
+      					// TestDriver.testHarness.dut.debug_1.dmOuter.dmOuter.hrmaskReg
+//**********
 //`define __FrontBus			// TestDriver.testHarness.dut.fbus
 //`define __MemoryBus			// TestDriver.testHarness.dut.mbus
 //`define __SystemBus			// TestDriver.testHarness.dut.sbus
 //`define __RocketTile			// TestDriver.testHarness.dut.tile
-`define __Rocket			// TestDriver.testHarness.dut.tile.core
+//`define __Rocket			// TestDriver.testHarness.dut.tile.core
 //`define __ALU				// TestDriver.testHarness.dut.tile.core.alu
 //`define __BreakpointUnit		// TestDriver.testHarness.dut.tile.core.bpu
 //`define __CSRFile			// TestDriver.testHarness.dut.tile.core.csr

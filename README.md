@@ -59,3 +59,12 @@
 	1.	Convert CLINT.v
 	2.	Passed all tests most of time (but sometimes some tests are not fished, but fineshed when simulated separately)
 3.	Todo:
+----------------------------------------------------------------
+200219----------------------------------------------------------
+----------------------------------------------------------------
+1.	This version is created on 200219
+2.	Features:
+	1.	Make timer interrupt test vector
+	2.	The timer interrupt does not work. timecmp register value is not updated
+3.	Todo:
+	1.	Solve the problem with the timecmp register being not updated

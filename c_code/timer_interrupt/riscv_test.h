@@ -106,7 +106,7 @@
 #define EXTRA_TVEC_MACHINE
 #define EXTRA_INIT
 #define EXTRA_INIT_TIMER                                                \
-        li a0, 0x80; 	/* Set MPIE in MSTATUS*/                        \
+        li a0, 0x10; 	/* Set UPIE in MSTATUS*/                        \
         csrs mstatus, a0;	 				        \
         li a0, 0x80; 	/* Set MTIE in MIE*/                            \
         csrs mie, a0;                                                   \

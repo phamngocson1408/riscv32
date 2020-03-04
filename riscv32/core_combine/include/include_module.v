@@ -13,6 +13,7 @@
 //`define __CSRFile			// TestDriver.testHarness.dut.tile.core.csr
 //`define __MulDiv			// TestDriver.testHarness.dut.tile.core.div
 //`define __IBuf				// TestDriver.testHarness.dut.tile.core.ibuf
+//`define __DCache			// TestDriver.testHarness.dut.tile.dcache
 //`define __FPU				// TestDriver.testHarness.dut.tile.fpuOpt
 //`define __DivSqrtRecFN_small		// TestDriver.testHarness.dut.tile.fpuOpt.divSqrt
 //`define __DivSqrtRecFNToRaw_small	// TestDriver.testHarness.dut.tile.fpuOpt.divSqrt.divSqrtRecFNToRaw

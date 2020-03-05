@@ -73,5 +73,5 @@
 ----------------------------------------------------------------
 1.	This version is created on 200305
 2.	Features:
-	1.	Finished comverting DCache.v
+	1.	Finished converting DCache.v
 3.	Todo:

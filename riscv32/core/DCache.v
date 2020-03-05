@@ -570,7 +570,7 @@ module DCache(
   wire  s2_valid_uncached_pending;
   reg [31:0] _RAND_60;
   wire [19:0] s2_victim_tag;
-  reg [1:0] _T_656_state;
+  reg [1:0] s2_victim_state_reg;
   reg [31:0] _RAND_61;
   wire [1:0] s2_victim_state_state;
   wire [2:0] s2_report_param;
@@ -649,20 +649,20 @@ module DCache(
   wire [8:0] flushCounterNext;
   wire  flushDone;
   reg [31:0] _RAND_79;
-  reg [9:0] _T_2372;
-  reg  _T_384;
-  reg [1:0] _T_649;
-  reg [31:0] _T_393;
-  reg [9:0] _T_2190;
-  reg [19:0] _T_654;
-  reg  _T_995;
-  reg [7:0] _T_1066;
-  reg [7:0] _T_1061;
-  reg  _T_2475;
-  reg [9:0] _T_2618;
-  reg [7:0] _T_1056;
-  reg [7:0] _T_1051;
-  reg  _T_2540;
+  reg [9:0] tl_out__c_firstlastHelpert_counter; // _T_2372
+  reg  s1_nack_inv_reg;	// _T_384
+  reg [1:0] s1_victim_way_delay;
+  reg [31:0] s1_req_addr_delay;
+  reg [9:0] tl_out__d_firstlastHelpert_counter; // _T_2190
+  reg [19:0] s2_victim_tag_reg;
+  reg  io_cpu_s2_nack_delay;
+  reg [7:0] pstore1_storegen_data_reg3; // _T_1066
+  reg [7:0] pstore1_storegen_data_reg2; // _T_1061
+  reg  s1_xcpt_valid_delay;		// _T_2475
+  reg [9:0] tl_out__c_firstlastHelper_counter; // _T_2618
+  reg [7:0] pstore1_storegen_data_reg1; // _T_1056
+  reg [7:0] pstore1_storegen_data_reg0; // _T_1051
+  reg  reset_delay;	// _T_2540
   MaxPeriodFibonacciLFSR MaxPeriodFibonacciLFSR (
     .clock(MaxPeriodFibonacciLFSR_clock),
     .reset(MaxPeriodFibonacciLFSR_reset),
@@ -911,13 +911,43 @@ parameter S_VOLUNTARY_WRITE_META= 3'h6;
 parameter S_PROBE_WRITE_META	= 3'h7;
 
 // HasL1HellaCacheParameters
+parameter LRSCBACKOFF	= 7'h3;
 
-  assign lrscValid = lrscCount > 7'h3; 
+// TLMessages
+parameter TLMSG_RELEASEDATA	= 3'h7;
+parameter TLMSG_PROBEACKDATA	= 3'h5;
+parameter TLMSG_PROBEACK	= 3'h4;
 
-  wire _T_2348 = blockProbeAfterGrantCount > 3'h0;
-  assign block_probe_for_core_progress = _T_2348 | lrscValid;
+// MemoryOpConstants (Consts.scala)
+parameter MemoryOpConstants_M_XRD     = 5'h0; // int load
+parameter MemoryOpConstants_M_XWR     = 5'h1; // int store
+parameter MemoryOpConstants_M_PFR     = 5'h2; // prefetch with intent to read
+parameter MemoryOpConstants_M_PFW     = 5'h3; // prefetch with intent to write
+parameter MemoryOpConstants_M_XA_SWAP = 5'h4;
+parameter MemoryOpConstants_M_FLUSH_ALL = 5'h5; // flush all lines
+parameter MemoryOpConstants_M_XLR     = 5'h6;
+parameter MemoryOpConstants_M_XSC     = 5'h7;
+parameter MemoryOpConstants_M_XA_ADD  = 5'h8;
+parameter MemoryOpConstants_M_XA_XOR  = 5'h9;
+parameter MemoryOpConstants_M_XA_OR   = 5'ha;
+parameter MemoryOpConstants_M_XA_AND  = 5'hb;
+parameter MemoryOpConstants_M_XA_MIN  = 5'hc;
+parameter MemoryOpConstants_M_XA_MAX  = 5'hd;
+parameter MemoryOpConstants_M_XA_MINU = 5'he;
+parameter MemoryOpConstants_M_XA_MAXU = 5'hf;
+parameter MemoryOpConstants_M_FLUSH   = 5'h10; // write back dirty data and cede R/W permissions
+parameter MemoryOpConstants_M_PWR     = 5'h11; // partial (masked) store
+parameter MemoryOpConstants_M_PRODUCE = 5'h12; // write back dirty data and cede W permissions
+parameter MemoryOpConstants_M_CLEAN   = 5'h13; // write back dirty data and retain R/W permissions
+parameter MemoryOpConstants_M_SFENCE  = 5'h14; // flush TLB
+parameter MemoryOpConstants_M_WOK     = 5'h17; // check write permissions but don't perform a write
 
-  assign releaseInFlight = s1_probe | s2_probe | (release_state != 3'h0);
+
+  assign lrscValid = lrscCount > LRSCBACKOFF; 
+
+  assign block_probe_for_core_progress = (blockProbeAfterGrantCount > 0) | lrscValid;
+
+  assign releaseInFlight = s1_probe | s2_probe | (release_state != S_READY);
 
   assign block_probe_for_pending_release_ack = release_ack_wait & ((auto_out_b_bits_address[11:6] ^ release_ack_addr[11:6]) == 6'h0);
 
@@ -927,92 +957,90 @@ parameter S_PROBE_WRITE_META	= 3'h7;
 
   assign s1_valid_masked = s1_valid & !io_cpu_s1_kill;
 
-  wire _T_695 = (4'h6 == {probe_bits_param,s2_probe_state_state}) ? 1'h0 
+  wire s2_prb_ack_data_1 = (4'h6 == {probe_bits_param,s2_probe_state_state}) ? 1'h0 
 		: (4'h5 == {probe_bits_param,s2_probe_state_state}) ? 1'h0 
 		: (4'h4 == {probe_bits_param,s2_probe_state_state}) ? 1'h0 
 		: (4'hb == {probe_bits_param,s2_probe_state_state});
-  wire _T_711 = (4'h2 == {probe_bits_param,s2_probe_state_state}) ? 1'h0 
+  wire s2_prb_ack_data_0 = (4'h2 == {probe_bits_param,s2_probe_state_state}) ? 1'h0 
 		: (4'h1 == {probe_bits_param,s2_probe_state_state}) ? 1'h0 
 		: (4'h0 == {probe_bits_param,s2_probe_state_state}) ? 1'h0 
-		: (4'h7 == {probe_bits_param,s2_probe_state_state}) | _T_695;
-  assign s2_prb_ack_data = (4'h3 == {probe_bits_param,s2_probe_state_state}) | _T_711;
+		: (4'h7 == {probe_bits_param,s2_probe_state_state}) | s2_prb_ack_data_1;
+  assign s2_prb_ack_data = (4'h3 == {probe_bits_param,s2_probe_state_state}) | s2_prb_ack_data_0;
 
-  wire _T_2414 = release_state == 3'h2;
-  wire _T_2415 = release_state == 3'h1;
-  wire _T_2416 = release_state == 3'h6;
-  wire _T_2417 = _T_2415 | _T_2416;
-  assign tl_out__c_bits_opcode = _T_2417 ? 3'h7 
-				: _T_2414 ? 3'h5 
-				: 3'h4;
+  wire s_probe_rep_dirty = release_state == S_PROBE_REP_DIRTY;
+  wire s_voluntary_writeback = release_state == S_VOLUNTARY_WRITEBACK;
+  wire s_voluntary_write_meta = release_state == S_VOLUNTARY_WRITE_META;
+  wire s_voluntary_write = s_voluntary_writeback | s_voluntary_write_meta;
 
-  assign tl_out__c_bits_size = _T_2417 ? 4'h6 : probe_bits_size;
+  assign tl_out__c_bits_opcode = s_voluntary_write ? TLMSG_RELEASEDATA
+				: s_probe_rep_dirty ? TLMSG_PROBEACKDATA
+				: TLMSG_PROBEACK;
 
-  wire [26:0] _T_2366 = 27'hfff << tl_out__c_bits_size;
-  wire [9:0] _T_2371 = tl_out__c_bits_opcode[0] ? ~ _T_2366[11:2] : 10'h0;
-  wire _T_2376 = _T_2371 == 10'h0; 
-  assign c_last = (_T_2372 == 10'h1) | _T_2376;
+  assign tl_out__c_bits_size = s_voluntary_write ? 4'h6 : probe_bits_size;
 
-  wire _GEN_231 = s2_prb_ack_data ? s2_release_data_valid : 1'h1;
-  wire _GEN_252 = s2_probe ? _GEN_231 : s2_release_data_valid;
-  wire _T_2412 = release_state == 3'h5;
-  wire _T_2413 = release_state == 3'h3;
-  assign tl_out__c_valid = _T_2413 | _T_2412 | _GEN_252;
+  wire [26:0] tl_out__c_numBeats1_decode = 27'hfff << tl_out__c_bits_size;
+  wire [9:0] tl_out__c_firstlastHelper_beats1 = tl_out__c_bits_opcode[0] ? ~ tl_out__c_numBeats1_decode[11:2] : 10'h0;
+  assign c_last = (tl_out__c_firstlastHelpert_counter == 10'h1) | (tl_out__c_firstlastHelper_beats1 == 10'h0);
 
-  wire _T_2364 = auto_out_c_ready & tl_out__c_valid;
-  assign releaseDone = c_last & _T_2364;
+  wire s_probe_rep_miss = release_state == S_PROBE_REP_MISS;
+  wire s_probe_rep_clean = release_state == S_PROBE_REP_CLEAN;
 
-  wire _T_2404 = s2_probe_state_state > 2'h0;
-  assign probeNack = s2_prb_ack_data | _T_2404 | !releaseDone;
+  assign tl_out__c_valid = s_probe_rep_clean | s_probe_rep_miss | (s2_probe ? (s2_prb_ack_data ? s2_release_data_valid : 1'h1) : s2_release_data_valid);
 
-  assign s1_read = (s1_req_cmd == 5'h0) 
-		| (s1_req_cmd == 5'h6) 
-		| (s1_req_cmd == 5'h7) 
-		| (s1_req_cmd == 5'h4) 
-		| (s1_req_cmd == 5'h9) 
-		| (s1_req_cmd == 5'ha) 
-		| (s1_req_cmd == 5'hb) 
-		| (s1_req_cmd == 5'h8) 
-		| (s1_req_cmd == 5'hc) 
-		| (s1_req_cmd == 5'hd) 
-		| (s1_req_cmd == 5'he) 
-		| (s1_req_cmd == 5'hf);
+  wire auto_out_c_fire = auto_out_c_ready & tl_out__c_valid;
+  assign releaseDone = c_last & auto_out_c_fire;
 
-  assign s2_write = (s2_req_cmd == 5'h1) 
-		| (s2_req_cmd == 5'h11) 
-		| (s2_req_cmd == 5'h7) 
-		| (s2_req_cmd == 5'h4) 
-		| (s2_req_cmd == 5'h9) 
-		| (s2_req_cmd == 5'ha) 
-		| (s2_req_cmd == 5'hb) 
-		| (s2_req_cmd == 5'h8) 
-		| (s2_req_cmd == 5'hc) 
-		| (s2_req_cmd == 5'hd) 
-		| (s2_req_cmd == 5'he) 
-		| (s2_req_cmd == 5'hf);
+  wire s2_probe_state_isValid = s2_probe_state_state > 2'h0;
+  assign probeNack = s2_prb_ack_data | s2_probe_state_isValid | !releaseDone;
+
+  assign s1_read = (s1_req_cmd == MemoryOpConstants_M_XRD) 
+		| (s1_req_cmd == MemoryOpConstants_M_XLR) 
+		| (s1_req_cmd == MemoryOpConstants_M_XSC) 
+		| (s1_req_cmd == MemoryOpConstants_M_XA_SWAP) 
+		| (s1_req_cmd == MemoryOpConstants_M_XA_XOR) 
+		| (s1_req_cmd == MemoryOpConstants_M_XA_OR) 
+		| (s1_req_cmd == MemoryOpConstants_M_XA_AND) 
+		| (s1_req_cmd == MemoryOpConstants_M_XA_ADD) 
+		| (s1_req_cmd == MemoryOpConstants_M_XA_MIN) 
+		| (s1_req_cmd == MemoryOpConstants_M_XA_MAX) 
+		| (s1_req_cmd == MemoryOpConstants_M_XA_MINU) 
+		| (s1_req_cmd == MemoryOpConstants_M_XA_MAXU);
+
+  assign s2_write = (s2_req_cmd == MemoryOpConstants_M_XWR) 
+		| (s2_req_cmd == MemoryOpConstants_M_PWR) 
+		| (s2_req_cmd == MemoryOpConstants_M_XSC) 
+		| (s2_req_cmd == MemoryOpConstants_M_XA_SWAP) 
+		| (s2_req_cmd == MemoryOpConstants_M_XA_XOR) 
+		| (s2_req_cmd == MemoryOpConstants_M_XA_OR) 
+		| (s2_req_cmd == MemoryOpConstants_M_XA_AND) 
+		| (s2_req_cmd == MemoryOpConstants_M_XA_ADD) 
+		| (s2_req_cmd == MemoryOpConstants_M_XA_MIN) 
+		| (s2_req_cmd == MemoryOpConstants_M_XA_MAX) 
+		| (s2_req_cmd == MemoryOpConstants_M_XA_MINU) 
+		| (s2_req_cmd == MemoryOpConstants_M_XA_MAXU);
 
   assign pstore1_valid_likely = (s2_valid & s2_write) | pstore1_held;
 
-  assign s1_write = (s1_req_cmd == 5'h1) 
-		| (s1_req_cmd == 5'h11) 
-		| (s1_req_cmd == 5'h7) 
-		| (s1_req_cmd == 5'h4) 
-		| (s1_req_cmd == 5'h9) 
-		| (s1_req_cmd == 5'ha) 
-		| (s1_req_cmd == 5'hb) 
-		| (s1_req_cmd == 5'h8) 
-		| (s1_req_cmd == 5'hc) 
-		| (s1_req_cmd == 5'hd) 
-		| (s1_req_cmd == 5'he) 
-		| (s1_req_cmd == 5'hf);
-
-  wire _T_350 = s1_req_addr[0] | (s1_req_size >= 2'h1);
-  wire _T_352 = s1_req_addr[0] ? 1'h0 : 1'h1;
-  wire [1:0] _T_353 = {_T_350,_T_352};
-  wire [1:0] _T_355 = s1_req_addr[1] ? _T_353 : 2'h0;
-  wire [1:0] _T_357 = (s1_req_size >= 2'h2) ? 2'h3 : 2'h0;
-  wire [1:0] _T_358 = _T_355 | _T_357;
-  wire [1:0] _T_360 = s1_req_addr[1] ? 2'h0 : _T_353;
-  assign s1_mask_xwr = {_T_358,_T_360};
+  assign s1_write = (s1_req_cmd == MemoryOpConstants_M_XWR) 
+		| (s1_req_cmd == MemoryOpConstants_M_PWR) 
+		| (s1_req_cmd == MemoryOpConstants_M_XSC) 
+		| (s1_req_cmd == MemoryOpConstants_M_XA_SWAP) 
+		| (s1_req_cmd == MemoryOpConstants_M_XA_XOR) 
+		| (s1_req_cmd == MemoryOpConstants_M_XA_OR) 
+		| (s1_req_cmd == MemoryOpConstants_M_XA_AND) 
+		| (s1_req_cmd == MemoryOpConstants_M_XA_ADD) 
+		| (s1_req_cmd == MemoryOpConstants_M_XA_MIN) 
+		| (s1_req_cmd == MemoryOpConstants_M_XA_MAX) 
+		| (s1_req_cmd == MemoryOpConstants_M_XA_MINU) 
+		| (s1_req_cmd == MemoryOpConstants_M_XA_MAXU);
+// Passed
+  wire s1_mask_xwr_pre_upper = s1_req_addr[0] | (s1_req_size >= 2'h1);
+  wire s1_mask_xwr_pre_lower = s1_req_addr[0] ? 1'h0 : 1'h1;
+  wire [1:0] s1_mask_xwr_pre = {s1_mask_xwr_pre_upper,s1_mask_xwr_pre_lower};
+  wire [1:0] s1_mask_xwr_upper = (s1_req_addr[1] ? s1_mask_xwr_pre : 2'h0) 
+				| ((s1_req_size >= 2'h2) ? 2'h3 : 2'h0);
+  wire [1:0] s1_mask_xwr_lower = s1_req_addr[1] ? 2'h0 : s1_mask_xwr_pre;
+  assign s1_mask_xwr = {s1_mask_xwr_upper,s1_mask_xwr_lower};
 
   assign s1_hazard = (pstore1_valid_likely & (pstore1_addr[11:2] == s1_req_addr[11:2]) & ((pstore1_mask & s1_mask_xwr) != 4'h0)) | (pstore2_valid & (pstore2_addr[11:2] == s1_req_addr[11:2]) & ((mask & s1_mask_xwr) != 4'h0));
 
@@ -1020,12 +1048,11 @@ parameter S_PROBE_WRITE_META	= 3'h7;
 
   assign s2_valid_no_xcpt = s2_valid & !({io_cpu_s2_xcpt_ma_ld,io_cpu_s2_xcpt_ma_st,io_cpu_s2_xcpt_pf_ld,io_cpu_s2_xcpt_pf_st,io_cpu_s2_xcpt_ae_ld,io_cpu_s2_xcpt_ae_st} != 6'h0);
 
-  assign s2_valid_masked = s2_valid_no_xcpt & _T_384;
+  assign s2_valid_masked = s2_valid_no_xcpt & s1_nack_inv_reg;
 
-  wire _T_541 = s2_req_cmd == 5'h6;
   wire _T_542 = s2_write 
-		| (s2_req_cmd == 5'h3) 
-		| _T_541;
+		| (s2_req_cmd == MemoryOpConstants_M_PFW) 
+		| (s2_req_cmd == MemoryOpConstants_M_XLR);
   assign s2_hit = (4'h3 == {s2_write,_T_542,s2_hit_state_state}) 
 		| (4'h2 == {s2_write,_T_542,s2_hit_state_state}) 
 		| (4'h1 == {s2_write,_T_542,s2_hit_state_state}) 
@@ -1036,19 +1063,18 @@ parameter S_PROBE_WRITE_META	= 3'h7;
 
   assign s2_valid_hit_maybe_flush_pre_data_ecc_and_waw = s2_valid_masked & s2_hit; 
 
-  wire _T_421 = s2_req_cmd == 5'h7;
-  assign s2_read = (s2_req_cmd == 5'h0) 
-		| _T_541
-		| _T_421 
-		| (s2_req_cmd == 5'h4) 
-		| (s2_req_cmd == 5'h9) 
-		| (s2_req_cmd == 5'ha) 
-		| (s2_req_cmd == 5'hb) 
-		| (s2_req_cmd == 5'h8) 
-		| (s2_req_cmd == 5'hc) 
-		| (s2_req_cmd == 5'hd) 
-		| (s2_req_cmd == 5'he) 
-		| (s2_req_cmd == 5'hf);
+  assign s2_read = (s2_req_cmd == MemoryOpConstants_M_XRD) 
+		| (s2_req_cmd == MemoryOpConstants_M_XLR)
+		| (s2_req_cmd == MemoryOpConstants_M_XSC) 
+		| (s2_req_cmd == MemoryOpConstants_M_XA_SWAP) 
+		| (s2_req_cmd == MemoryOpConstants_M_XA_XOR) 
+		| (s2_req_cmd == MemoryOpConstants_M_XA_OR) 
+		| (s2_req_cmd == MemoryOpConstants_M_XA_AND) 
+		| (s2_req_cmd == MemoryOpConstants_M_XA_ADD) 
+		| (s2_req_cmd == MemoryOpConstants_M_XA_MIN) 
+		| (s2_req_cmd == MemoryOpConstants_M_XA_MAX) 
+		| (s2_req_cmd == MemoryOpConstants_M_XA_MINU) 
+		| (s2_req_cmd == MemoryOpConstants_M_XA_MAXU);
 
   assign s2_readwrite = s2_read | s2_write;
   assign s2_valid_hit_pre_data_ecc_and_waw = s2_valid_hit_maybe_flush_pre_data_ecc_and_waw & s2_readwrite;
@@ -1071,36 +1097,42 @@ parameter S_PROBE_WRITE_META	= 3'h7;
 
   assign s1_readwrite = s1_read | s1_write;
 
-  assign s1_flush_line = (s1_req_cmd == 5'h5) & s1_req_size[0];
+  assign s1_flush_line = (s1_req_cmd == MemoryOpConstants_M_FLUSH_ALL) & s1_req_size[0];
 
-  assign s1_cmd_uses_tlb = s1_readwrite | s1_flush_line | (s1_req_cmd == 5'h17);
+  assign s1_cmd_uses_tlb = s1_readwrite | s1_flush_line | (s1_req_cmd == MemoryOpConstants_M_WOK);
 
-  wire _GEN_113 = (s1_valid & s1_raw_hazard) | io_cpu_s2_nack | (s2_valid_hit_pre_data_ecc_and_waw & s2_update_meta) | (s1_valid & s1_cmd_uses_tlb & tlb_io_resp_miss);
-  assign s1_nack = s2_probe ? (probeNack | _GEN_113) : _GEN_113;
+//  wire _GEN_113 = (s1_valid & s1_raw_hazard) | io_cpu_s2_nack | (s2_valid_hit_pre_data_ecc_and_waw & s2_update_meta) | (s1_valid & s1_cmd_uses_tlb & tlb_io_resp_miss);
+//  assign s1_nack = s2_probe ? (probeNack | _GEN_113) : _GEN_113;
+  assign s1_nack = (s2_probe & probeNack)
+		| (s1_valid & s1_cmd_uses_tlb & tlb_io_resp_miss)
+		| (io_cpu_s2_nack | (s2_valid_hit_pre_data_ecc_and_waw & s2_update_meta))
+		| (s1_valid & s1_raw_hazard);
 
   assign s1_valid_not_nacked = s1_valid & !s1_nack;
 
   assign s0_clk_en = metaArb_io_out_valid & !metaArb_io_out_bits_write;
 
-  assign s1_sfence = s1_req_cmd == 5'h14;
+  assign s1_sfence = s1_req_cmd == MemoryOpConstants_M_SFENCE;
+
   assign can_acquire_before_release = release_ack_wait == 1'h0;
-  assign inWriteback = (release_state == 3'h1) | (release_state == 3'h2);
 
-  assign s0_read = (io_cpu_req_bits_cmd == 5'h0) 
-		| (io_cpu_req_bits_cmd == 5'h6) 
-		| (io_cpu_req_bits_cmd == 5'h7) 
-		| (io_cpu_req_bits_cmd == 5'h4) 
-		| (io_cpu_req_bits_cmd == 5'h9) 
-		| (io_cpu_req_bits_cmd == 5'ha) 
-		| (io_cpu_req_bits_cmd == 5'hb) 
-		| (io_cpu_req_bits_cmd == 5'h8) 
-		| (io_cpu_req_bits_cmd == 5'hc) 
-		| (io_cpu_req_bits_cmd == 5'hd) 
-		| (io_cpu_req_bits_cmd == 5'he) 
-		| (io_cpu_req_bits_cmd == 5'hf);
+  assign inWriteback = (s_voluntary_writeback) | (s_probe_rep_dirty);
 
-  assign res = ((io_cpu_req_bits_cmd == 5'h1) 
-		| (io_cpu_req_bits_cmd == 5'h3)) == 1'h0;
+  assign s0_read = (io_cpu_req_bits_cmd == MemoryOpConstants_M_XRD) 
+		| (io_cpu_req_bits_cmd == MemoryOpConstants_M_XLR) 
+		| (io_cpu_req_bits_cmd == MemoryOpConstants_M_XSC) 
+		| (io_cpu_req_bits_cmd == MemoryOpConstants_M_XA_SWAP) 
+		| (io_cpu_req_bits_cmd == MemoryOpConstants_M_XA_XOR) 
+		| (io_cpu_req_bits_cmd == MemoryOpConstants_M_XA_OR) 
+		| (io_cpu_req_bits_cmd == MemoryOpConstants_M_XA_AND) 
+		| (io_cpu_req_bits_cmd == MemoryOpConstants_M_XA_ADD) 
+		| (io_cpu_req_bits_cmd == MemoryOpConstants_M_XA_MIN) 
+		| (io_cpu_req_bits_cmd == MemoryOpConstants_M_XA_MAX) 
+		| (io_cpu_req_bits_cmd == MemoryOpConstants_M_XA_MINU) 
+		| (io_cpu_req_bits_cmd == MemoryOpConstants_M_XA_MAXU);
+
+  assign res = ((io_cpu_req_bits_cmd == MemoryOpConstants_M_XWR) 
+		| (io_cpu_req_bits_cmd == MemoryOpConstants_M_PFW)) == 1'h0;
 
   assign s1_victim_way = {MaxPeriodFibonacciLFSR_io_out_14, MaxPeriodFibonacciLFSR_io_out_15};
 
@@ -1119,27 +1151,26 @@ parameter S_PROBE_WRITE_META	= 3'h7;
   assign s1_meta_uncorrected_3_coh_state = tag_array_RW0_rdata_3[21:20];
 
   assign s1_tag = tlb_io_resp_paddr[31:12];
-// Passed
+
   assign s1_meta_hit_way = {((s1_meta_uncorrected_3_coh_state > 2'h0) & (s1_meta_uncorrected_3_tag == s1_tag))
 			,((s1_meta_uncorrected_2_coh_state > 2'h0) & (s1_meta_uncorrected_2_tag == s1_tag))
 			,((s1_meta_uncorrected_1_coh_state > 2'h0) & (s1_meta_uncorrected_1_tag == s1_tag))
 			,((s1_meta_uncorrected_0_coh_state > 2'h0) & (s1_meta_uncorrected_0_tag == s1_tag))};
 
-  wire _T_310 = s1_flush_valid == 1'h0;
-  assign s1_meta_hit_state_state = (((s1_meta_uncorrected_0_tag == s1_tag) & _T_310) ? s1_meta_uncorrected_0_coh_state : 2'h0) 
-				| (((s1_meta_uncorrected_1_tag == s1_tag) & _T_310) ? s1_meta_uncorrected_1_coh_state : 2'h0) 
-				| (((s1_meta_uncorrected_2_tag == s1_tag) & _T_310) ? s1_meta_uncorrected_2_coh_state : 2'h0) 
-				| (((s1_meta_uncorrected_3_tag == s1_tag) & _T_310) ? s1_meta_uncorrected_3_coh_state : 2'h0);
-
+  assign s1_meta_hit_state_state = (((s1_meta_uncorrected_0_tag == s1_tag) & (!s1_flush_valid)) ? s1_meta_uncorrected_0_coh_state : 2'h0) 
+				| (((s1_meta_uncorrected_1_tag == s1_tag) & (!s1_flush_valid)) ? s1_meta_uncorrected_1_coh_state : 2'h0) 
+				| (((s1_meta_uncorrected_2_tag == s1_tag) & (!s1_flush_valid)) ? s1_meta_uncorrected_2_coh_state : 2'h0) 
+				| (((s1_meta_uncorrected_3_tag == s1_tag) & (!s1_flush_valid)) ? s1_meta_uncorrected_3_coh_state : 2'h0);
+// Passed
   assign s2_hit_valid = s2_hit_state_state > 2'h0;
 
-  assign s2_victim_way = s2_hit_valid ? s2_hit_way : (4'h1 << _T_649);
+  assign s2_victim_way = s2_hit_valid ? s2_hit_way : (4'h1 << s1_victim_way_delay);
 
-  assign releaseWay = _T_2417 ? s2_victim_way : s2_probe_way;
+  assign releaseWay = s_voluntary_write ? s2_victim_way : s2_probe_way;
 
-  assign s2_cmd_flush_line = (s2_req_cmd == 5'h5) & s2_req_size[0];
+  assign s2_cmd_flush_line = (s2_req_cmd == MemoryOpConstants_M_FLUSH_ALL) & s2_req_size[0];
 
-  assign s2_vaddr = {_T_393[31:12], s2_req_addr[11:0]};
+  assign s2_vaddr = {s1_req_addr_delay[31:12], s2_req_addr[11:0]};
 
   assign en = s1_valid | inWriteback | io_cpu_replay_next;
 
@@ -1158,22 +1189,20 @@ parameter S_PROBE_WRITE_META	= 3'h7;
 
   assign grantIsCached = (auto_out_d_bits_opcode == 3'h4) | grantIsRefill;
 
-  assign d_first = _T_2190 == 10'h0;
+  assign d_first = tl_out__d_firstlastHelpert_counter == 10'h0;
+// Passed
+  assign canAcceptCachedGrant = s_voluntary_write == 1'h0;
 
-  assign canAcceptCachedGrant = _T_2417 == 1'h0;
-
-  wire _T_2258 = grantIsRefill & !dataArb_io_in_1_ready;
-  wire _GEN_200 = _T_2258 ? 1'h0 
-		: grantIsCached ? ((!d_first | auto_out_e_ready) & canAcceptCachedGrant) 
-		: 1'h1;
-  wire _T_2344 = grantIsUncachedData & (blockUncachedGrant | s1_valid);
-  assign tl_out__d_ready = _T_2344 ? 1'h0 : _GEN_200;
+  assign tl_out__d_ready = (grantIsUncachedData & (blockUncachedGrant | s1_valid)) ? 1'h0 
+			: (grantIsRefill & !dataArb_io_in_1_ready) ? 1'h0 
+			: grantIsCached ? ((!d_first | auto_out_e_ready) & canAcceptCachedGrant) 
+			: 1'h1;
 
   assign grantIsUncached = grantIsUncachedData | (auto_out_d_bits_opcode == 3'h0) | (auto_out_d_bits_opcode == 3'h2);
 
   wire [3:0] _T_337 = inWriteback ? releaseWay : s1_meta_hit_way;
-  wire _T_2227 = tl_out__d_ready & auto_out_d_valid;
-  assign s1_data_way = !_T_2227 ? {{1'd0}, _T_337} 
+  wire tl_out__d_fire = tl_out__d_ready & auto_out_d_valid;
+  assign s1_data_way = !tl_out__d_fire ? {{1'd0}, _T_337} 
 			: grantIsCached ? {{1'd0}, _T_337} 
 			: !grantIsUncached ? {{1'd0}, _T_337} 
 			: grantIsUncachedData ? 5'h10 
@@ -1186,123 +1215,100 @@ parameter S_PROBE_WRITE_META	= 3'h7;
   assign s2_valid_miss = s2_valid_masked & s2_readwrite & !s2_hit & can_acquire_before_release;
   assign s2_uncached = s2_tlb_resp_cacheable == 1'h0;
 
-  wire _T_636 = s2_uncached == 1'h0;
-  wire _T_639 = uncachedInFlight_0 == 1'h0;
-  assign s2_valid_cached_miss = s2_valid_miss & _T_636 & _T_639;
+  wire s2_uncached_inv = s2_uncached == 1'h0;
+  assign s2_valid_cached_miss = s2_valid_miss & s2_uncached_inv & !uncachedInFlight_0;
 
   assign s2_want_victimize = s2_valid_cached_miss | s2_valid_flush_line | s2_flush_valid_pre_tag_ecc;
 
-  assign s2_valid_uncached_pending = s2_valid_miss & s2_uncached & _T_639;
+  assign s2_valid_uncached_pending = s2_valid_miss & s2_uncached & !uncachedInFlight_0;
 
-  assign s2_victim_tag = s2_valid_flush_line ? s2_req_addr[31:12] : _T_654;
+  assign s2_victim_tag = s2_valid_flush_line ? s2_req_addr[31:12] : s2_victim_tag_reg;
 
-  assign s2_victim_state_state = s2_hit_valid ? s2_hit_state_state : _T_656_state;
-
-  wire _T_714 = 4'h3 == {probe_bits_param,s2_probe_state_state};
-  wire _T_710 = 4'h2 == {probe_bits_param,s2_probe_state_state};
-  wire _T_706 = 4'h1 == {probe_bits_param,s2_probe_state_state};
-  wire _T_702 = 4'h0 == {probe_bits_param,s2_probe_state_state};
-  wire _T_698 = 4'h7 == {probe_bits_param,s2_probe_state_state};
-  wire _T_694 = 4'h6 == {probe_bits_param,s2_probe_state_state};
-  wire _T_690 = 4'h5 == {probe_bits_param,s2_probe_state_state};
-  wire _T_686 = 4'h4 == {probe_bits_param,s2_probe_state_state};
-  wire _T_682 = 4'hb == {probe_bits_param,s2_probe_state_state}; 
-  assign s2_report_param = _T_714 ? 3'h3 
-			: _T_710 ? 3'h3 
-			: _T_706 ? 3'h4 
-			: _T_702 ? 3'h5 
-			: _T_698 ? 3'h0 
-			: _T_694 ? 3'h0 
-			: _T_690 ? 3'h4 
-			: _T_686 ? 3'h5 
-			: _T_682 ? 3'h1 
+  assign s2_victim_state_state = s2_hit_valid ? s2_hit_state_state : s2_victim_state_reg;
+// Passed
+  assign s2_report_param = (4'h3 == {probe_bits_param,s2_probe_state_state}) ? 3'h3 
+			: (4'h2 == {probe_bits_param,s2_probe_state_state}) ? 3'h3 
+			: (4'h1 == {probe_bits_param,s2_probe_state_state}) ? 3'h4 
+			: (4'h0 == {probe_bits_param,s2_probe_state_state}) ? 3'h5 
+			: (4'h7 == {probe_bits_param,s2_probe_state_state}) ? 3'h0 
+			: (4'h6 == {probe_bits_param,s2_probe_state_state}) ? 3'h0 
+			: (4'h5 == {probe_bits_param,s2_probe_state_state}) ? 3'h4 
+			: (4'h4 == {probe_bits_param,s2_probe_state_state}) ? 3'h5 
+			: (4'hb == {probe_bits_param,s2_probe_state_state}) ? 3'h1 
 			: (4'ha == {probe_bits_param,s2_probe_state_state}) ? 3'h1 
 			: (4'h9 == {probe_bits_param,s2_probe_state_state}) ? 3'h2 
 			: (4'h8 == {probe_bits_param,s2_probe_state_state}) ? 3'h5 
 			: 3'h0;
 
-  assign probeNewCoh_state = _T_714 ? 2'h2 
-			: _T_710 ? 2'h2 
-			: _T_706 ? 2'h1 
-			: _T_702 ? 2'h0 
-			: _T_698 ? 2'h1 
-			: _T_694 ? 2'h1 
-			: _T_690 ? 2'h1 
+  assign probeNewCoh_state = (4'h3 == {probe_bits_param,s2_probe_state_state}) ? 2'h2 
+			: (4'h2 == {probe_bits_param,s2_probe_state_state}) ? 2'h2 
+			: (4'h1 == {probe_bits_param,s2_probe_state_state}) ? 2'h1 
+			: (4'h0 == {probe_bits_param,s2_probe_state_state}) ? 2'h0 
+			: (4'h7 == {probe_bits_param,s2_probe_state_state}) ? 2'h1 
+			: (4'h6 == {probe_bits_param,s2_probe_state_state}) ? 2'h1 
+			: (4'h5 == {probe_bits_param,s2_probe_state_state}) ? 2'h1 
 			: 2'h0; 
 
-  wire [3:0] _T_722 = {2'h2,s2_victim_state_state};
-  wire _T_775 = 4'h2 == _T_722;
-  wire _T_771 = 4'h1 == _T_722;
-  wire _T_767 = 4'h0 == _T_722;
-  wire _T_763 = 4'h7 == _T_722;
-  wire _T_759 = 4'h6 == _T_722;
-  wire _T_755 = 4'h5 == _T_722;
-  wire _T_751 = 4'h4 == _T_722;
-  wire _T_747 = 4'hb == _T_722;
-  assign s2_victim_dirty = (4'h3 == _T_722) 
-			| (_T_775 ? 1'h0 
-			 : _T_771 ? 1'h0 
-			 : _T_767 ? 1'h0 
-			 : (_T_763 
-			  | (_T_759 ? 1'h0 
-			   : _T_755 ? 1'h0 
-			   : _T_751 ? 1'h0 
-			   : _T_747)));
-// Passed
-  wire _T_779 = 4'h3 == _T_722; 
-  assign s2_shrink_param = _T_779 ? 3'h3 
-			: _T_775 ? 3'h3 
-			: _T_771 ? 3'h4 
-			: _T_767 ? 3'h5 
-			: _T_763 ? 3'h0 
-			: _T_759 ? 3'h0 
-			: _T_755 ? 3'h4 
-			: _T_751 ? 3'h5 
-			: _T_747 ? 3'h1 
-			: (4'ha == _T_722) ? 3'h1 
-			: (4'h9 == _T_722) ? 3'h2 
-			: (4'h8 == _T_722) ? 3'h5 
+  assign s2_victim_dirty = (4'h3 == {2'h2,s2_victim_state_state}) 
+			| ((4'h2 == {2'h2,s2_victim_state_state}) ? 1'h0 
+			 : (4'h1 == {2'h2,s2_victim_state_state}) ? 1'h0 
+			 : (4'h0 == {2'h2,s2_victim_state_state}) ? 1'h0 
+			 : ((4'h7 == {2'h2,s2_victim_state_state}) 
+			  | ((4'h6 == {2'h2,s2_victim_state_state}) ? 1'h0 
+			   : (4'h5 == {2'h2,s2_victim_state_state}) ? 1'h0 
+			   : (4'h4 == {2'h2,s2_victim_state_state}) ? 1'h0 
+			   : (4'hb == {2'h2,s2_victim_state_state}))));
+
+  assign s2_shrink_param = (4'h3 == {2'h2,s2_victim_state_state}) ? 3'h3 
+			: (4'h2 == {2'h2,s2_victim_state_state}) ? 3'h3 
+			: (4'h1 == {2'h2,s2_victim_state_state}) ? 3'h4 
+			: (4'h0 == {2'h2,s2_victim_state_state}) ? 3'h5 
+			: (4'h7 == {2'h2,s2_victim_state_state}) ? 3'h0 
+			: (4'h6 == {2'h2,s2_victim_state_state}) ? 3'h0 
+			: (4'h5 == {2'h2,s2_victim_state_state}) ? 3'h4 
+			: (4'h4 == {2'h2,s2_victim_state_state}) ? 3'h5 
+			: (4'hb == {2'h2,s2_victim_state_state}) ? 3'h1 
+			: (4'ha == {2'h2,s2_victim_state_state}) ? 3'h1 
+			: (4'h9 == {2'h2,s2_victim_state_state}) ? 3'h2 
+			: (4'h8 == {2'h2,s2_victim_state_state}) ? 3'h5 
 			: 3'h0;
 
-  assign voluntaryNewCoh_state = _T_779 ? 2'h2 
-				: _T_775 ? 2'h2 
-				: _T_771 ? 2'h1 
-				: _T_767 ? 2'h0 
-				: _T_763 ? 2'h1 
-				: _T_759 ? 2'h1 
-				: _T_755 ? 2'h1 
+  assign voluntaryNewCoh_state = (4'h3 == {2'h2,s2_victim_state_state}) ? 2'h2 
+				: (4'h2 == {2'h2,s2_victim_state_state}) ? 2'h2 
+				: (4'h1 == {2'h2,s2_victim_state_state}) ? 2'h1 
+				: (4'h0 == {2'h2,s2_victim_state_state}) ? 2'h0 
+				: (4'h7 == {2'h2,s2_victim_state_state}) ? 2'h1 
+				: (4'h6 == {2'h2,s2_victim_state_state}) ? 2'h1 
+				: (4'h5 == {2'h2,s2_victim_state_state}) ? 2'h1 
 				: 2'h0;
 
   assign s2_dont_nack_uncached = s2_valid_uncached_pending & auto_out_a_ready;
 
-  assign s2_dont_nack_misc = s2_valid_masked & (s2_req_cmd == 5'h17);
+  assign s2_dont_nack_misc = s2_valid_masked & (s2_req_cmd == MemoryOpConstants_M_WOK);
 
-  wire _T_842 = lrscCount > 7'h0;
-  assign lrscBackingOff = _T_842 & !lrscValid;
+  assign lrscBackingOff = (lrscCount > 7'h0) & !lrscValid;
 
   assign lrscAddrMatch = lrscAddr == s2_req_addr[31:6];
 
-  assign s2_sc_fail = _T_421 & !(lrscValid & lrscAddrMatch);
+  assign s2_sc_fail = (s2_req_cmd == MemoryOpConstants_M_XSC) & !(lrscValid & lrscAddrMatch);
 
   assign pstore_drain_opportunistic = (io_cpu_req_valid & res) == 1'h0;
 
-  assign pstore_drain_on_miss = releaseInFlight | _T_995;
+  assign pstore_drain_on_miss = releaseInFlight | io_cpu_s2_nack_delay;
 
-  wire _T_925 = s2_valid_hit_pre_data_ecc_and_waw & s2_write;
-  assign pstore1_valid = (_T_925 & !s2_sc_fail) | pstore1_held;
+  assign pstore1_valid = (s2_valid_hit_pre_data_ecc_and_waw & s2_write & !s2_sc_fail) | pstore1_held;
 
   assign pstore_drain_structural = pstore1_valid_likely & pstore2_valid & ((s1_valid & s1_write) | pstore1_rmw);
 
-  wire _T_1009 = _T_925 | pstore1_held;
-  wire _T_1027 = ((_T_1009 & !pstore1_rmw) | pstore2_valid) & (pstore_drain_opportunistic | pstore_drain_on_miss);
-  assign pstore_drain = pstore_drain_structural | _T_1027;
+  wire pstore1_valid_not_rmw_s2_kill = (s2_valid_hit_pre_data_ecc_and_waw & s2_write) | pstore1_held;
+  assign pstore_drain = pstore_drain_structural | ((pstore1_valid_not_rmw_s2_kill & !pstore1_rmw) | pstore2_valid) & (pstore_drain_opportunistic | pstore_drain_on_miss);
 
   assign advance_pstore1 = pstore1_valid & (pstore2_valid == pstore_drain);
 
   assign pstore1_storegen_data = amoalu_io_out;
 
-  assign pstore2_storegen_data = {_T_1066,_T_1061,_T_1056,_T_1051};
-
+  assign pstore2_storegen_data = {pstore1_storegen_data_reg3,pstore1_storegen_data_reg2,pstore1_storegen_data_reg1,pstore1_storegen_data_reg0};
+// Passed
   assign a_source = 1'h1;
 
   assign acquire_address = {s2_req_addr[31:6], 6'h0};
@@ -1324,109 +1330,109 @@ parameter S_PROBE_WRITE_META	= 3'h7;
   wire _T_1287 = _T_1278 
 		| (_T_1271[0] & !s2_req_addr[1] & !s2_req_addr[0]);
   assign get_mask = {_T_1296,_T_1293,_T_1290,_T_1287};
-// Passed
-  wire _T_2091 = 5'hf == s2_req_cmd;
-  wire _T_2093 = 5'he == s2_req_cmd;
-  wire _T_2095 = 5'hd == s2_req_cmd;
-  wire _T_2097 = 5'hc == s2_req_cmd;
-  wire _T_2099 = 5'h8 == s2_req_cmd;
-  wire _T_2101 = 5'hb == s2_req_cmd;
-  wire _T_2103 = 5'ha == s2_req_cmd;
-  wire _T_2105 = 5'h9 == s2_req_cmd;
-  wire _T_2107 = 5'h4 == s2_req_cmd;
-  assign atomics_opcode = _T_2107 ? 3'h3 
-			: _T_2105 ? 3'h3 
-			: _T_2103 ? 3'h3 
-			: _T_2101 ? 3'h3 
-			: _T_2099 ? 3'h2 
-			: _T_2097 ? 3'h2 
-			: _T_2095 ? 3'h2 
-			: _T_2093 ? 3'h2 
-			: _T_2091 ? 3'h2 
+
+  wire w_MemoryOpConstants_M_XA_MAXU = MemoryOpConstants_M_XA_MAXU == s2_req_cmd;
+  wire w_MemoryOpConstants_M_XA_MINU = MemoryOpConstants_M_XA_MINU == s2_req_cmd;
+  wire w_MemoryOpConstants_M_XA_MAX = MemoryOpConstants_M_XA_MAX == s2_req_cmd;
+  wire w_MemoryOpConstants_M_XA_MIN = MemoryOpConstants_M_XA_MIN == s2_req_cmd;
+  wire w_MemoryOpConstants_M_XA_ADD = MemoryOpConstants_M_XA_ADD == s2_req_cmd;
+  wire w_MemoryOpConstants_M_XA_AND = MemoryOpConstants_M_XA_AND == s2_req_cmd;
+  wire w_MemoryOpConstants_M_XA_OR = MemoryOpConstants_M_XA_OR == s2_req_cmd;
+  wire w_MemoryOpConstants_M_XA_XOR = MemoryOpConstants_M_XA_XOR == s2_req_cmd;
+  wire w_MemoryOpConstants_M_XA_SWAP = MemoryOpConstants_M_XA_SWAP == s2_req_cmd;
+  assign atomics_opcode = w_MemoryOpConstants_M_XA_SWAP ? 3'h3 
+			: w_MemoryOpConstants_M_XA_XOR ? 3'h3 
+			: w_MemoryOpConstants_M_XA_OR ? 3'h3 
+			: w_MemoryOpConstants_M_XA_AND ? 3'h3 
+			: w_MemoryOpConstants_M_XA_ADD ? 3'h2 
+			: w_MemoryOpConstants_M_XA_MIN ? 3'h2 
+			: w_MemoryOpConstants_M_XA_MAX ? 3'h2 
+			: w_MemoryOpConstants_M_XA_MINU ? 3'h2 
+			: w_MemoryOpConstants_M_XA_MAXU ? 3'h2 
 			: 3'h0; 
 
-  assign atomics_param = _T_2107 ? 3'h3 
-			: _T_2105 ? 3'h0 
-			: _T_2103 ? 3'h1 
-			: _T_2101 ? 3'h2 
-			: _T_2099 ? 3'h4 
-			: _T_2097 ? 3'h0 
-			: _T_2095 ? 3'h1 
-			: _T_2093 ? 3'h2 
-			: _T_2091 ? 3'h3 
+  assign atomics_param = w_MemoryOpConstants_M_XA_SWAP ? 3'h3 
+			: w_MemoryOpConstants_M_XA_XOR ? 3'h0 
+			: w_MemoryOpConstants_M_XA_OR ? 3'h1 
+			: w_MemoryOpConstants_M_XA_AND ? 3'h2 
+			: w_MemoryOpConstants_M_XA_ADD ? 3'h4 
+			: w_MemoryOpConstants_M_XA_MIN ? 3'h0 
+			: w_MemoryOpConstants_M_XA_MAX ? 3'h1 
+			: w_MemoryOpConstants_M_XA_MINU ? 3'h2 
+			: w_MemoryOpConstants_M_XA_MAXU ? 3'h3 
 			: 3'h0;
 
-  assign atomics_size = _T_2107 ? {{2'd0}, s2_req_size} 
-			: _T_2105 ? {{2'd0}, s2_req_size} 
-			: _T_2103 ? {{2'd0}, s2_req_size} 
-			: _T_2101 ? {{2'd0}, s2_req_size} 
-			: _T_2099 ? {{2'd0}, s2_req_size} 
-			: _T_2097 ? {{2'd0}, s2_req_size} 
-			: _T_2095 ? {{2'd0}, s2_req_size} 
-			: _T_2093 ? {{2'd0}, s2_req_size} 
-			: _T_2091 ? {{2'd0}, s2_req_size} 
+  assign atomics_size = (w_MemoryOpConstants_M_XA_SWAP 
+			| w_MemoryOpConstants_M_XA_XOR 
+			| w_MemoryOpConstants_M_XA_OR 
+			| w_MemoryOpConstants_M_XA_AND 
+			| w_MemoryOpConstants_M_XA_ADD 
+			| w_MemoryOpConstants_M_XA_MIN 
+			| w_MemoryOpConstants_M_XA_MAX 
+			| w_MemoryOpConstants_M_XA_MINU 
+			| w_MemoryOpConstants_M_XA_MAXU) ? {{2'd0}, s2_req_size} 
 			: 4'h0;
 
-  assign atomics_source = _T_2107 ? a_source 
-			: _T_2105 ? a_source 
-			: _T_2103 ? a_source 
-			: _T_2101 ? a_source 
-			: _T_2099 ? a_source 
-			: _T_2097 ? a_source 
-			: _T_2095 ? a_source 
-			: _T_2093 ? a_source 
-			: (_T_2091 & a_source); 
+  assign atomics_source = (w_MemoryOpConstants_M_XA_SWAP 
+			| w_MemoryOpConstants_M_XA_XOR 
+			| w_MemoryOpConstants_M_XA_OR 
+			| w_MemoryOpConstants_M_XA_AND 
+			| w_MemoryOpConstants_M_XA_ADD 
+			| w_MemoryOpConstants_M_XA_MIN 
+			| w_MemoryOpConstants_M_XA_MAX 
+			| w_MemoryOpConstants_M_XA_MINU 
+			| w_MemoryOpConstants_M_XA_MAXU) ? a_source
+			: 1'h0; 
 
-  assign atomics_address = _T_2107 ? s2_req_addr 
-			: _T_2105 ? s2_req_addr 
-			: _T_2103 ? s2_req_addr 
-			: _T_2101 ? s2_req_addr 
-			: _T_2099 ? s2_req_addr 
-			: _T_2097 ? s2_req_addr 
-			: _T_2095 ? s2_req_addr 
-			: _T_2093 ? s2_req_addr 
-			: _T_2091 ? s2_req_addr 
+  assign atomics_address = (w_MemoryOpConstants_M_XA_SWAP 
+			| w_MemoryOpConstants_M_XA_XOR 
+			| w_MemoryOpConstants_M_XA_OR 
+			| w_MemoryOpConstants_M_XA_AND 
+			| w_MemoryOpConstants_M_XA_ADD 
+			| w_MemoryOpConstants_M_XA_MIN 
+			| w_MemoryOpConstants_M_XA_MAX 
+			| w_MemoryOpConstants_M_XA_MINU 
+			| w_MemoryOpConstants_M_XA_MAXU) ? s2_req_addr 
 			: 32'h0;
 
-  assign atomics_mask = _T_2107 ? get_mask 
-			: _T_2105 ? get_mask 
-			: _T_2103 ? get_mask 
-			: _T_2101 ? get_mask 
-			: _T_2099 ? get_mask 
-			: _T_2097 ? get_mask 
-			: _T_2095 ? get_mask 
-			: _T_2093 ? get_mask 
-			: _T_2091 ? get_mask 
+  assign atomics_mask = (w_MemoryOpConstants_M_XA_SWAP 
+			| w_MemoryOpConstants_M_XA_XOR 
+			| w_MemoryOpConstants_M_XA_OR 
+			| w_MemoryOpConstants_M_XA_AND 
+			| w_MemoryOpConstants_M_XA_ADD 
+			| w_MemoryOpConstants_M_XA_MIN 
+			| w_MemoryOpConstants_M_XA_MAX 
+			| w_MemoryOpConstants_M_XA_MINU 
+			| w_MemoryOpConstants_M_XA_MAXU) ? get_mask 
 			: 4'h0;
 
-  assign atomics_data = _T_2107 ? pstore1_data 
-			: _T_2105 ? pstore1_data 
-			: _T_2103 ? pstore1_data 
-			: _T_2101 ? pstore1_data 
-			: _T_2099 ? pstore1_data 
-			: _T_2097 ? pstore1_data 
-			: _T_2095 ? pstore1_data 
-			: _T_2093 ? pstore1_data 
-			: _T_2091 ? pstore1_data 
+  assign atomics_data = (w_MemoryOpConstants_M_XA_SWAP 
+			| w_MemoryOpConstants_M_XA_XOR 
+			| w_MemoryOpConstants_M_XA_OR 
+			| w_MemoryOpConstants_M_XA_AND 
+			| w_MemoryOpConstants_M_XA_ADD 
+			| w_MemoryOpConstants_M_XA_MIN 
+			| w_MemoryOpConstants_M_XA_MAX 
+			| w_MemoryOpConstants_M_XA_MINU 
+			| w_MemoryOpConstants_M_XA_MAXU) ? pstore1_data 
 			: 32'h0;
 
-  wire _T_2111 = s2_valid_cached_miss & !s2_victim_dirty;
-  assign tl_out_a_valid = _T_2111 | s2_valid_uncached_pending;
+  assign tl_out_a_valid = (s2_valid_cached_miss & !s2_victim_dirty) | s2_valid_uncached_pending;
 
   assign putpartial_mask = a_mask[3:0];
 
   wire [1:0] _T_2178 = 2'h1 << a_source; 
-  assign a_sel = _T_2178[1:1];
+  assign a_sel = _T_2178[1];
 
-  wire [26:0] _T_2184 = 27'hfff << auto_out_d_bits_size;
-  wire [9:0] _T_2189 = auto_out_d_bits_opcode[0] ? ~ (_T_2184[11:2]) : 10'h0;
-  assign d_last = (_T_2190 == 10'h1) | (_T_2189 == 10'h0);
+  wire [26:0] tl_out__d_firstlastHelpert_beats1_decode = 27'hfff << auto_out_d_bits_size;
+  wire [9:0] tl_out__d_firstlastHelpert_beats1 = auto_out_d_bits_opcode[0] ? ~ (tl_out__d_firstlastHelpert_beats1_decode[11:2]) : 10'h0;
+  assign d_last = (tl_out__d_firstlastHelpert_counter == 10'h1) | (tl_out__d_firstlastHelpert_beats1 == 10'h0);
 
-  assign d_done = d_last & _T_2227;
-
-  wire [9:0] _T_2192 = _T_2190 - 10'h1;
-  wire [9:0] _T_2196 = _T_2189 & (~ _T_2192);
-  assign d_address_inc = {_T_2196, 2'h0};
+  assign d_done = d_last & tl_out__d_fire;
+// Passed
+  wire [9:0] tl_out__d_firstlastHelpert_counter1 = tl_out__d_firstlastHelpert_counter - 10'h1;
+  wire [9:0] tl_out__d_firstlastHelpert_count = tl_out__d_firstlastHelpert_beats1 & (~ tl_out__d_firstlastHelpert_counter1);
+  assign d_address_inc = {tl_out__d_firstlastHelpert_count, 2'h0};
 
   assign grantIsVoluntary = auto_out_d_bits_opcode == 3'h6;
 
@@ -1435,13 +1441,12 @@ parameter S_PROBE_WRITE_META	= 3'h7;
 
   assign dontCareBits = {tlb_io_resp_paddr[31:2], 2'h0};
 
-  wire _T_2245 = auto_out_d_valid & d_first & grantIsCached & canAcceptCachedGrant; 
-  assign tl_out__e_valid = _T_2258 ? 1'h0 : _T_2245;
+  assign tl_out__e_valid = (grantIsRefill & !dataArb_io_in_1_ready) ? 1'h0 : (auto_out_d_valid & d_first & grantIsCached & canAcceptCachedGrant);
 
-  assign c_first = _T_2372 == 10'h0;
+  assign c_first = tl_out__c_firstlastHelpert_counter == 10'h0;
 
-  wire [9:0] _T_2374 = _T_2372 - 10'h1;
-  assign c_count = _T_2371 & (~ _T_2374);
+  wire [9:0] tl_out__c_firstlastHelpert_counter1 = tl_out__c_firstlastHelpert_counter - 10'h1;
+  assign c_count = tl_out__c_firstlastHelper_beats1 & (~ tl_out__c_firstlastHelpert_counter1);
 
   assign releaseRejected = tl_out__c_valid & !auto_out_c_ready;
 
@@ -1452,86 +1457,85 @@ parameter S_PROBE_WRITE_META	= 3'h7;
 
   assign res_2_address = {s2_victim_tag, s2_req_addr[11:6], 6'h0};
 
-  assign newCoh_state = _T_2417 ? voluntaryNewCoh_state : probeNewCoh_state;
+  assign newCoh_state = s_voluntary_write ? voluntaryNewCoh_state : probeNewCoh_state;
 
   assign flushCounterNext = flushCounter + 8'h1;
 
   assign flushDone = flushCounterNext[8:6] == 3'h4;
 
-  assign auto_out_a_valid = _T_2111 | s2_valid_uncached_pending;
+  assign auto_out_a_valid = (s2_valid_cached_miss & !s2_victim_dirty) | s2_valid_uncached_pending;
 
-  wire _T_2172 = s2_read == 1'h0;
-  wire _T_419 = s2_req_cmd == 5'h11;
-  wire _T_2170 = s2_write == 1'h0;
-  assign auto_out_a_bits_opcode = _T_636 ? 3'h6 
-				: _T_2170 ? 3'h4 
-				: _T_419 ? 3'h1 
-				: _T_2172 ? 3'h0 
+  wire s2_read_inv = s2_read == 1'h0;
+  wire w_MemoryOpConstants_M_PWR = s2_req_cmd == MemoryOpConstants_M_PWR;
+  wire s2_write_inv = s2_write == 1'h0;
+  assign auto_out_a_bits_opcode = s2_uncached_inv ? 3'h6 
+				: s2_write_inv ? 3'h4 
+				: w_MemoryOpConstants_M_PWR ? 3'h1 
+				: s2_read_inv ? 3'h0 
 				: atomics_opcode;
 
-  assign auto_out_a_bits_param = _T_636 ? {{1'd0}, s2_grow_param} 
-				: _T_2170 ? 3'h0 
-				: _T_419 ? 3'h0 
-				: _T_2172 ? 3'h0 
+  assign auto_out_a_bits_param = s2_uncached_inv ? {{1'd0}, s2_grow_param} 
+				: s2_write_inv ? 3'h0 
+				: w_MemoryOpConstants_M_PWR ? 3'h0 
+				: s2_read_inv ? 3'h0 
 				: atomics_param; 
 
-  assign auto_out_a_bits_size = _T_636 ? 4'h6 
-				: _T_2170 ? {{2'd0}, s2_req_size} 
-				: _T_419 ? {{2'd0}, s2_req_size} 
-				: _T_2172 ? {{2'd0}, s2_req_size} 
+  assign auto_out_a_bits_size = s2_uncached_inv ? 4'h6 
+				: s2_write_inv ? {{2'd0}, s2_req_size} 
+				: w_MemoryOpConstants_M_PWR ? {{2'd0}, s2_req_size} 
+				: s2_read_inv ? {{2'd0}, s2_req_size} 
 				: atomics_size;
 
-  assign auto_out_a_bits_source = _T_636 ? 1'h0 
-				: _T_2170 ? a_source 
-				: _T_419 ? a_source 
-				: _T_2172 ? a_source 
+  assign auto_out_a_bits_source = s2_uncached_inv ? 1'h0 
+				: s2_write_inv ? a_source 
+				: w_MemoryOpConstants_M_PWR ? a_source 
+				: s2_read_inv ? a_source 
 				: atomics_source;
 
-  assign auto_out_a_bits_address = _T_636 ? acquire_address 
-				: _T_2170 ? s2_req_addr 
-				: _T_419 ? s2_req_addr 
-				: _T_2172 ? s2_req_addr 
+  assign auto_out_a_bits_address = s2_uncached_inv ? acquire_address 
+				: s2_write_inv ? s2_req_addr 
+				: w_MemoryOpConstants_M_PWR ? s2_req_addr 
+				: s2_read_inv ? s2_req_addr 
 				: atomics_address;
 
-  assign auto_out_a_bits_mask = _T_636 ? 4'hf 
-				: _T_2170 ? get_mask 
-				: _T_419 ? putpartial_mask 
-				: _T_2172 ? get_mask 
+  assign auto_out_a_bits_mask = s2_uncached_inv ? 4'hf 
+				: s2_write_inv ? get_mask 
+				: w_MemoryOpConstants_M_PWR ? putpartial_mask 
+				: s2_read_inv ? get_mask 
 				: atomics_mask; 
 
-  assign auto_out_a_bits_data = _T_636 ? 32'h0 
-				: _T_2170 ? 32'h0 
-				: _T_419 ? pstore1_data 
-				: _T_2172 ? pstore1_data 
+  assign auto_out_a_bits_data = s2_uncached_inv ? 32'h0 
+				: s2_write_inv ? 32'h0 
+				: w_MemoryOpConstants_M_PWR ? pstore1_data 
+				: s2_read_inv ? pstore1_data 
 				: atomics_data;
 
-  wire _T_2359 = (block_probe_for_core_progress | block_probe_for_ordering | s1_valid | s2_valid) == 1'h0;
+//  wire _T_2359 = (block_probe_for_core_progress | block_probe_for_ordering | s1_valid | s2_valid) == 1'h0;
   assign auto_out_b_ready = tl_out__b_ready;
 
   assign auto_out_c_valid = tl_out__c_valid;
 
   assign auto_out_c_bits_opcode = tl_out__c_bits_opcode;
-  assign auto_out_c_bits_param = _T_2417 ? s2_shrink_param 
-				: _T_2414 ? s2_report_param 
-				: _T_2413 ? s2_report_param 
+  assign auto_out_c_bits_param = s_voluntary_write ? s2_shrink_param 
+				: s_probe_rep_dirty ? s2_report_param 
+				: s_probe_rep_clean ? s2_report_param 
 				: !s2_probe ? 3'h5 
 				: s2_prb_ack_data ? 3'h5 
-				: _T_2404 ? s2_report_param 
+				: s2_probe_state_isValid ? s2_report_param 
 				: 3'h5;
-  assign auto_out_c_bits_size = _T_2417 ? 4'h6 : probe_bits_size;
+  assign auto_out_c_bits_size = s_voluntary_write ? 4'h6 : probe_bits_size;
   assign auto_out_c_bits_source = probe_bits_source;
   assign auto_out_c_bits_address = probe_bits_address;
   assign auto_out_c_bits_data = {s2_data[31:24],s2_data[23:16],s2_data[15:8],s2_data[7:0]};
   assign auto_out_d_ready = tl_out__d_ready;
   assign auto_out_e_valid = tl_out__e_valid;
   assign auto_out_e_bits_sink = auto_out_d_bits_sink;
-// Passed
-  wire _T_52 = s1_nack == 1'h0;
-  wire _GEN_22 = (!tlb_io_req_ready & !tlb_io_ptw_resp_valid & !io_cpu_req_bits_phys) ? 1'h0 
+
+  assign io_cpu_req_ready = (grantIsUncachedData & (blockUncachedGrant | s1_valid) & auto_out_d_valid) ? 1'h0 
+		: (!tlb_io_req_ready & !tlb_io_ptw_resp_valid & !io_cpu_req_bits_phys) ? 1'h0
 		: (!metaArb_io_in_7_ready) ? 1'h0 
 		: (!dataArb_io_in_3_ready & s0_read) ? 1'h0 
-		: ((release_state == 3'h0) & !cached_grant_wait & _T_52);
-  assign io_cpu_req_ready = _T_2344 ? (auto_out_d_valid ? 1'h0 : _GEN_22) : _GEN_22;
+		: ((release_state == 3'h0) & !cached_grant_wait & !s1_nack);
 
   assign io_cpu_s2_nack = s2_valid_no_xcpt & !s2_dont_nack_uncached & !s2_dont_nack_misc & !s2_valid_hit_pre_data_ecc_and_waw;
 
@@ -1542,14 +1546,14 @@ parameter S_PROBE_WRITE_META	= 3'h7;
   assign io_cpu_resp_bits_size = s2_req_size;
   assign io_cpu_resp_bits_signed = s2_req_signed;
 
-  wire [15:0] _T_2511 = s2_req_addr[1] ? s2_data_corrected[31:16] : s2_data_corrected[15:0];
-  wire [15:0] _T_2521 = (s2_req_size == 2'h1) ? ((s2_req_signed & _T_2511[15]) ? 16'hffff : 16'h0) : s2_data_corrected[31:16];
-  wire [31:0] _T_2522 = {_T_2521,_T_2511};
-  wire [7:0] _T_2528 = _T_421 ? 8'h0 
-		: s2_req_addr[0] ? _T_2522[15:8] 
-		: _T_2522[7:0];
-  wire [23:0] _T_2536 = ((s2_req_size == 2'h0) | _T_421) ? ((s2_req_signed & _T_2528[7]) ? 24'hffffff : 24'h0) : _T_2522[31:8];
-  assign io_cpu_resp_bits_data = {_T_2536,_T_2528} | {{31'd0}, s2_sc_fail};
+  wire [15:0] io_cpu_resp_bits_data_zeroed1 = s2_req_addr[1] ? s2_data_corrected[31:16] : s2_data_corrected[15:0];
+  wire [15:0] io_cpu_resp_bits_data_Mux1 = (s2_req_size == 2'h1) ? ((s2_req_signed & io_cpu_resp_bits_data_zeroed1[15]) ? 16'hffff : 16'h0) : s2_data_corrected[31:16];
+  wire [31:0] io_cpu_resp_bits_data_res0 = {io_cpu_resp_bits_data_Mux1,io_cpu_resp_bits_data_zeroed1};
+  wire [7:0] io_cpu_resp_bits_data_zeroed0 = (s2_req_cmd == MemoryOpConstants_M_XSC) ? 8'h0 
+		: s2_req_addr[0] ? io_cpu_resp_bits_data_res0[15:8] 
+		: io_cpu_resp_bits_data_res0[7:0];
+  wire [23:0] io_cpu_resp_bits_data_Mux0 = ((s2_req_size == 2'h0) | (s2_req_cmd == MemoryOpConstants_M_XSC)) ? ((s2_req_signed & io_cpu_resp_bits_data_zeroed0[7]) ? 24'hffffff : 24'h0) : io_cpu_resp_bits_data_res0[31:8];
+  assign io_cpu_resp_bits_data = {io_cpu_resp_bits_data_Mux0, io_cpu_resp_bits_data_zeroed0} | {{31'd0}, s2_sc_fail};
   assign io_cpu_resp_bits_mask = 4'h0;
   assign io_cpu_resp_bits_replay = doUncachedResp;
 
@@ -1557,22 +1561,22 @@ parameter S_PROBE_WRITE_META	= 3'h7;
   assign io_cpu_resp_bits_data_word_bypass = auto_out_c_bits_data;
   assign io_cpu_resp_bits_data_raw = auto_out_c_bits_data;
   assign io_cpu_resp_bits_store_data = pstore1_data;
-  assign io_cpu_replay_next = _T_2227 & grantIsUncachedData;
-  assign io_cpu_s2_xcpt_ma_ld = _T_2475 & s2_tlb_resp_ma_ld;
-  assign io_cpu_s2_xcpt_ma_st = _T_2475 & s2_tlb_resp_ma_st;
-  assign io_cpu_s2_xcpt_pf_ld = _T_2475 & s2_tlb_resp_pf_ld;
-  assign io_cpu_s2_xcpt_pf_st = _T_2475 & s2_tlb_resp_pf_st;
-  assign io_cpu_s2_xcpt_ae_ld = _T_2475 & s2_tlb_resp_ae_ld;
-  assign io_cpu_s2_xcpt_ae_st = _T_2475 & s2_tlb_resp_ae_st;
+  assign io_cpu_replay_next = tl_out__d_fire & grantIsUncachedData;
+  assign io_cpu_s2_xcpt_ma_ld = s1_xcpt_valid_delay & s2_tlb_resp_ma_ld;
+  assign io_cpu_s2_xcpt_ma_st = s1_xcpt_valid_delay & s2_tlb_resp_ma_st;
+  assign io_cpu_s2_xcpt_pf_ld = s1_xcpt_valid_delay & s2_tlb_resp_pf_ld;
+  assign io_cpu_s2_xcpt_pf_st = s1_xcpt_valid_delay & s2_tlb_resp_pf_st;
+  assign io_cpu_s2_xcpt_ae_ld = s1_xcpt_valid_delay & s2_tlb_resp_ae_ld;
+  assign io_cpu_s2_xcpt_ae_st = s1_xcpt_valid_delay & s2_tlb_resp_ae_st;
   assign io_cpu_ordered = (s1_valid | s2_valid | cached_grant_wait | uncachedInFlight_0) == 1'h0;
-  assign io_cpu_perf_release = (!_T_2618 | _T_2376) & _T_2364;
-  assign io_cpu_perf_grant = d_last & _T_2227;
+  assign io_cpu_perf_release = ((tl_out__c_firstlastHelper_counter == 10'h1) | (tl_out__c_firstlastHelper_beats1 == 10'h0)) & auto_out_c_fire;
+  assign io_cpu_perf_grant = d_last & tl_out__d_fire;
   assign io_ptw_req_valid = tlb_io_ptw_req_valid;
   assign io_ptw_req_bits_bits_addr = tlb_io_ptw_req_bits_bits_addr;
 
   assign MaxPeriodFibonacciLFSR_clock = gated_clock;
   assign MaxPeriodFibonacciLFSR_reset = reset;
-  assign MaxPeriodFibonacciLFSR_io_increment = _T_2227 & grantIsCached & d_last;
+  assign MaxPeriodFibonacciLFSR_io_increment = tl_out__d_fire & grantIsCached & d_last;
 
   assign metaArb_io_in_0_valid = resetting;
   assign metaArb_io_in_0_bits_addr = metaArb_io_in_5_bits_addr;
@@ -1582,7 +1586,7 @@ parameter S_PROBE_WRITE_META	= 3'h7;
   assign metaArb_io_in_2_bits_addr = {io_cpu_req_bits_addr[31:12],s2_vaddr[11:0]};
   assign metaArb_io_in_2_bits_idx = s2_vaddr[11:6];
 
-  wire [3:0] _T_650 = 4'h1 << _T_649;
+  wire [3:0] _T_650 = 4'h1 << s1_victim_way_delay;
   assign metaArb_io_in_2_bits_way_en = s2_hit_valid ? s2_hit_way : _T_650;
 
   assign metaArb_io_in_2_bits_data = {s2_grow_param, s2_req_addr[31:12]};
@@ -1599,22 +1603,21 @@ parameter S_PROBE_WRITE_META	= 3'h7;
 		: 2'h0;
   assign metaArb_io_in_3_bits_data = {_T_2339,s2_req_addr[31:12]};
 
-  assign metaArb_io_in_4_valid = _T_2416 | (release_state == 3'h7);
+  assign metaArb_io_in_4_valid = s_voluntary_write_meta | (release_state == 3'h7);
   assign metaArb_io_in_4_bits_addr = {io_cpu_req_bits_addr[31:12], probe_bits_address[11:0]};
   assign metaArb_io_in_4_bits_idx = probe_bits_address[11:6];
-  assign metaArb_io_in_4_bits_way_en = _T_2417 ? s2_victim_way : s2_probe_way;
+  assign metaArb_io_in_4_bits_way_en = s_voluntary_write ? s2_victim_way : s2_probe_way;
   assign metaArb_io_in_4_bits_data = {newCoh_state, probe_bits_address[31:12]};
   assign metaArb_io_in_5_valid = 1'h0;
   assign metaArb_io_in_5_bits_addr = {io_cpu_req_bits_addr[31:12],metaArb_io_in_5_bits_idx, 6'h0};
   assign metaArb_io_in_5_bits_idx = flushCounter[5:0];
 
-  wire _T_2408 = release_state == 3'h4;
-  assign metaArb_io_in_6_valid = _T_2408 | (auto_out_b_valid & (!block_probe_for_core_progress | lrscBackingOff));
+  wire s_probe_retry = release_state == S_PROBE_RETRY;
+  assign metaArb_io_in_6_valid = s_probe_retry | (auto_out_b_valid & (!block_probe_for_core_progress | lrscBackingOff));
 
-  wire [32:0] _GEN_265 = _T_2408 ? {1'h0,probe_bits_address} : {1'h0,auto_out_b_bits_address};
-  assign metaArb_io_in_6_bits_addr = _GEN_265[31:0];
+  assign metaArb_io_in_6_bits_addr = s_probe_retry ? probe_bits_address : auto_out_b_bits_address;
 
-  assign metaArb_io_in_6_bits_idx = _T_2408 ? probe_bits_address[11:6] : auto_out_b_bits_address[11:6];
+  assign metaArb_io_in_6_bits_idx = s_probe_retry ? probe_bits_address[11:6] : auto_out_b_bits_address[11:6];
   assign metaArb_io_in_6_bits_way_en = metaArb_io_in_4_bits_way_en;
   assign metaArb_io_in_6_bits_data = metaArb_io_in_4_bits_data;
   assign metaArb_io_in_7_valid = io_cpu_req_valid;
@@ -1644,25 +1647,25 @@ parameter S_PROBE_WRITE_META	= 3'h7;
   assign dataArb_io_in_0_bits_addr = pstore2_valid ? pstore2_addr[11:0] : pstore1_addr[11:0];
   assign dataArb_io_in_0_bits_write = pstore_drain;
 
-  wire [31:0] _T_1089 = pstore2_valid ? pstore2_storegen_data : pstore1_data;
-  assign dataArb_io_in_0_bits_wdata = {_T_1089[31:24],_T_1089[23:16],_T_1089[15:8],_T_1089[7:0]};
+  wire [31:0] dataArb_io_in_0_bits_wdata_encodeData = pstore2_valid ? pstore2_storegen_data : pstore1_data;
+  assign dataArb_io_in_0_bits_wdata = {dataArb_io_in_0_bits_wdata_encodeData[31:24],dataArb_io_in_0_bits_wdata_encodeData[23:16],dataArb_io_in_0_bits_wdata_encodeData[15:8],dataArb_io_in_0_bits_wdata_encodeData[7:0]};
 
-  wire [3:0] _T_1099 = pstore2_valid ? mask : pstore1_mask;
-  assign dataArb_io_in_0_bits_eccMask = {_T_1099[3],_T_1099[2],_T_1099[1],_T_1099[0]};
+  wire [3:0] dataArb_io_in_0_bits_eccMask_eccMask = pstore2_valid ? mask : pstore1_mask;
+  assign dataArb_io_in_0_bits_eccMask = {dataArb_io_in_0_bits_eccMask_eccMask[3],dataArb_io_in_0_bits_eccMask_eccMask[2],dataArb_io_in_0_bits_eccMask_eccMask[1],dataArb_io_in_0_bits_eccMask_eccMask[0]};
 
   assign dataArb_io_in_0_bits_way_en = pstore2_valid ? pstore2_way : pstore1_way;
 
   wire _T_2256 = auto_out_d_valid & grantIsRefill & canAcceptCachedGrant;
-  assign dataArb_io_in_1_valid = _T_2344 ? (auto_out_d_valid | _T_2256) : _T_2256;
+  assign dataArb_io_in_1_valid = (grantIsUncachedData & (blockUncachedGrant | s1_valid)) ? (auto_out_d_valid | _T_2256) : _T_2256;
 
   wire [31:0] _T_2261 = {s2_vaddr[31:6], 6'h0} | {{20'd0}, d_address_inc};
   assign dataArb_io_in_1_bits_addr = _T_2261[11:0];
 
-  assign dataArb_io_in_1_bits_write = _T_2344 ? (auto_out_d_valid ? 1'h0 : 1'h1) : 1'h1;
+  assign dataArb_io_in_1_bits_write = (grantIsUncachedData & (blockUncachedGrant | s1_valid)) ? (auto_out_d_valid ? 1'h0 : 1'h1) : 1'h1;
 
   assign dataArb_io_in_1_bits_wdata = {auto_out_d_bits_data[31:24],auto_out_d_bits_data[23:16],auto_out_d_bits_data[15:8],auto_out_d_bits_data[7:0]};
   assign dataArb_io_in_1_bits_eccMask = 4'hf;
-  assign dataArb_io_in_1_bits_way_en = s2_hit_valid ? s2_hit_way : (4'h1 << _T_649);
+  assign dataArb_io_in_1_bits_way_en = s2_hit_valid ? s2_hit_way : (4'h1 << s1_victim_way_delay);
   assign dataArb_io_in_2_valid = inWriteback & (releaseDataBeat < 11'h10);
   assign dataArb_io_in_2_bits_addr = {probe_bits_address[11:6], 6'h0} | {{6'd0}, releaseDataBeat[3:0], 2'h0}; 
   assign dataArb_io_in_2_bits_wdata = dataArb_io_in_1_bits_wdata;
@@ -1768,7 +1771,7 @@ parameter S_PROBE_WRITE_META	= 3'h7;
   assign tag_array_RW0_clk = gated_clock;
   assign tag_array_RW0_en = s0_clk_en | (metaArb_io_out_valid & metaArb_io_out_bits_write);
   assign tag_array_RW0_addr = metaArb_io_out_bits_idx;
-
+// Passed
 always @(posedge gated_clock) begin
 	if (reset) begin
 		s1_valid <= 1'h0;
@@ -1781,17 +1784,17 @@ always @(posedge gated_clock) begin
 	if (reset) begin
 	  blockProbeAfterGrantCount <= 3'h0;
 	end else begin
-		if (_T_2227 & grantIsCached & d_last) begin
+		if (tl_out__d_fire & grantIsCached & d_last) begin
 			blockProbeAfterGrantCount <= 3'h7;
 		end else begin
-			if (_T_2348) begin
+			if (blockProbeAfterGrantCount > 0) begin
 				blockProbeAfterGrantCount <= blockProbeAfterGrantCount - 3'h1;
 			end
 		end
 	end
 end
-// Passed
-  wire _T_850 = (s2_valid_hit_pre_data_ecc_and_waw & _T_541 & !cached_grant_wait) | s2_valid_cached_miss;
+
+  wire _T_850 = (s2_valid_hit_pre_data_ecc_and_waw & (s2_req_cmd == 5'h6) & !cached_grant_wait) | s2_valid_cached_miss;
 always @(posedge gated_clock) begin
 	if (reset) begin
 		lrscCount <= 7'h0;
@@ -1802,7 +1805,7 @@ always @(posedge gated_clock) begin
 			if (s2_valid_masked & lrscValid) begin
 				lrscCount <= 7'h3;
 			end else begin
-				if (_T_842) begin
+				if (lrscCount > 7'h0) begin
 					lrscCount <= lrscCount - 7'h1;
 				end else begin
 					if (_T_850) begin
@@ -1818,22 +1821,21 @@ always @(posedge gated_clock) begin
 	end
 end
 
-  wire _T_49 = tl_out__b_ready & auto_out_b_valid;
+  wire tl_out__b_fire = tl_out__b_ready & auto_out_b_valid;
 always @(posedge gated_clock) begin
 	if (reset) begin
 		s1_probe <= 1'h0;
 		s2_probe <= 1'h0;
 	end else begin
-		if (_T_2408) begin
-			s1_probe <= metaArb_io_in_6_ready | _T_49;
+		if (s_probe_retry) begin
+			s1_probe <= metaArb_io_in_6_ready | tl_out__b_fire;
 		end else begin
-			s1_probe <= _T_49;
+			s1_probe <= tl_out__b_fire;
 		end
 		s2_probe <= s1_probe;
 	end
 end
 
-  wire _T_2399 = s2_victim_dirty & !discard_line;
 always @(posedge gated_clock) begin
 	if (reset) begin
 		release_state <= S_READY;
@@ -1841,25 +1843,25 @@ always @(posedge gated_clock) begin
 		if (metaArb_io_in_4_ready & metaArb_io_in_4_valid) begin
 			release_state <= S_READY;
 		end
-		else if (_T_2417 & releaseDone) begin
+		else if (s_voluntary_write & releaseDone) begin
 			release_state <= S_VOLUNTARY_WRITE_META;
 		end
-		else if (_T_2414 & releaseDone) begin
+		else if (s_probe_rep_dirty & releaseDone) begin
 			release_state <= S_PROBE_WRITE_META;
 		end
-		else if (_T_2413 & releaseDone) begin
+		else if (s_probe_rep_clean & releaseDone) begin
 			release_state <= S_PROBE_WRITE_META;
 		end
-		else if (_T_2412 & releaseDone) begin
+		else if (s_probe_rep_miss & releaseDone) begin
 			release_state <= S_READY;
 		end
-		else if (_T_2408 & metaArb_io_in_6_ready) begin
+		else if (s_probe_retry & metaArb_io_in_6_ready) begin
 			release_state <= S_READY;
 		end
 		else if (s2_probe & s2_prb_ack_data) begin
 			release_state <= S_PROBE_REP_DIRTY;
 		end
-		else if (s2_probe & _T_2404) begin
+		else if (s2_probe & s2_probe_state_isValid) begin
 			if (releaseDone) release_state <= S_PROBE_WRITE_META;
 			else release_state <= S_PROBE_REP_CLEAN;
 		end
@@ -1868,31 +1870,30 @@ always @(posedge gated_clock) begin
 			else release_state <= S_PROBE_REP_MISS;
 		end
 		else if (s2_want_victimize) begin
-			if (_T_2399) release_state <= S_VOLUNTARY_WRITEBACK;
+			if (s2_victim_dirty & !discard_line) release_state <= S_VOLUNTARY_WRITEBACK;
 			else release_state <= S_VOLUNTARY_WRITE_META;
 		end
 	end
 end
-// Passed
-  wire _T_2439 = _T_2364 & c_first;
+
 always @(posedge gated_clock) begin
 	if (reset) begin
 	  release_ack_wait <= 1'h0;
 	end else begin
-		if (_T_2417 & _T_2439) begin
+		if (s_voluntary_write & auto_out_c_fire & c_first) begin
 			release_ack_wait <= 1'h1;
 			release_ack_addr <= probe_bits_address;
-		end else if (_T_2227 & (!grantIsCached) & (!grantIsUncached) & grantIsVoluntary) begin
+		end else if (tl_out__d_fire & (!grantIsCached) & (!grantIsUncached) & grantIsVoluntary) begin
 			release_ack_wait <= 1'h0;
 		end
 	end
 end
-// Passed
+
 always @(posedge gated_clock) begin
 	if (reset) begin
 		grantInProgress <= 1'h0;
 	end else begin
-		if (_T_2227) begin
+		if (tl_out__d_fire) begin
 			if (grantIsCached) begin
 				if (d_last) begin
 					grantInProgress <= 1'h0;
@@ -1919,7 +1920,7 @@ always @(posedge gated_clock) begin
 		probe_bits_source <= 1'h0;
 		probe_bits_address <= res_2_address;
 	end else begin
-		if (_T_49) begin
+		if (tl_out__b_fire) begin
 			probe_bits_param <= auto_out_b_bits_param;
 			probe_bits_size <= auto_out_b_bits_size;
 			probe_bits_source <= auto_out_b_bits_source;
@@ -1933,52 +1934,52 @@ always @(posedge gated_clock) begin
 		s2_probe_state_state <= s1_meta_hit_state_state;
 	end
 end
-// Passed
+
 always @(posedge gated_clock) begin
 	if (reset) begin
-		_T_2372 <= 10'h0;
+		tl_out__c_firstlastHelpert_counter <= 10'h0;
 	end else begin
-		if (_T_2364) begin
+		if (auto_out_c_fire) begin
 			if (c_first) begin
 				if (tl_out__c_bits_opcode[0]) begin
-					_T_2372 <= ~ _T_2366[11:2];
+					tl_out__c_firstlastHelpert_counter <= ~ tl_out__c_numBeats1_decode[11:2];
 				end else begin
-					_T_2372 <= 10'h0;
+					tl_out__c_firstlastHelpert_counter <= 10'h0;
 				end
 			end else begin
-				_T_2372 <= _T_2374;
+				tl_out__c_firstlastHelpert_counter <= tl_out__c_firstlastHelpert_counter1;
 			end
 		end
 	end
 	s2_release_data_valid <= s1_release_data_valid & !releaseRejected;
 end
 
-  wire _T_391 = s1_valid_not_nacked | s1_flush_valid;
+  wire s1_valid_not_nacked_flush_valid = s1_valid_not_nacked | s1_flush_valid;
 always @(posedge gated_clock) begin
 	if (s0_clk_en) begin
 		s1_req_cmd <= io_cpu_req_bits_cmd;
 	end
-	if (_T_2227 & !grantIsCached & grantIsUncached & grantIsUncachedData) begin
+	if (tl_out__d_fire & !grantIsCached & grantIsUncached & grantIsUncachedData) begin
 		s2_req_cmd <= 5'h0;
 	end else begin
-		if (_T_391) begin
+		if (s1_valid_not_nacked_flush_valid) begin
 			s2_req_cmd <= s1_req_cmd;
 		end
 	end
 end
-// Passed
-  wire _T_866 = s1_valid_not_nacked & s1_write;
-  wire _T_81 = s1_req_cmd == 5'h11;
+
+  wire s1_valid_not_nacked_write = s1_valid_not_nacked & s1_write;
+  wire s1_MemoryOpConstants_M_PWR = s1_req_cmd == MemoryOpConstants_M_PWR;
 always @(posedge gated_clock) begin
 	pstore1_held <= pstore1_valid & pstore2_valid & !pstore_drain;
-	if (_T_866) begin
+	if (s1_valid_not_nacked_write) begin
 		pstore1_addr <= s1_req_addr;
 	end
 	if (s0_clk_en) begin
 		s1_req_addr <= {metaArb_io_out_bits_addr[31:6], io_cpu_req_bits_addr[5:0]};
 	end
-	if (_T_866) begin
-		if (_T_81) begin
+	if (s1_valid_not_nacked_write) begin
+		if (s1_MemoryOpConstants_M_PWR) begin
 			pstore1_mask <= io_cpu_s1_data_mask;
 		end else begin
 			pstore1_mask <= s1_mask_xwr;
@@ -1986,13 +1987,12 @@ always @(posedge gated_clock) begin
 	end
 end
 
-  wire _T_1038 = pstore_drain == 1'h0;
 always @(posedge gated_clock) begin
 	if (s0_clk_en) begin
 		s1_req_size <= io_cpu_req_bits_size;
 	end
 
-    	pstore2_valid <= (pstore2_valid & _T_1038) | advance_pstore1;
+    	pstore2_valid <= (pstore2_valid & !pstore_drain) | advance_pstore1;
 
 	if (advance_pstore1) begin
 		pstore2_addr <= pstore1_addr;
@@ -2001,16 +2001,13 @@ always @(posedge gated_clock) begin
 		mask <= ~ (~ pstore1_mask);
 	end
 
-	_T_384 <= s1_nack == 1'h0;
+	s1_nack_inv_reg <= s1_nack == 1'h0;
 
-	if (_T_391) begin
+	if (s1_valid_not_nacked_flush_valid) begin
 		s2_hit_state_state <= s1_meta_hit_state_state;
 	end
 end
 
-  wire _T_57 = metaArb_io_in_7_ready == 1'h0;
-  wire _T_643 = s2_flush_valid_pre_tag_ecc == 1'h0;
-  wire _T_107 = release_state == 3'h0;
 always @(posedge gated_clock) begin
 	if (s0_clk_en) begin
 		s1_req_tag <= io_cpu_req_bits_tag;
@@ -2019,48 +2016,46 @@ always @(posedge gated_clock) begin
 		s1_req_signed <= io_cpu_req_bits_signed;
 	end
 	if (s0_clk_en) begin
-		s1_req_phys <= _T_57 | io_cpu_req_bits_phys;;
+		s1_req_phys <= !metaArb_io_in_7_ready | io_cpu_req_bits_phys;;
 	end
-	s1_flush_valid <= metaArb_io_in_5_ready & metaArb_io_in_5_valid & _T_310 & _T_643 & _T_107 & can_acquire_before_release;
+	s1_flush_valid <= metaArb_io_in_5_ready & metaArb_io_in_5_valid & (!s1_flush_valid) & !s2_flush_valid_pre_tag_ecc & (release_state == S_READY) & can_acquire_before_release;
 end
 
-  wire _T_2180 = auto_out_a_ready & tl_out_a_valid;
+  wire tl_out_a_fire = auto_out_a_ready & tl_out_a_valid;
 always @(posedge gated_clock) begin
 	if (reset) begin
 		cached_grant_wait <= 1'h0;
 	end else begin
-		if (_T_2227 & grantIsCached & d_last) begin
+		if (tl_out__d_fire & grantIsCached & d_last) begin
 		      cached_grant_wait <= 1'h0;
 		end
-		else if (_T_2180 & !s2_uncached) begin
+		else if (tl_out_a_fire & !s2_uncached) begin
 			cached_grant_wait <= 1'h1;
 		end
 	end
 end
-// Passed
-  wire _T_2232 = uncachedRespIdxOH & d_last;
-  wire _GEN_114 = a_sel | uncachedInFlight_0;
+
 always @(posedge gated_clock) begin
 	if (reset) begin
 		uncachedInFlight_0 <= 1'h0;
 	end else begin
-		if (_T_2227) begin
+		if (tl_out__d_fire) begin
 			if (grantIsCached) begin
-				if (_T_2180 & s2_uncached) begin
-					uncachedInFlight_0 <= _GEN_114;
+				if (tl_out_a_fire & s2_uncached) begin
+					uncachedInFlight_0 <= a_sel | uncachedInFlight_0;
 				end
 			end else begin
-				if (grantIsUncached & _T_2232) begin
+				if (grantIsUncached & uncachedRespIdxOH & d_last) begin
 					uncachedInFlight_0 <= 1'h0;
 				end else begin
-					if (_T_2180 & s2_uncached) begin
-						uncachedInFlight_0 <= _GEN_114;
+					if (tl_out_a_fire & s2_uncached) begin
+						uncachedInFlight_0 <= a_sel | uncachedInFlight_0;
 					end
 				end
 			end
 		end else begin
-			if (_T_2180 & s2_uncached) begin
-				uncachedInFlight_0 <= _GEN_114;
+			if (tl_out_a_fire & s2_uncached) begin
+				uncachedInFlight_0 <= a_sel | uncachedInFlight_0;
 			end
 		end
 	end
@@ -2079,7 +2074,7 @@ end
 		| (io_cpu_req_bits_cmd == 5'he) 
 		| (io_cpu_req_bits_cmd == 5'hf);
 always @(posedge gated_clock) begin
-	if (_T_2180 & s2_uncached & a_sel) begin
+	if (tl_out_a_fire & s2_uncached & a_sel) begin
 		uncachedReqs_0_addr <= s2_req_addr;
 		uncachedReqs_0_tag <= s2_req_tag;
 		uncachedReqs_0_size <= s2_req_size;
@@ -2091,8 +2086,8 @@ always @(posedge gated_clock) begin
 	if (s1_valid_not_nacked) begin
 		s2_hit_way <= s1_meta_hit_way;
 	end
-	if (_T_391) begin
-		_T_649 <= s1_victim_way;
+	if (s1_valid_not_nacked_flush_valid) begin
+		s1_victim_way_delay <= s1_victim_way;
 	end
 	if (s1_probe) begin
 		s2_probe_way <= s1_meta_hit_way;
@@ -2100,9 +2095,9 @@ always @(posedge gated_clock) begin
 end
 
 always @(posedge gated_clock) begin
-	if (_T_2227) begin
+	if (tl_out__d_fire) begin
 		if (grantIsCached) begin
-			if (_T_391) begin
+			if (s1_valid_not_nacked_flush_valid) begin
 				s2_req_addr <= tlb_io_resp_paddr;
 				s2_req_tag <= s1_req_tag;
 				s2_req_size <= s1_req_size;
@@ -2115,7 +2110,7 @@ always @(posedge gated_clock) begin
 				s2_req_size <= uncachedReqs_0_size;
 				s2_req_signed <= uncachedReqs_0_signed;
 			end else begin
-				if (_T_391) begin
+				if (s1_valid_not_nacked_flush_valid) begin
 					s2_req_addr <= tlb_io_resp_paddr;
 					s2_req_tag <= s1_req_tag;
 					s2_req_size <= s1_req_size;
@@ -2124,7 +2119,7 @@ always @(posedge gated_clock) begin
 			end
 		end
 	end else begin
-		if (_T_391) begin
+		if (s1_valid_not_nacked_flush_valid) begin
 			s2_req_addr <= tlb_io_resp_paddr;
 			s2_req_tag <= s1_req_tag;
 			s2_req_size <= s1_req_size;
@@ -2132,10 +2127,9 @@ always @(posedge gated_clock) begin
 		end
 	end
 end
-// Passed
-  wire _T_2257 = dataArb_io_in_1_ready == 1'h0;
+
 always @(posedge gated_clock) begin
-	if (_T_391) begin
+	if (s1_valid_not_nacked_flush_valid) begin
 		s2_tlb_resp_pf_ld <= tlb_io_resp_pf_ld;
 		s2_tlb_resp_pf_st <= tlb_io_resp_pf_st;
 		s2_tlb_resp_ae_ld <= tlb_io_resp_ae_ld;
@@ -2144,15 +2138,15 @@ always @(posedge gated_clock) begin
 		s2_tlb_resp_ma_st <= tlb_io_resp_ma_st;
 		s2_tlb_resp_cacheable <= tlb_io_resp_cacheable;
 	end
-	if (_T_2227 & !(grantIsCached) & grantIsUncached & grantIsUncachedData) begin
+	if (tl_out__d_fire & !(grantIsCached) & grantIsUncached & grantIsUncachedData) begin
 		s2_uncached_resp_addr <= uncachedReqs_0_addr;
 	end
-	if (_T_391) begin
-		_T_393 <= s1_req_addr;
+	if (s1_valid_not_nacked_flush_valid) begin
+		s1_req_addr_delay <= s1_req_addr;
 	end
 	s2_flush_valid_pre_tag_ecc <= s1_flush_valid;
-	if (_T_2344 & auto_out_d_valid) begin
-		blockUncachedGrant <= _T_2257;
+	if ((grantIsUncachedData & (blockUncachedGrant | s1_valid)) & auto_out_d_valid) begin
+		blockUncachedGrant <= !dataArb_io_in_1_ready;
 	end else begin
 		blockUncachedGrant <= dataArb_io_out_valid;
 	end
@@ -2166,17 +2160,17 @@ end
 		| (_T_476[4] ? {auto_out_d_bits_data[31:24],auto_out_d_bits_data[23:16],auto_out_d_bits_data[15:8],auto_out_d_bits_data[7:0]} : 32'h0); 
 always @(posedge gated_clock) begin
 	if (reset) begin
-		_T_2190 <= 10'h0;
+		tl_out__d_firstlastHelpert_counter <= 10'h0;
 	end else begin
-		if (_T_2227) begin
+		if (tl_out__d_fire) begin
 			if (d_first) begin
 				if (auto_out_d_bits_opcode[0]) begin
-					_T_2190 <= ~ _T_2184[11:2];
+					tl_out__d_firstlastHelpert_counter <= ~ tl_out__d_firstlastHelpert_beats1_decode[11:2];
 				end else begin
-					_T_2190 <= 10'h0;
+					tl_out__d_firstlastHelpert_counter <= 10'h0;
 				end
 			end else begin
-				_T_2190 <= _T_2192;
+				tl_out__d_firstlastHelpert_counter <= tl_out__d_firstlastHelpert_counter1;
 			end
 		end
 	end
@@ -2186,21 +2180,21 @@ always @(posedge gated_clock) begin
 end
 
 always @(posedge gated_clock) begin
-	if (_T_391) begin
+	if (s1_valid_not_nacked_flush_valid) begin
 		if (s1_victim_way == 2'h3) begin
-			_T_654 <= s1_meta_uncorrected_3_tag;
-			_T_656_state <= s1_meta_uncorrected_3_coh_state;
+			s2_victim_tag_reg <= s1_meta_uncorrected_3_tag;
+			s2_victim_state_reg <= s1_meta_uncorrected_3_coh_state;
 		end else begin
 			if (s1_victim_way == 2'h2) begin
-				_T_654 <= s1_meta_uncorrected_2_tag;
-				_T_656_state <= s1_meta_uncorrected_2_coh_state;
+				s2_victim_tag_reg <= s1_meta_uncorrected_2_tag;
+				s2_victim_state_reg <= s1_meta_uncorrected_2_coh_state;
 			end else begin
 				if (s1_victim_way == 2'h1) begin
-					_T_654 <= s1_meta_uncorrected_1_tag;
-					_T_656_state <= s1_meta_uncorrected_1_coh_state;
+					s2_victim_tag_reg <= s1_meta_uncorrected_1_tag;
+					s2_victim_state_reg <= s1_meta_uncorrected_1_coh_state;
 				end else begin
-					_T_654 <= s1_meta_uncorrected_0_tag;
-					_T_656_state <= s1_meta_uncorrected_0_coh_state;
+					s2_victim_tag_reg <= s1_meta_uncorrected_0_tag;
+					s2_victim_state_reg <= s1_meta_uncorrected_0_coh_state;
 				end
 			end
 		end
@@ -2211,22 +2205,22 @@ always @(posedge gated_clock) begin
 	if (_T_850) begin
 		lrscAddr <= s2_req_addr[31:6];
 	end
-	if (_T_866) begin
+	if (s1_valid_not_nacked_write) begin
 		pstore1_cmd <= s1_req_cmd;
 		pstore1_data <= io_cpu_s1_data_data;
 		pstore1_way <= s1_meta_hit_way;
-		pstore1_rmw <= s1_read | (s1_write & _T_81);
+		pstore1_rmw <= s1_read | (s1_write & s1_MemoryOpConstants_M_PWR);
 	end
-	_T_995 <= io_cpu_s2_nack;
+	io_cpu_s2_nack_delay <= io_cpu_s2_nack;
 	if (advance_pstore1) begin
 		pstore2_way <= pstore1_way;
-		_T_1051 <= pstore1_storegen_data[7:0];
-		_T_1056 <= pstore1_storegen_data[15:8];
-		_T_1061 <= pstore1_storegen_data[23:16];
-		_T_1066 <= pstore1_storegen_data[31:24];
+		pstore1_storegen_data_reg0 <= pstore1_storegen_data[7:0];
+		pstore1_storegen_data_reg1 <= pstore1_storegen_data[15:8];
+		pstore1_storegen_data_reg2 <= pstore1_storegen_data[23:16];
+		pstore1_storegen_data_reg3 <= pstore1_storegen_data[31:24];
 	end
 	s1_release_data_valid <= dataArb_io_in_2_ready & dataArb_io_in_2_valid;
-	_T_2475 <= tlb_io_req_valid & _T_52;
+	s1_xcpt_valid_delay <= tlb_io_req_valid & !s1_nack;
 	doUncachedResp <= io_cpu_replay_next;
 end
 
@@ -2237,10 +2231,10 @@ always @(posedge gated_clock) begin
 		if (resetting & flushDone) begin
 			resetting <= 1'h0;
 		end else begin
-			resetting <= _T_2540 | resetting;
+			resetting <= reset_delay | resetting;
 		end
 	end
-	_T_2540 <= reset;
+	reset_delay <= reset;
 	if (reset) begin
 		flushCounter <= 8'hc0;
 	end else begin
@@ -2248,36 +2242,35 @@ always @(posedge gated_clock) begin
 	end
 end
 
-  wire _T_2621 = _T_2618 == 10'h0;
 always @(posedge gated_clock) begin
 	if (reset) begin
-		_T_2618 <= 10'h0;
+		tl_out__c_firstlastHelper_counter <= 10'h0;
 	end else begin
-		if (_T_2364) begin
-			if (_T_2621) begin
+		if (auto_out_c_fire) begin
+			if (tl_out__c_firstlastHelper_counter == 10'h0) begin
 				if (tl_out__c_bits_opcode[0]) begin
-					_T_2618 <= ~ _T_2366[11:2];
+					tl_out__c_firstlastHelper_counter <= ~ tl_out__c_numBeats1_decode[11:2];
 				end else begin
-					_T_2618 <= 10'h0;
+					tl_out__c_firstlastHelper_counter <= 10'h0;
 				end
 			end else begin
-				_T_2618 <= _T_2618 - 10'h1;
+				tl_out__c_firstlastHelper_counter <= tl_out__c_firstlastHelper_counter - 10'h1;
 			end
 		end
 	end
 end
-// Passed
+
     `ifndef SYNTHESIS
   wire _T_195 = (!(s0_read | ((_T_135 | _T_164 | _T_116 | _T_134) & _T_164)) | res | reset) == 1'h0;
-  wire _T_371 = (!(s1_valid_masked & _T_81) | ((s1_mask_xwr | (~ io_cpu_s1_data_mask)) == 4'hf) | reset) == 1'h0;
-  wire _T_1014 = (pstore1_rmw | (_T_1009 == pstore1_valid) | reset) == 1'h0;
-  wire _GEN_324 = _T_2227 & grantIsCached;
-  wire _GEN_329 = _T_2227 & !grantIsCached & grantIsUncached & _T_2232;
-  wire _GEN_338 = _T_2227 & !grantIsCached & !grantIsUncached & grantIsVoluntary;
+  wire _T_371 = (!(s1_valid_masked & s1_MemoryOpConstants_M_PWR) | ((s1_mask_xwr | (~ io_cpu_s1_data_mask)) == 4'hf) | reset) == 1'h0;
+  wire _T_1014 = (pstore1_rmw | (pstore1_valid_not_rmw_s2_kill == pstore1_valid) | reset) == 1'h0;
+  wire _GEN_324 = tl_out__d_fire & grantIsCached;
+  wire _GEN_329 = tl_out__d_fire & !grantIsCached & grantIsUncached & uncachedRespIdxOH & d_last;
+  wire _GEN_338 = tl_out__d_fire & !grantIsCached & !grantIsUncached & grantIsVoluntary;
   wire _T_2230 = (cached_grant_wait | reset) == 1'h0;
   wire _T_2235 = (uncachedInFlight_0 | reset) == 1'h0;
   wire _T_2242 = (release_ack_wait | reset) == 1'h0;
-  wire _T_2254 = (((auto_out_e_ready & tl_out__e_valid) == (_T_2227 & d_first & grantIsCached)) | reset) == 1'h0;
+  wire _T_2254 = (((auto_out_e_ready & tl_out__e_valid) == (tl_out__d_fire & d_first & grantIsCached)) | reset) == 1'h0;
   wire _T_2393 = (s2_valid_flush_line | s2_flush_valid_pre_tag_ecc | io_cpu_s2_nack | reset) == 1'h0;
   wire _T_2504 = (!s2_valid_hit_pre_data_ecc_and_waw | reset) == 1'h0;
     `endif // SYNTHESIS
@@ -2596,7 +2589,7 @@ initial begin
   `endif // RANDOMIZE_REG_INIT
   `ifdef RANDOMIZE_REG_INIT
   _RAND_15 = {1{`RANDOM}};
-  _T_2372 = _RAND_15[9:0];
+  tl_out__c_firstlastHelpert_counter = _RAND_15[9:0];
   `endif // RANDOMIZE_REG_INIT
   `ifdef RANDOMIZE_REG_INIT
   _RAND_16 = {1{`RANDOM}};
@@ -2644,7 +2637,7 @@ initial begin
   `endif // RANDOMIZE_REG_INIT
   `ifdef RANDOMIZE_REG_INIT
   _RAND_27 = {1{`RANDOM}};
-  _T_384 = _RAND_27[0:0];
+  s1_nack_inv_reg = _RAND_27[0:0];
   `endif // RANDOMIZE_REG_INIT
   `ifdef RANDOMIZE_REG_INIT
   _RAND_28 = {1{`RANDOM}};
@@ -2700,7 +2693,7 @@ initial begin
   `endif // RANDOMIZE_REG_INIT
   `ifdef RANDOMIZE_REG_INIT
   _RAND_41 = {1{`RANDOM}};
-  _T_649 = _RAND_41[1:0];
+  s1_victim_way_delay = _RAND_41[1:0];
   `endif // RANDOMIZE_REG_INIT
   `ifdef RANDOMIZE_REG_INIT
   _RAND_42 = {1{`RANDOM}};
@@ -2756,7 +2749,7 @@ initial begin
   `endif // RANDOMIZE_REG_INIT
   `ifdef RANDOMIZE_REG_INIT
   _RAND_55 = {1{`RANDOM}};
-  _T_393 = _RAND_55[31:0];
+  s1_req_addr_delay = _RAND_55[31:0];
   `endif // RANDOMIZE_REG_INIT
   `ifdef RANDOMIZE_REG_INIT
   _RAND_56 = {1{`RANDOM}};
@@ -2768,7 +2761,7 @@ initial begin
   `endif // RANDOMIZE_REG_INIT
   `ifdef RANDOMIZE_REG_INIT
   _RAND_58 = {1{`RANDOM}};
-  _T_2190 = _RAND_58[9:0];
+  tl_out__d_firstlastHelpert_counter = _RAND_58[9:0];
   `endif // RANDOMIZE_REG_INIT
   `ifdef RANDOMIZE_REG_INIT
   _RAND_59 = {1{`RANDOM}};
@@ -2776,11 +2769,11 @@ initial begin
   `endif // RANDOMIZE_REG_INIT
   `ifdef RANDOMIZE_REG_INIT
   _RAND_60 = {1{`RANDOM}};
-  _T_654 = _RAND_60[19:0];
+  s2_victim_tag_reg = _RAND_60[19:0];
   `endif // RANDOMIZE_REG_INIT
   `ifdef RANDOMIZE_REG_INIT
   _RAND_61 = {1{`RANDOM}};
-  _T_656_state = _RAND_61[1:0];
+  s2_victim_state_reg = _RAND_61[1:0];
   `endif // RANDOMIZE_REG_INIT
   `ifdef RANDOMIZE_REG_INIT
   _RAND_62 = {1{`RANDOM}};
@@ -2804,7 +2797,7 @@ initial begin
   `endif // RANDOMIZE_REG_INIT
   `ifdef RANDOMIZE_REG_INIT
   _RAND_67 = {1{`RANDOM}};
-  _T_995 = _RAND_67[0:0];
+  io_cpu_s2_nack_delay = _RAND_67[0:0];
   `endif // RANDOMIZE_REG_INIT
   `ifdef RANDOMIZE_REG_INIT
   _RAND_68 = {1{`RANDOM}};
@@ -2812,19 +2805,19 @@ initial begin
   `endif // RANDOMIZE_REG_INIT
   `ifdef RANDOMIZE_REG_INIT
   _RAND_69 = {1{`RANDOM}};
-  _T_1051 = _RAND_69[7:0];
+  pstore1_storegen_data_reg0 = _RAND_69[7:0];
   `endif // RANDOMIZE_REG_INIT
   `ifdef RANDOMIZE_REG_INIT
   _RAND_70 = {1{`RANDOM}};
-  _T_1056 = _RAND_70[7:0];
+  pstore1_storegen_data_reg1 = _RAND_70[7:0];
   `endif // RANDOMIZE_REG_INIT
   `ifdef RANDOMIZE_REG_INIT
   _RAND_71 = {1{`RANDOM}};
-  _T_1061 = _RAND_71[7:0];
+  pstore1_storegen_data_reg2 = _RAND_71[7:0];
   `endif // RANDOMIZE_REG_INIT
   `ifdef RANDOMIZE_REG_INIT
   _RAND_72 = {1{`RANDOM}};
-  _T_1066 = _RAND_72[7:0];
+  pstore1_storegen_data_reg3 = _RAND_72[7:0];
   `endif // RANDOMIZE_REG_INIT
   `ifdef RANDOMIZE_REG_INIT
   _RAND_73 = {1{`RANDOM}};
@@ -2832,7 +2825,7 @@ initial begin
   `endif // RANDOMIZE_REG_INIT
   `ifdef RANDOMIZE_REG_INIT
   _RAND_74 = {1{`RANDOM}};
-  _T_2475 = _RAND_74[0:0];
+  s1_xcpt_valid_delay = _RAND_74[0:0];
   `endif // RANDOMIZE_REG_INIT
   `ifdef RANDOMIZE_REG_INIT
   _RAND_75 = {1{`RANDOM}};
@@ -2844,7 +2837,7 @@ initial begin
   `endif // RANDOMIZE_REG_INIT
   `ifdef RANDOMIZE_REG_INIT
   _RAND_77 = {1{`RANDOM}};
-  _T_2540 = _RAND_77[0:0];
+  reset_delay = _RAND_77[0:0];
   `endif // RANDOMIZE_REG_INIT
   `ifdef RANDOMIZE_REG_INIT
   _RAND_78 = {1{`RANDOM}};
@@ -2852,11 +2845,11 @@ initial begin
   `endif // RANDOMIZE_REG_INIT
   `ifdef RANDOMIZE_REG_INIT
   _RAND_79 = {1{`RANDOM}};
-  _T_2618 = _RAND_79[9:0];
+  tl_out__c_firstlastHelper_counter = _RAND_79[9:0];
   `endif // RANDOMIZE_REG_INIT
   `endif // RANDOMIZE
 end
-//
+// Passed
 `endif // MY_ASSIGNMENT
 endmodule
 `endif // __DCache

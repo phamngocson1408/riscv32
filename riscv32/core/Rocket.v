@@ -2133,6 +2133,9 @@ end
   wire [4:0] _T_1393 = rf_wen ? coreMonitorBundle_wrdst : 5'h0;
   wire [4:0] _T_1369 = wb_reg_inst[19:15];
   wire [4:0] _T_1370 = wb_reg_inst[24:20]; 
+  wire [31:0] reg_sp = rf[2];
+  wire [31:0] reg_a4 = rf[17];
+  wire [31:0] reg_a5 = rf[16];
     `endif
 always @(posedge clock) begin
     `ifndef SYNTHESIS

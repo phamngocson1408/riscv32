@@ -1,5 +1,6 @@
 //`define __IntXing			// TestDriver.testHarness.dut.asyncXing
 //`define __SynchronizerShiftReg_w2_d3	// TestDriver.testHarness.dut.asyncXing.SynchronizerShiftReg_w2_d3
+//`define __TLROM_HEX			// TestDriver.testHarness.dut.bootrom
 //`define __PeripheryBus_1		// TestDriver.testHarness.dut.cbus
 `define __CLINT				// TestDriver.testHarness.dut.clint
 `define __TLDebugModule			// TestDriver.testHarness.dut.debug_1

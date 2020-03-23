@@ -261,7 +261,7 @@ module mem_ext(
   `endif
 
 //  initial begin
-//    $readmemh ( "/home/pnson89/RISCV/ROCKET/rocket-chip/vsim/rv32um-v-mul.hex" , ram );
+//    $readmemh ( "/home/pnson89/RISCV/ROCKET/rocket-chip/vsim/output/rv32ui-p-add.hex" , ram );
 //  end
 
 endmodule

@@ -98,7 +98,7 @@
   csrr a0, mhartid;                                                     \
   1: bnez a0, 1b
 
-#define TIMER_INTERVAL 0x20
+#define TIMER_INTERVAL 0x5
 #define MTIME		0x0200bff8
 #define MTIMECMP	0x02004000
 

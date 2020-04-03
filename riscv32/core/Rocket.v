@@ -187,6 +187,8 @@ module Rocket(
   wire [4:0] ibuf_io_inst_0_bits_inst_rs2;
   wire [4:0] ibuf_io_inst_0_bits_inst_rs3;
   wire [31:0] ibuf_io_inst_0_bits_raw;
+
+// General registers
   reg [31:0] rf [0:30];
   reg [31:0] _RAND_0;
   wire [31:0] rf_rdata1; 
@@ -620,7 +622,7 @@ module Rocket(
   wire  wb_set_sboard;
   wire  fp_data_hazard_wb;
   wire  id_wb_hazard;
-  reg [31:0] _T_1114;
+  reg [31:0] sboard_reg;	// _T_1114
   reg [31:0] _RAND_89;
   wire  dmem_resp_valid;
   wire  dmem_resp_replay;
@@ -688,8 +690,82 @@ module Rocket(
   reg [31:0] coreMonitorBundle_rd1val;
   reg [31:0] _RAND_96;
   wire [31:0] coreMonitorBundle_inst;
-  reg [31:0] _T_1227;
-  reg  _T_998;
+  reg [31:0] fp_sboard_reg;	// _T_1227
+  reg  div_io_kill_reg;
+
+// CSR commands
+parameter CSR_N = 3'h0;
+parameter CSR_R = 3'h2;
+parameter CSR_I = 3'h4;
+parameter CSR_W = 3'h5;
+parameter CSR_S = 3'h6;
+parameter CSR_C = 3'h7;
+parameter CSR_debugIntCause = 4'he;
+parameter CSR_debugTriggerCause = 32'he;
+
+// MemoryOpConstants
+//parameter M_XSC = 5'b00111;
+//parameter M_SFENCE = 5'b10100;
+//parameter M_FLUSH_ALL = 5'b00101;
+parameter M_XRD     	= 5'b00000; // int load
+parameter M_XWR     	= 5'b00001; // int store
+parameter M_PFR     	= 5'b00010; // prefetch with intent to read
+parameter M_PFW     	= 5'b00011; // prefetch with intent to write
+parameter M_XA_SWAP 	= 5'b00100;
+parameter M_FLUSH_ALL 	= 5'b00101;  // flush all lines
+parameter M_XLR    	= 5'b00110;
+parameter M_XSC    	= 5'b00111;
+parameter M_XA_ADD 	= 5'b01000;
+parameter M_XA_XOR 	= 5'b01001;
+parameter M_XA_OR  	= 5'b01010;
+parameter M_XA_AND 	= 5'b01011;
+parameter M_XA_MIN 	= 5'b01100;
+parameter M_XA_MAX 	= 5'b01101;
+parameter M_XA_MINU	= 5'b01110;
+parameter M_XA_MAXU	= 5'b01111;
+parameter M_FLUSH  	= 5'b10000; // write back dirty data and cede R/W permissions
+parameter M_PWR    	= 5'b10001; // partial (masked) store
+parameter M_PRODUCE	= 5'b10010; // write back dirty data and cede W permissions
+parameter M_CLEAN  	= 5'b10011; // write back dirty data and retain R/W permissions
+parameter M_SFENCE 	= 5'b10100; // flush TLB
+parameter M_WOK    	= 5'b10111; // check write permissions but don't perform a write
+
+
+// Causes
+parameter Causes_misaligned_fetch 	= 32'h0;
+parameter Causes_illegal_instruction 	= 32'h2;
+parameter Causes_breakpoint 		= 32'h3;
+parameter Causes_fetch_access		= 32'h1;
+parameter Causes_fetch_page_fault	= 32'hc;
+parameter Causes_misaligned_store 	= 32'h6;
+parameter Causes_misaligned_load 	= 32'h4;
+parameter Causes_store_page_fault 	= 32'hf;
+parameter Causes_load_page_fault 	= 32'hd;
+parameter Causes_store_access 		= 32'h7;
+parameter Causes_load_access 		= 32'h5;
+
+// CFIType
+parameter CFIType_call 		= 2'h2;
+parameter CFIType_ret 		= 2'h3;
+parameter CFIType_jump 		= 2'h1;
+parameter CFIType_branch	= 2'h0;
+
+// ScalarOpConstants
+parameter A1_RS1	= 2'h1;
+parameter A1_PC		= 2'h2;
+
+parameter A2_ZERO	= 2'h0;
+parameter A2_SIZE	= 2'h1;
+
+parameter IMM_Z 	= 3'h5;
+parameter IMM_UJ 	= 3'h3;
+parameter IMM_U 	= 3'h2;
+parameter IMM_SB 	= 3'h1;
+parameter IMM_S 	= 3'h0;
+
+// ALU
+parameter ALU_FN_ADD	= 4'h0;
+
   IBuf ibuf (
     .clock(ibuf_clock),
     .reset(ibuf_reset),
@@ -932,13 +1008,13 @@ module Rocket(
   wire rf_waddr_valid = rf_waddr != 5'h0;
   assign replay_wb_common = io_dmem_s2_nack | wb_reg_replay;
 
-  wire _T_1015 = wb_reg_valid & wb_ctrl_mem;
-  wire wb_xcpt_ma_st = _T_1015 & io_dmem_s2_xcpt_ma_st;
-  wire wb_xcpt_ma_ld = _T_1015 & io_dmem_s2_xcpt_ma_ld;
-  wire wb_xcpt_pf_st = _T_1015 & io_dmem_s2_xcpt_pf_st;
-  wire wb_xcpt_pf_ld = _T_1015 & io_dmem_s2_xcpt_pf_ld;
-  wire wb_xcpt_ae_st = _T_1015 & io_dmem_s2_xcpt_ae_st;
-  wire wb_xcpt_ae_ld = _T_1015 & io_dmem_s2_xcpt_ae_ld;
+  wire wb_reg_valid_ctrl_mem = wb_reg_valid & wb_ctrl_mem;	// _T_1015
+  wire wb_xcpt_ma_st = wb_reg_valid_ctrl_mem & io_dmem_s2_xcpt_ma_st;
+  wire wb_xcpt_ma_ld = wb_reg_valid_ctrl_mem & io_dmem_s2_xcpt_ma_ld;
+  wire wb_xcpt_pf_st = wb_reg_valid_ctrl_mem & io_dmem_s2_xcpt_pf_st;
+  wire wb_xcpt_pf_ld = wb_reg_valid_ctrl_mem & io_dmem_s2_xcpt_pf_ld;
+  wire wb_xcpt_ae_st = wb_reg_valid_ctrl_mem & io_dmem_s2_xcpt_ae_st;
+  wire wb_xcpt_ae_ld = wb_reg_valid_ctrl_mem & io_dmem_s2_xcpt_ae_ld;
 
   assign wb_xcpt = wb_reg_xcpt 
 		| wb_xcpt_ma_st 
@@ -969,17 +1045,17 @@ module Rocket(
   assign take_pc_mem = mem_reg_valid & (mem_wrong_npc | mem_reg_sfence);
   assign take_pc_mem_wb = take_pc_wb | take_pc_mem;
 
-  wire [31:0] _T = ibuf_io_inst_0_bits_inst_bits & 32'h207f;
-  wire _T_1 = _T == 32'h3;
-  wire _T_23 = (ibuf_io_inst_0_bits_inst_bits & 32'h705b) == 32'h2003;
-  wire _T_27 = (ibuf_io_inst_0_bits_inst_bits & 32'h1800707f) == 32'h202f;
-  wire _T_33 = (ibuf_io_inst_0_bits_inst_bits & 32'he800707f) == 32'h800202f;
-  wire _T_35 = (ibuf_io_inst_0_bits_inst_bits & 32'hf9f0707f) == 32'h1000202f;
-  wire [31:0] _T_36 = ibuf_io_inst_0_bits_inst_bits & 32'hdfffffff; 
-  wire _T_41 = (ibuf_io_inst_0_bits_inst_bits & 32'hfe007fff) == 32'h12000073;
-  wire [31:0] _T_57 = ibuf_io_inst_0_bits_inst_bits & 32'h306f;
-  wire _T_62 = (ibuf_io_inst_0_bits_inst_bits & 32'h605f) == 32'h3;
-  assign id_ctrl_legal = _T_1 
+//  wire [31:0] _T = ibuf_io_inst_0_bits_inst_bits & 32'h207f;
+//  wire _T_1 = (ibuf_io_inst_0_bits_inst_bits & 32'h207f) == 32'h3;
+//  wire _T_23 = (ibuf_io_inst_0_bits_inst_bits & 32'h705b) == 32'h2003;
+//  wire _T_27 = (ibuf_io_inst_0_bits_inst_bits & 32'h1800707f) == 32'h202f;
+//  wire _T_33 = (ibuf_io_inst_0_bits_inst_bits & 32'he800707f) == 32'h800202f;
+//  wire _T_35 = (ibuf_io_inst_0_bits_inst_bits & 32'hf9f0707f) == 32'h1000202f;
+//  wire [31:0] _T_36 = ibuf_io_inst_0_bits_inst_bits & 32'hdfffffff; 
+//  wire _T_41 = (ibuf_io_inst_0_bits_inst_bits & 32'hfe007fff) == 32'h12000073;
+//  wire [31:0] _T_57 = ibuf_io_inst_0_bits_inst_bits & 32'h306f;
+//  wire _T_62 = (ibuf_io_inst_0_bits_inst_bits & 32'h605f) == 32'h3;
+  assign id_ctrl_legal = ((ibuf_io_inst_0_bits_inst_bits & 32'h207f) == 32'h3) 
 			| ((ibuf_io_inst_0_bits_inst_bits & 32'h607f) == 32'hf)
 			| ((ibuf_io_inst_0_bits_inst_bits & 32'h5f) == 32'h17) 
 			| ((ibuf_io_inst_0_bits_inst_bits & 32'hfc00007f) == 32'h33) 
@@ -990,16 +1066,16 @@ module Rocket(
 			| ((ibuf_io_inst_0_bits_inst_bits & 32'h7f) == 32'h6f) 
 			| ((ibuf_io_inst_0_bits_inst_bits & 32'hffefffff) == 32'h73) 
 			| ((ibuf_io_inst_0_bits_inst_bits & 32'hfe00305f) == 32'h1013) 
-			| _T_23 
-			| (_T == 32'h2013) 
-			| _T_27 
-			| (_T == 32'h2073) 
+			| ((ibuf_io_inst_0_bits_inst_bits & 32'h705b) == 32'h2003) 
+			| ((ibuf_io_inst_0_bits_inst_bits & 32'h207f) == 32'h2013) 
+			| ((ibuf_io_inst_0_bits_inst_bits & 32'h1800707f) == 32'h202f) 
+			| ((ibuf_io_inst_0_bits_inst_bits & 32'h207f) == 32'h2073) 
 			| ((ibuf_io_inst_0_bits_inst_bits & 32'hbe00705f) == 32'h5013) 
-			| _T_33 
-			| _T_35 
-			| (_T_36 == 32'h10200073) 
-			| (_T_36 == 32'h10500073) 
-			| _T_41 
+			| ((ibuf_io_inst_0_bits_inst_bits & 32'he800707f) == 32'h800202f) 
+			| ((ibuf_io_inst_0_bits_inst_bits & 32'hf9f0707f) == 32'h1000202f) 
+			| ((ibuf_io_inst_0_bits_inst_bits & 32'hdfffffff) == 32'h10200073) 
+			| ((ibuf_io_inst_0_bits_inst_bits & 32'hdfffffff) == 32'h10500073) 
+			| ((ibuf_io_inst_0_bits_inst_bits & 32'hfe007fff) == 32'h12000073) 
 			| ((ibuf_io_inst_0_bits_inst_bits & 32'hf600607f) == 32'h20000053) 
 			| ((ibuf_io_inst_0_bits_inst_bits & 32'h7e00607f) == 32'h20000053) 
 			| ((ibuf_io_inst_0_bits_inst_bits & 32'h7e00507f) == 32'h20000053) 
@@ -1008,119 +1084,119 @@ module Rocket(
 			| ((ibuf_io_inst_0_bits_inst_bits & 32'hefe0007f) == 32'hc0000053) 
 			| ((ibuf_io_inst_0_bits_inst_bits & 32'hfff0607f) == 32'he0000053) 
 			| ((ibuf_io_inst_0_bits_inst_bits & 32'heff0707f) == 32'he0000053) 
-			| (_T_57 == 32'h1063) 
+			| ((ibuf_io_inst_0_bits_inst_bits & 32'h306f) == 32'h1063) 
 			| ((ibuf_io_inst_0_bits_inst_bits & 32'h407f) == 32'h4063) 
-			| _T_62 
-			| (_T_57 == 32'h3);
+			| ((ibuf_io_inst_0_bits_inst_bits & 32'h605f) == 32'h3) 
+			| ((ibuf_io_inst_0_bits_inst_bits & 32'h306f) == 32'h3);
 
   assign id_ctrl_fp = ((ibuf_io_inst_0_bits_inst_bits & 32'h5c) == 32'h4) 
 			| ((ibuf_io_inst_0_bits_inst_bits & 32'h60) == 32'h40);
 
   assign id_ctrl_branch = (ibuf_io_inst_0_bits_inst_bits & 32'h74) == 32'h60;
 
-  wire [31:0] _T_107 = ibuf_io_inst_0_bits_inst_bits & 32'h68; 
-  assign id_ctrl_jal = _T_107 == 32'h68;
+//  wire [31:0] _T_107 = ibuf_io_inst_0_bits_inst_bits & 32'h68; 
+  assign id_ctrl_jal = (ibuf_io_inst_0_bits_inst_bits & 32'h68) == 32'h68;
 
   assign id_ctrl_jalr = (ibuf_io_inst_0_bits_inst_bits & 32'h203c) == 32'h24;
 
-  wire [31:0] _T_117 = ibuf_io_inst_0_bits_inst_bits & 32'h2048;
-  assign id_ctrl_amo = _T_117 == 32'h2008;
+//  wire [31:0] _T_117 = ibuf_io_inst_0_bits_inst_bits & 32'h2048;
+  assign id_ctrl_amo = (ibuf_io_inst_0_bits_inst_bits & 32'h2048) == 32'h2008;
 
-  wire [31:0] _T_113 = ibuf_io_inst_0_bits_inst_bits & 32'h64;
-  wire [31:0] _T_115 = ibuf_io_inst_0_bits_inst_bits & 32'h34;
-  assign id_ctrl_rxs2 = (_T_113 == 32'h20) 
-			| (_T_115 == 32'h20) 
+//  wire [31:0] _T_113 = ibuf_io_inst_0_bits_inst_bits & 32'h64;
+//  wire [31:0] _T_115 = ibuf_io_inst_0_bits_inst_bits & 32'h34;
+  assign id_ctrl_rxs2 = ((ibuf_io_inst_0_bits_inst_bits & 32'h64) == 32'h20) 
+			| ((ibuf_io_inst_0_bits_inst_bits & 32'h34) == 32'h20) 
 			| id_ctrl_amo 
 			| ((ibuf_io_inst_0_bits_inst_bits & 32'h42003044) == 32'h2000040);
 
-  wire [31:0] _T_125 = ibuf_io_inst_0_bits_inst_bits & 32'h44;
-  wire _T_126 = _T_125 == 32'h0;
-  assign id_ctrl_rxs1 = _T_126 
+//  wire [31:0] _T_125 = ibuf_io_inst_0_bits_inst_bits & 32'h44;
+//  wire _T_126 = _T_125 == 32'h0;
+  assign id_ctrl_rxs1 = ((ibuf_io_inst_0_bits_inst_bits & 32'h44) == 32'h0) 
 			| ((ibuf_io_inst_0_bits_inst_bits & 32'h4024) == 32'h20) 
 			| ((ibuf_io_inst_0_bits_inst_bits & 32'h38) == 32'h20) 
 			| ((ibuf_io_inst_0_bits_inst_bits & 32'h2050) == 32'h2000) 
 			| ((ibuf_io_inst_0_bits_inst_bits & 32'h90000034) == 32'h90000010);
 
-  wire [31:0] _T_146 = ibuf_io_inst_0_bits_inst_bits & 32'h48;
-  wire _T_147 = _T_146 == 32'h48;
-  wire _T_154 = ((ibuf_io_inst_0_bits_inst_bits & 32'h58) == 32'h0) 
+//  wire [31:0] _T_146 = ibuf_io_inst_0_bits_inst_bits & 32'h48;
+//  wire _T_147 = _T_146 == 32'h48;
+  wire id_ctrl_sel_alu2_1 = ((ibuf_io_inst_0_bits_inst_bits & 32'h58) == 32'h0)	// _T_154 
 		| ((ibuf_io_inst_0_bits_inst_bits & 32'h20) == 32'h0) 
 		| ((ibuf_io_inst_0_bits_inst_bits & 32'hc) == 32'h4) 
-		| _T_147 
+		| ((ibuf_io_inst_0_bits_inst_bits & 32'h48) == 32'h48) 
 		| ((ibuf_io_inst_0_bits_inst_bits & 32'h4050) == 32'h4050);
-  wire _T_158 = (ibuf_io_inst_0_bits_inst_bits & 32'h18) == 32'h0;
-  wire _T_163 = ((ibuf_io_inst_0_bits_inst_bits & 32'h48) == 32'h0) 
-		| _T_158 
+//  wire _T_158 = (ibuf_io_inst_0_bits_inst_bits & 32'h18) == 32'h0;
+  wire id_ctrl_sel_alu2_0 = ((ibuf_io_inst_0_bits_inst_bits & 32'h48) == 32'h0)	// _T_163 
+		| ((ibuf_io_inst_0_bits_inst_bits & 32'h18) == 32'h0) 
 		| ((ibuf_io_inst_0_bits_inst_bits & 32'h4008) == 32'h4000);
-  assign id_ctrl_sel_alu2 = {_T_163,_T_154};
+  assign id_ctrl_sel_alu2 = {id_ctrl_sel_alu2_0,id_ctrl_sel_alu2_1};
 
-  wire [31:0]  _T_167 = ibuf_io_inst_0_bits_inst_bits & 32'h50;
-  wire _T_175 = ((ibuf_io_inst_0_bits_inst_bits & 32'h4004) == 32'h0) 
-		| (_T_167 == 32'h0) 
-		| _T_126 
+//  wire [31:0]  _T_167 = ibuf_io_inst_0_bits_inst_bits & 32'h50;
+  wire id_ctrl_sel_alu1_1 = ((ibuf_io_inst_0_bits_inst_bits & 32'h4004) == 32'h0)		// _T_175 
+		| ((ibuf_io_inst_0_bits_inst_bits & 32'h50) == 32'h0) 
+		| ((ibuf_io_inst_0_bits_inst_bits & 32'h44) == 32'h0) 
 		| ((ibuf_io_inst_0_bits_inst_bits & 32'h24) == 32'h0) 
-		| _T_158;
-  wire _T_179 = (_T_115 == 32'h14) 
-		| _T_147;
-  assign id_ctrl_sel_alu1 = {_T_179,_T_175};
+		| ((ibuf_io_inst_0_bits_inst_bits & 32'h18) == 32'h0);
+  wire id_ctrl_sel_alu1_0 = ((ibuf_io_inst_0_bits_inst_bits & 32'h34) == 32'h14)		// _T_179 
+		| ((ibuf_io_inst_0_bits_inst_bits & 32'h48) == 32'h48);
+  assign id_ctrl_sel_alu1 = {id_ctrl_sel_alu1_0,id_ctrl_sel_alu1_1};
 
-  wire _T_182 = (ibuf_io_inst_0_bits_inst_bits & 32'h8) == 32'h8;
-  wire _T_186 = _T_182 
+//  wire _T_182 = (ibuf_io_inst_0_bits_inst_bits & 32'h8) == 32'h8;
+  wire id_ctrl_sel_imm_2 = ((ibuf_io_inst_0_bits_inst_bits & 32'h8) == 32'h8) 		// _T_186
 		| ((ibuf_io_inst_0_bits_inst_bits & 32'h44) == 32'h40);
-  wire [31:0] _T_187 = ibuf_io_inst_0_bits_inst_bits & 32'h14; 
-  wire _T_190 = _T_182 
-		| (_T_187 == 32'h14);
-  wire _T_199 = ((ibuf_io_inst_0_bits_inst_bits & 32'h30) == 32'h0) 
+//  wire [31:0] _T_187 = ibuf_io_inst_0_bits_inst_bits & 32'h14; 
+  wire id_ctrl_sel_imm_1 = ((ibuf_io_inst_0_bits_inst_bits & 32'h8) == 32'h8) 		// _T_190
+		| ((ibuf_io_inst_0_bits_inst_bits & 32'h14) == 32'h14);
+  wire id_ctrl_sel_imm_0 = ((ibuf_io_inst_0_bits_inst_bits & 32'h30) == 32'h0)		// _T_199 
 		| ((ibuf_io_inst_0_bits_inst_bits & 32'h201c) == 32'h4) 
-		| (_T_187 == 32'h10);
-  assign id_ctrl_sel_imm = {_T_199,_T_190,_T_186};
+		| ((ibuf_io_inst_0_bits_inst_bits & 32'h14) == 32'h10);
+  assign id_ctrl_sel_imm = {id_ctrl_sel_imm_0,id_ctrl_sel_imm_1,id_ctrl_sel_imm_2};
 
-  wire _T_216 = ((ibuf_io_inst_0_bits_inst_bits & 32'h3054) == 32'h1010) 
+  wire id_ctrl_alu_fn_3 = ((ibuf_io_inst_0_bits_inst_bits & 32'h3054) == 32'h1010) 	// _T_216
 		| ((ibuf_io_inst_0_bits_inst_bits & 32'h1058) == 32'h1040) 
 		| ((ibuf_io_inst_0_bits_inst_bits & 32'h7044) == 32'h7000) 
 		| ((ibuf_io_inst_0_bits_inst_bits & 32'h2001074) == 32'h2001030);
-  wire _T_228 = (ibuf_io_inst_0_bits_inst_bits & 32'h40003034) == 32'h40000030;
-  wire _T_237 = ((ibuf_io_inst_0_bits_inst_bits & 32'h4054) == 32'h40) 
+//  wire _T_228 = (ibuf_io_inst_0_bits_inst_bits & 32'h40003034) == 32'h40000030;
+  wire id_ctrl_alu_fn_2 = ((ibuf_io_inst_0_bits_inst_bits & 32'h4054) == 32'h40) 		// _T_237
 		| ((ibuf_io_inst_0_bits_inst_bits & 32'h3044) == 32'h3000) 
 		| ((ibuf_io_inst_0_bits_inst_bits & 32'h6044) == 32'h6000) 
 		| ((ibuf_io_inst_0_bits_inst_bits & 32'h6018) == 32'h6000) 
 		| ((ibuf_io_inst_0_bits_inst_bits & 32'h2002074) == 32'h2002030) 
-		| _T_228 
+		| ((ibuf_io_inst_0_bits_inst_bits & 32'h40003034) == 32'h40000030) 
 		| ((ibuf_io_inst_0_bits_inst_bits & 32'h40001054) == 32'h40001010); 
-  wire _T_247 = (ibuf_io_inst_0_bits_inst_bits & 32'h4058) == 32'h4040;
-  wire _T_252 = ((ibuf_io_inst_0_bits_inst_bits & 32'h2002054) == 32'h2010) 
+//  wire _T_247 = (ibuf_io_inst_0_bits_inst_bits & 32'h4058) == 32'h4040;
+  wire id_ctrl_alu_fn_1 = ((ibuf_io_inst_0_bits_inst_bits & 32'h2002054) == 32'h2010) 	// _T_252
 		| ((ibuf_io_inst_0_bits_inst_bits & 32'h2034) == 32'h2010) 
 		| ((ibuf_io_inst_0_bits_inst_bits & 32'h40004054) == 32'h4010) 
 		| ((ibuf_io_inst_0_bits_inst_bits & 32'h5054) == 32'h4010) 
-		| _T_247;
-  wire _T_263 = ((ibuf_io_inst_0_bits_inst_bits & 32'h2006054) == 32'h2010) 
+		| ((ibuf_io_inst_0_bits_inst_bits & 32'h4058) == 32'h4040);
+  wire id_ctrl_alu_fn_0 = ((ibuf_io_inst_0_bits_inst_bits & 32'h2006054) == 32'h2010) 	// _T_263
 		| ((ibuf_io_inst_0_bits_inst_bits & 32'h6034) == 32'h2010) 
-		| _T_247 
-		| _T_228 
+		| ((ibuf_io_inst_0_bits_inst_bits & 32'h4058) == 32'h4040) 
+		| ((ibuf_io_inst_0_bits_inst_bits & 32'h40003034) == 32'h40000030) 
 		| ((ibuf_io_inst_0_bits_inst_bits & 32'h40003054) == 32'h40001010);
-  assign id_ctrl_alu_fn = {_T_263,_T_252,_T_237,_T_216};
+  assign id_ctrl_alu_fn = {id_ctrl_alu_fn_0,id_ctrl_alu_fn_1,id_ctrl_alu_fn_2,id_ctrl_alu_fn_3};
 
-  assign id_ctrl_mem = _T_62 
-		| _T_1 
-		| _T_23 
-		| _T_27 
-		| _T_33 
-		| _T_35 
-		| _T_41;
+  assign id_ctrl_mem = ((ibuf_io_inst_0_bits_inst_bits & 32'h605f) == 32'h3) 
+		| ((ibuf_io_inst_0_bits_inst_bits & 32'h207f) == 32'h3) 
+		| ((ibuf_io_inst_0_bits_inst_bits & 32'h705b) == 32'h2003) 
+		| ((ibuf_io_inst_0_bits_inst_bits & 32'h1800707f) == 32'h202f) 
+		| ((ibuf_io_inst_0_bits_inst_bits & 32'he800707f) == 32'h800202f) 
+		| ((ibuf_io_inst_0_bits_inst_bits & 32'hf9f0707f) == 32'h1000202f) 
+		| ((ibuf_io_inst_0_bits_inst_bits & 32'hfe007fff) == 32'h12000073);
 
-  wire _T_282 = (_T_107 == 32'h20) 
+  wire id_ctrl_mem_cmd_4 = ((ibuf_io_inst_0_bits_inst_bits & 32'h68) == 32'h20) 		// _T_282
 		| ((ibuf_io_inst_0_bits_inst_bits & 32'h18000020) == 32'h18000020) 
 		| ((ibuf_io_inst_0_bits_inst_bits & 32'h20000020) == 32'h20000020);
-  wire _T_284 = (ibuf_io_inst_0_bits_inst_bits & 32'h10000008) == 32'h10000008;
-  wire _T_288 = _T_284 
+//  wire _T_284 = (ibuf_io_inst_0_bits_inst_bits & 32'h10000008) == 32'h10000008;
+  wire id_ctrl_mem_cmd_3 = ((ibuf_io_inst_0_bits_inst_bits & 32'h10000008) == 32'h10000008) 	// _T_288
 		| ((ibuf_io_inst_0_bits_inst_bits & 32'h40000008) == 32'h40000008);
-  wire _T_290 = (ibuf_io_inst_0_bits_inst_bits & 32'h40) == 32'h40;
-  wire _T_298 = _T_290 
+  wire id_ctrl_mem_cmd_0 = (ibuf_io_inst_0_bits_inst_bits & 32'h40) == 32'h40;		// _T_290
+  wire id_ctrl_mem_cmd_2 = ((ibuf_io_inst_0_bits_inst_bits & 32'h40) == 32'h40)		// _T_298 
 		| ((ibuf_io_inst_0_bits_inst_bits & 32'h8000008) == 32'h8000008) 
-		| _T_284 
+		| ((ibuf_io_inst_0_bits_inst_bits & 32'h10000008) == 32'h10000008) 
 		| ((ibuf_io_inst_0_bits_inst_bits & 32'h80000008) == 32'h80000008);
-  wire _T_300 = (ibuf_io_inst_0_bits_inst_bits & 32'h18000008) == 32'h8;
-  assign id_ctrl_mem_cmd = {_T_290,_T_300,_T_298,_T_288,_T_282};
+  wire id_ctrl_mem_cmd_1 = (ibuf_io_inst_0_bits_inst_bits & 32'h18000008) == 32'h8;	// _T_300
+  assign id_ctrl_mem_cmd = {id_ctrl_mem_cmd_0,id_ctrl_mem_cmd_1,id_ctrl_mem_cmd_2,id_ctrl_mem_cmd_3,id_ctrl_mem_cmd_4};
 
   assign id_ctrl_rfs3 = (ibuf_io_inst_0_bits_inst_bits & 32'h70) == 32'h40;
 
@@ -1131,55 +1207,53 @@ module Rocket(
 
   assign id_ctrl_div = (ibuf_io_inst_0_bits_inst_bits & 32'h2000074) == 32'h2000030;
 
-  assign id_ctrl_wxd = (_T_113 == 32'h0) 
-		| (_T_167 == 32'h10) 
+  assign id_ctrl_wxd = ((ibuf_io_inst_0_bits_inst_bits & 32'h64) == 32'h0) 
+		| ((ibuf_io_inst_0_bits_inst_bits & 32'h50) == 32'h10) 
 		| ((ibuf_io_inst_0_bits_inst_bits & 32'h2024) == 32'h24) 
 		| ((ibuf_io_inst_0_bits_inst_bits & 32'h28) == 32'h28) 
 		| ((ibuf_io_inst_0_bits_inst_bits & 32'h1030) == 32'h1030) 
 		| ((ibuf_io_inst_0_bits_inst_bits & 32'h2030) == 32'h2030) 
 		| ((ibuf_io_inst_0_bits_inst_bits & 32'h90000010) == 32'h80000010);
 
-  wire _T_358 = (ibuf_io_inst_0_bits_inst_bits & 32'h1070) == 32'h1070;
-  wire _T_361 = (ibuf_io_inst_0_bits_inst_bits & 32'h2070) == 32'h2070;
-  wire _T_373 = ((ibuf_io_inst_0_bits_inst_bits & 32'h10000070) == 32'h70) 
-		| _T_358 
-		| _T_361 
+  wire id_ctrl_csr_2 = (ibuf_io_inst_0_bits_inst_bits & 32'h1070) == 32'h1070;	// _T_358
+  wire id_ctrl_csr_1 = (ibuf_io_inst_0_bits_inst_bits & 32'h2070) == 32'h2070;	// _T_361
+  wire id_ctrl_csr_0 = ((ibuf_io_inst_0_bits_inst_bits & 32'h10000070) == 32'h70) 	// _T_373
+		| id_ctrl_csr_2 
+		| id_ctrl_csr_1 
 		| ((ibuf_io_inst_0_bits_inst_bits & 32'h12000034) == 32'h10000030) 
 		| ((ibuf_io_inst_0_bits_inst_bits & 32'he0000050) == 32'h60000050);
-  assign id_ctrl_csr = {_T_373,_T_361,_T_358};
+  assign id_ctrl_csr = {id_ctrl_csr_0,id_ctrl_csr_1,id_ctrl_csr_2};
 
   assign id_ctrl_fence_i = (ibuf_io_inst_0_bits_inst_bits & 32'h1048) == 32'h1008;
-  assign id_ctrl_fence = _T_117 == 32'h8;
+  assign id_ctrl_fence = (ibuf_io_inst_0_bits_inst_bits & 32'h2048) == 32'h8;
   assign id_raddr3 = ibuf_io_inst_0_bits_inst_rs3;
   assign id_raddr2 = ibuf_io_inst_0_bits_inst_rs2;
   assign id_raddr1 = ibuf_io_inst_0_bits_inst_rs1;
   assign id_waddr = ibuf_io_inst_0_bits_inst_rd;
 
-  wire _T_465 = (id_ctrl_csr == 3'h6) 
-		| (id_ctrl_csr == 3'h7);
-  assign id_csr_en = _T_465 
-		| (id_ctrl_csr == 3'h5);
+  assign id_csr_en = (id_ctrl_csr == CSR_S)
+		| (id_ctrl_csr == CSR_C)
+		| (id_ctrl_csr == CSR_W);
 
-  assign id_system_insn = id_ctrl_csr == 3'h4;
+  assign id_system_insn = id_ctrl_csr == CSR_I;
 
-  assign id_csr_ren = _T_465 & (id_raddr1 == 5'h0);
+  assign id_csr_ren = ((id_ctrl_csr == CSR_S) | (id_ctrl_csr == CSR_C)) & (id_raddr1 == 5'h0);
 
-  wire _T_470 = id_ctrl_mem_cmd == 5'h14;
-  assign id_sfence = id_ctrl_mem & _T_470;
+//  wire _T_470 = id_ctrl_mem_cmd == M_SFENCE;
+  assign id_sfence = id_ctrl_mem & (id_ctrl_mem_cmd == M_SFENCE);
 
-  wire _T_471 = id_sfence | id_system_insn;
-  wire _T_472 = id_csr_ren == 1'h0;
-  assign id_csr_flush = _T_471 
-		| (id_csr_en & _T_472 & csr_io_decode_0_write_flush);
+  assign id_csr_flush = id_sfence
+		| id_system_insn
+		| (id_csr_en & !id_csr_ren & csr_io_decode_0_write_flush);
 
-  wire _T_493 = csr_io_status_isa[2] == 1'h0; 
   assign id_illegal_insn = !id_ctrl_legal		// TODO: verify 
 		| (id_ctrl_div & !csr_io_status_isa[12]) 
 		| (id_ctrl_amo & !csr_io_status_isa[0]) 
 		| (id_ctrl_fp & (csr_io_decode_0_fp_illegal | io_fpu_illegal_rm)) 
-		| (ibuf_io_inst_0_bits_rvc & _T_493) 
+		| (ibuf_io_inst_0_bits_rvc & !csr_io_status_isa[2]) 
 		| (id_csr_en & (csr_io_decode_0_read_illegal | (!id_csr_ren & csr_io_decode_0_write_illegal))) 
 		| (!ibuf_io_inst_0_bits_rvc & (id_sfence | id_system_insn) & csr_io_decode_0_system_illegal);
+
   assign id_amo_aq = ibuf_io_inst_0_bits_inst_bits[26];
   assign id_amo_rl = ibuf_io_inst_0_bits_inst_bits[25];
   assign id_fence_succ = ibuf_io_inst_0_bits_inst_bits[23:20];
@@ -1205,23 +1279,22 @@ module Rocket(
 
   assign id_bypass_src_0_0 = 5'h0 == id_raddr1;
 
-  wire _T_565 = ex_reg_valid & ex_ctrl_wxd;
-  assign id_bypass_src_0_1 = _T_565 & (ex_waddr == id_raddr1);
+  assign id_bypass_src_0_1 = ex_reg_valid & ex_ctrl_wxd & (ex_waddr == id_raddr1);
 
-  wire _T_566 = mem_reg_valid & mem_ctrl_wxd; 
-  wire _T_568 = _T_566 & !mem_ctrl_mem;
-  wire _T_572 = mem_waddr == id_raddr1;
-  assign id_bypass_src_0_2 = _T_568 & _T_572;
+//  wire _T_566 = mem_reg_valid & mem_ctrl_wxd; 
+//  wire _T_568 = mem_reg_valid & mem_ctrl_wxd & !mem_ctrl_mem;
+//  wire _T_572 = mem_waddr == id_raddr1;
+  assign id_bypass_src_0_2 = mem_reg_valid & mem_ctrl_wxd & !mem_ctrl_mem & (mem_waddr == id_raddr1);
 
-  assign id_bypass_src_0_3 = _T_566 & _T_572;
+  assign id_bypass_src_0_3 = mem_reg_valid & mem_ctrl_wxd & (mem_waddr == id_raddr1);
 
   assign id_bypass_src_1_0 = 5'h0 == id_raddr2;
 
-  assign id_bypass_src_1_1 = _T_565 & (ex_waddr == id_raddr2); 
+  assign id_bypass_src_1_1 = ex_reg_valid & ex_ctrl_wxd & (ex_waddr == id_raddr2); 
 
-  wire _T_576 = mem_waddr == id_raddr2;
-  assign id_bypass_src_1_2 = _T_568 & _T_576;
-  assign id_bypass_src_1_3 = _T_566 & _T_576;
+//  wire _T_576 = mem_waddr == id_raddr2;
+  assign id_bypass_src_1_2 = mem_reg_valid & mem_ctrl_wxd & !mem_ctrl_mem & (mem_waddr == id_raddr2);
+  assign id_bypass_src_1_3 = mem_reg_valid & mem_ctrl_wxd & (mem_waddr == id_raddr2);
 
   wire [31:0] bypass_mux_1 = (ex_reg_rs_lsb_0 == 2'h3) ? io_dmem_resp_bits_data_word_bypass 
 		: (ex_reg_rs_lsb_0 == 2'h2) ? wb_reg_wdata 
@@ -1235,11 +1308,6 @@ module Rocket(
 		: 32'h0; 
   assign ex_rs_1 = ex_reg_rs_bypass_1 ? bypass_mux_2 : {ex_reg_rs_msb_1,ex_reg_rs_lsb_1}; 
 
-  parameter IMM_Z = 3'h5;
-  parameter IMM_UJ = 3'h3;
-  parameter IMM_U = 3'h2;
-  parameter IMM_SB = 3'h1;
-  parameter IMM_S = 3'h0;
   wire ex_ctrl_sel_imm_Z = ex_ctrl_sel_imm == IMM_Z;
   wire ex_ctrl_sel_imm_UJ = ex_ctrl_sel_imm == IMM_UJ;
   wire ex_ctrl_sel_imm_U = ex_ctrl_sel_imm == IMM_U;
@@ -1281,7 +1349,6 @@ module Rocket(
 			| (hazard_targets_wxd & (id_waddr == ex_waddr));
   assign data_hazard_ex = ex_ctrl_wxd &  checkHazards_ex;
 
-  parameter CSR_N = 3'h0;
   assign ex_cannot_bypass = (ex_ctrl_csr != CSR_N) 
 			| ex_ctrl_jalr 
 			| ex_ctrl_mem 
@@ -1328,24 +1395,24 @@ module Rocket(
 
   assign dmem_resp_xpu = io_dmem_resp_bits_tag[0] == 1'h0;
 
-  wire _T_1061 = dmem_resp_replay & dmem_resp_xpu;
-  assign ll_wen = _T_1061 | (div_io_resp_ready & div_io_resp_valid);
+//  wire _T_1061 = dmem_resp_replay & dmem_resp_xpu;
+  assign ll_wen = (dmem_resp_replay & dmem_resp_xpu) | (div_io_resp_ready & div_io_resp_valid);
 
   assign dmem_resp_waddr = io_dmem_resp_bits_tag[5:1];
-  assign ll_waddr = _T_1061 ? dmem_resp_waddr : div_io_resp_bits_tag;
+  assign ll_waddr = (dmem_resp_replay & dmem_resp_xpu) ? dmem_resp_waddr : div_io_resp_bits_tag;
 
-  wire [31:0] _T_1116 = {_T_1114[31:1], 1'h0};
-  wire [31:0] _T_1122 = _T_1116 >> id_raddr1; 
-  wire [31:0] _T_1129 = _T_1116 >> id_raddr2;
-  wire [31:0] _T_1136 = _T_1116 >> id_waddr;
-  assign id_sboard_hazard = (id_ctrl_rxs1 & id_raddr1_not_0 & _T_1122[0] & !(ll_wen & (ll_waddr == id_raddr1))) 
-			| (hazard_targets_rxs2 & _T_1129[0] & !(ll_wen & (ll_waddr == id_raddr2))) 
-			| (hazard_targets_wxd & _T_1136[0] & !(ll_wen & (ll_waddr == id_waddr)));
+  wire [31:0] sboard_r = {sboard_reg[31:1], 1'h0};
+//  wire [31:0] _T_1122 = sboard_r >> id_raddr1; 
+//  wire [31:0] _T_1129 = sboard_r >> id_raddr2;
+//  wire [31:0] _T_1136 = sboard_r >> id_waddr;
+  assign id_sboard_hazard = (hazard_targets_rxs1 & sboard_r[id_raddr1] & !(ll_wen & (ll_waddr == id_raddr1))) 
+			| (hazard_targets_rxs2 & sboard_r[id_raddr2] & !(ll_wen & (ll_waddr == id_raddr2))) 
+			| (hazard_targets_wxd & sboard_r[id_waddr] & !(ll_wen & (ll_waddr == id_waddr)));
 // Passed 
-  assign id_stall_fpu = (io_fpu_dec_ren1 & _T_1227[id_raddr1]) 
-			| (io_fpu_dec_ren2 & _T_1227[id_raddr2]) 
-			| (io_fpu_dec_ren3 & _T_1227[id_raddr3]) 
-			| (io_fpu_dec_wen & _T_1227[id_waddr]);
+  assign id_stall_fpu = (io_fpu_dec_ren1 & fp_sboard_reg[id_raddr1]) 
+			| (io_fpu_dec_ren2 & fp_sboard_reg[id_raddr2]) 
+			| (io_fpu_dec_ren3 & fp_sboard_reg[id_raddr3]) 
+			| (io_fpu_dec_wen & fp_sboard_reg[id_waddr]);
 
   assign dcache_blocked = blocked & !io_dmem_perf_grant;
 
@@ -1381,18 +1448,20 @@ module Rocket(
   assign rf_waddr = ll_wen ? ll_waddr : wb_waddr;
   assign ll_wdata = div_io_resp_bits_data;
 
-  wire [31:0] _GEN_226 = (rf_waddr == id_raddr1) ? rf_wdata : rf_rdata1;
-  wire [31:0] _GEN_233 = rf_waddr_valid ? _GEN_226 : rf_rdata1; 
-  assign id_rs_0 = rf_wen ? _GEN_233 : rf_rdata1;
+  assign id_rs_0 = !rf_wen ? rf_rdata1 
+			: !rf_waddr_valid ? rf_rdata1
+			: !(rf_waddr == id_raddr1) ? rf_rdata1 
+			: rf_wdata;
 
   assign do_bypass_1 = id_bypass_src_1_0 
 			| id_bypass_src_1_1 
 			| id_bypass_src_1_2 
 			| id_bypass_src_1_3;
 
-  wire [31:0] _GEN_227 = (rf_waddr == id_raddr2) ? rf_wdata : rf_rdata2;
-  wire [31:0] _GEN_234 = rf_waddr_valid ? _GEN_227 : rf_rdata2;
-  assign id_rs_1 = rf_wen ? _GEN_234 : rf_rdata2;
+  assign id_rs_1 = !rf_wen ? rf_rdata2
+		: ! rf_waddr_valid ? rf_rdata2
+		: !(rf_waddr == id_raddr2) ? rf_rdata2
+		: rf_wdata;
 
   assign inst = ibuf_io_inst_0_bits_rvc ? {{16'd0}, ibuf_io_inst_0_bits_raw[15:0]} : ibuf_io_inst_0_bits_raw;
 
@@ -1407,17 +1476,16 @@ module Rocket(
 
   assign ctrl_killx = take_pc_mem_wb | replay_ex | !ex_reg_valid;
 
-  assign ex_slow_bypass = (ex_ctrl_mem_cmd == 5'h7) | (ex_reg_mem_size < 2'h2);
+  assign ex_slow_bypass = (ex_ctrl_mem_cmd == M_XSC) | (ex_reg_mem_size < 2'h2);
 
-  assign ex_sfence = ex_ctrl_mem & (ex_ctrl_mem_cmd == 5'h14);
+  assign ex_sfence = ex_ctrl_mem & (ex_ctrl_mem_cmd == M_SFENCE);
   assign ex_xcpt = ex_reg_xcpt_interrupt | ex_reg_xcpt;
 
   assign mem_pc_valid = (mem_reg_valid | mem_reg_replay) | mem_reg_xcpt_interrupt;
 
   assign mem_npc_misaligned = !csr_io_status_isa[2] & mem_npc[1] & !mem_reg_sfence;
 // Passed 
-  wire [31:0] _T_891 = (!mem_reg_xcpt & (mem_ctrl_jalr ^ mem_npc_misaligned)) ? $signed(mem_br_target) : $signed(mem_reg_wdata);
-  assign mem_int_wdata = $unsigned(_T_891);
+  assign mem_int_wdata = (!mem_reg_xcpt & (mem_ctrl_jalr ^ mem_npc_misaligned)) ? $signed(mem_br_target) : $signed(mem_reg_wdata);
 
   assign mem_cfi = mem_ctrl_branch | mem_ctrl_jalr | mem_ctrl_jal;
 
@@ -1428,11 +1496,11 @@ module Rocket(
   assign mem_debug_breakpoint = (mem_reg_load & bpu_io_debug_ld) | (mem_reg_store & bpu_io_debug_st);
 
   assign mem_ldst_xcpt = mem_debug_breakpoint | mem_breakpoint;
-  assign mem_ldst_cause = mem_debug_breakpoint ? 4'he : 4'h3;
+  assign mem_ldst_cause = mem_debug_breakpoint ? CSR_debugIntCause : Causes_breakpoint[3:0];
 
   assign mem_xcpt = mem_reg_xcpt_interrupt | mem_reg_xcpt | (mem_reg_valid & mem_npc_misaligned) | (mem_reg_valid & mem_ldst_xcpt); 
 
-  assign dcache_kill_mem = _T_566 & io_dmem_replay_next;
+  assign dcache_kill_mem = mem_reg_valid & mem_ctrl_wxd & io_dmem_replay_next;
 
   assign fpu_kill_mem = mem_reg_valid & mem_ctrl_fp & io_fpu_nack_mem;
 
@@ -1442,12 +1510,6 @@ module Rocket(
 
   assign ctrl_killm = killm_common | mem_xcpt | fpu_kill_mem;
 
-  parameter Causes_misaligned_store 	= 32'h6;
-  parameter Causes_misaligned_load 	= 32'h4;
-  parameter Causes_store_page_fault 	= 32'hf;
-  parameter Causes_load_page_fault 	= 32'hd;
-  parameter Causes_store_access 	= 32'h7;
-  parameter Causes_load_access 		= 32'h5;
   assign wb_cause = wb_reg_xcpt ? wb_reg_cause 
   		: wb_xcpt_ma_st ? Causes_misaligned_store
 		: wb_xcpt_ma_ld ? Causes_misaligned_load
@@ -1456,10 +1518,6 @@ module Rocket(
 		: wb_xcpt_ae_st ? Causes_store_access
 		: Causes_load_access;
 
-  parameter Causes_illegal_instruction 	= 32'h2;
-  parameter Causes_breakpoint 		= 32'h3;
-  parameter Causes_fetch_access		= 32'h1;
-  parameter Causes_fetch_page_fault	= 32'hc;
   assign tval_valid = wb_xcpt & ((wb_cause == Causes_illegal_instruction) 
 				| (wb_cause == Causes_breakpoint) 
 				| (wb_cause == Causes_misaligned_load) 
@@ -1488,7 +1546,7 @@ module Rocket(
   assign io_imem_req_bits_pc = (wb_xcpt | csr_io_eret) ? csr_io_evec 
 			: replay_wb_common ? wb_reg_pc 
 			: mem_npc;
-  assign io_imem_req_bits_speculative = take_pc_wb == 1'h0;
+  assign io_imem_req_bits_speculative = !take_pc_wb;
   assign io_imem_sfence_valid = wb_reg_valid & wb_reg_sfence;
   assign io_imem_sfence_bits_rs1 = wb_reg_mem_size[0];
   assign io_imem_sfence_bits_rs2 = wb_reg_mem_size[1];
@@ -1496,14 +1554,16 @@ module Rocket(
   assign io_imem_resp_ready = ibuf_io_imem_ready;
   assign io_imem_btb_update_valid = mem_reg_valid & !take_pc_wb & mem_wrong_npc & (!mem_cfi | mem_cfi_taken);
   assign io_imem_btb_update_bits_prediction_entry = mem_reg_btb_resp_entry;
-  assign io_imem_btb_update_bits_pc = ~ ((~ io_imem_btb_update_bits_br_pc) | 32'h3);
+parameter coreInstBytes_mul_fetchWidth_sub_1 = 32'h3; 	// coreInstBytes = 2
+							// fetchWidth = 2
+  assign io_imem_btb_update_bits_pc = ~ ((~ io_imem_btb_update_bits_br_pc) | coreInstBytes_mul_fetchWidth_sub_1);
   assign io_imem_btb_update_bits_isValid = mem_cfi;
-  wire [1:0] _T_1338 = mem_reg_rvc ? 2'h0 : 2'h2;
-  assign io_imem_btb_update_bits_br_pc = mem_reg_pc + {{30'd0}, _T_1338};
-  wire _T_1326 = mem_ctrl_jal | mem_ctrl_jalr;
-  assign io_imem_btb_update_bits_cfiType = (_T_1326 & mem_waddr[0]) ? 2'h2 
-					: (mem_ctrl_jalr & (5'h1 == (mem_reg_inst[19:15] & 5'h1b))) ? 2'h3 
-					: {{1'd0}, _T_1326};
+  assign io_imem_btb_update_bits_br_pc = mem_reg_pc + (mem_reg_rvc ? 32'h0 : 32'h2);
+parameter regAddrMask = 5'h1b;
+  assign io_imem_btb_update_bits_cfiType = ((mem_ctrl_jal | mem_ctrl_jalr) & mem_waddr[0]) ? CFIType_call
+					: (mem_ctrl_jalr & (5'h1 == (mem_reg_inst[19:15] & regAddrMask))) ? CFIType_ret
+					: (mem_ctrl_jal | mem_ctrl_jalr) ? CFIType_jump
+					: CFIType_branch;
   assign io_imem_bht_update_valid = mem_reg_valid & !take_pc_wb;
   assign io_imem_bht_update_bits_prediction_history = mem_reg_btb_resp_bht_history;
   assign io_imem_bht_update_bits_pc = io_imem_btb_update_bits_pc;
@@ -1516,7 +1576,7 @@ module Rocket(
   assign io_dmem_req_bits_tag = {{1'd0}, ex_dcache_tag};
   assign io_dmem_req_bits_cmd = ex_ctrl_mem_cmd;
   assign io_dmem_req_bits_size = ex_reg_mem_size;
-  assign io_dmem_req_bits_signed = ex_reg_inst[14] == 1'h0; 
+  assign io_dmem_req_bits_signed = !ex_reg_inst[14];
   assign io_dmem_s1_kill = killm_common | mem_ldst_xcpt | fpu_kill_mem;
   assign io_dmem_s1_data_data = mem_ctrl_fp ? io_fpu_store_data : mem_reg_rs2;
   assign io_ptw_ptbr_mode = csr_io_ptbr_mode;
@@ -1619,8 +1679,7 @@ module Rocket(
   assign csr_io_interrupts_meip = io_interrupts_meip;
   assign csr_io_interrupts_seip = io_interrupts_seip;
   assign csr_io_rw_addr = wb_reg_inst[31:20];
-  wire [2:0] _T_1105 = wb_reg_valid ? 3'h0 : 3'h4;
-  assign csr_io_rw_cmd = wb_ctrl_csr & (~ _T_1105);
+  assign csr_io_rw_cmd = wb_ctrl_csr & (~ (wb_reg_valid ? 3'h0 : CSR_I));
   assign csr_io_rw_wdata = wb_reg_wdata;
   assign csr_io_decode_0_csr = ibuf_io_inst_0_bits_raw[31:20];
   assign csr_io_exception = wb_xcpt;
@@ -1656,13 +1715,13 @@ module Rocket(
   assign div_io_req_bits_in1 = ex_reg_rs_bypass_0 ? bypass_mux_1 : {ex_reg_rs_msb_0,ex_reg_rs_lsb_0};
   assign div_io_req_bits_in2 = ex_reg_rs_bypass_1 ? bypass_mux_2 : {ex_reg_rs_msb_1,ex_reg_rs_lsb_1};
   assign div_io_req_bits_tag = ex_reg_inst[11:7]; 
-  assign div_io_kill = killm_common & _T_998; 
-  assign div_io_resp_ready = _T_1061 ? 1'h0 : !wb_wxd;
+  assign div_io_kill = killm_common & div_io_kill_reg; 
+  assign div_io_resp_ready = (dmem_resp_replay & dmem_resp_xpu) ? 1'h0 : !wb_wxd;
   assign PlusArgTimeout_clock = clock;
   assign PlusArgTimeout_reset = reset;
   assign PlusArgTimeout_io_count = csr_io_time;
 // Passed
-
+// Write general registers
 always @(posedge clock) begin
 	if(rf_wen & rf_waddr_valid) begin
 		rf[(~ rf_waddr)] <= rf_wdata;
@@ -1680,8 +1739,6 @@ always @(posedge clock) begin
 	imem_might_request_reg <= ex_pc_valid | mem_pc_valid | io_ptw_customCSRs_csrs_0_value[1];
 end
 
-  wire _T_683 = {ibuf_io_inst_0_bits_xcpt1_pf_inst,ibuf_io_inst_0_bits_xcpt1_ae_inst} != 2'h0;
-  wire _T_686 = bpu_io_xcpt_if | ({ibuf_io_inst_0_bits_xcpt0_pf_inst,ibuf_io_inst_0_bits_xcpt0_ae_inst} != 2'h0);
 always @(posedge clock) begin
 	if (ctrl_killd_not_0) begin
 		ex_ctrl_fp <= id_ctrl_fp;
@@ -1691,37 +1748,27 @@ always @(posedge clock) begin
 		ex_ctrl_rxs2 <= id_ctrl_rxs2;
 
 		if (id_xcpt) begin
-			if (_T_686) begin
-				ex_ctrl_sel_alu2 <= 2'h0;
+			if (bpu_io_xcpt_if | ({ibuf_io_inst_0_bits_xcpt0_pf_inst,ibuf_io_inst_0_bits_xcpt0_ae_inst} != 2'h0)) begin
+				ex_ctrl_sel_alu2 <= A2_ZERO;
+				ex_ctrl_sel_alu1 <= A1_PC;
 			end else begin
-				if (_T_683) begin
-					ex_ctrl_sel_alu2 <= 2'h1;
+				if ({ibuf_io_inst_0_bits_xcpt1_pf_inst,ibuf_io_inst_0_bits_xcpt1_ae_inst} != 2'h0) begin
+					ex_ctrl_sel_alu2 <= A2_SIZE;
+					ex_ctrl_sel_alu1 <= A1_PC;
 				end else begin
-					ex_ctrl_sel_alu2 <= 2'h0;
+					ex_ctrl_sel_alu2 <= A2_ZERO;
+					ex_ctrl_sel_alu1 <= A1_RS1;
 				end
 			end
 		end else begin
 			ex_ctrl_sel_alu2 <= id_ctrl_sel_alu2;
-		end
-
-		if (id_xcpt) begin
-			if (_T_686) begin
-				ex_ctrl_sel_alu1 <= 2'h2;
-			end else begin
-				if (_T_683) begin
-					ex_ctrl_sel_alu1 <= 2'h2;
-				end else begin
-					ex_ctrl_sel_alu1 <= 2'h1;
-				end
-			end
-		end else begin
 			ex_ctrl_sel_alu1 <= id_ctrl_sel_alu1;
 		end
 
 		ex_ctrl_sel_imm <= id_ctrl_sel_imm;
 
 		if (id_xcpt) begin
-			ex_ctrl_alu_fn <= 4'h0;
+			ex_ctrl_alu_fn <= ALU_FN_ADD;
 		end else begin
 			ex_ctrl_alu_fn <= id_ctrl_alu_fn;
 		end
@@ -1733,7 +1780,7 @@ always @(posedge clock) begin
 		ex_ctrl_wxd <= id_ctrl_wxd;
 
 		if (id_csr_ren) begin
-			ex_ctrl_csr <= 3'h2;
+			ex_ctrl_csr <= CSR_R;
 		end else begin
 			ex_ctrl_csr <= id_ctrl_csr;
 		end
@@ -1742,9 +1789,9 @@ always @(posedge clock) begin
 	end
 end
 
-  wire _T_906 = mem_reg_valid & mem_reg_flush_pipe;
+  wire mem_reg_valid_and_flush_pipe = mem_reg_valid & mem_reg_flush_pipe;
 always @(posedge clock) begin
-	if (!(_T_906)) begin
+	if (!(mem_reg_valid_and_flush_pipe)) begin
 		if (ex_pc_valid) begin
 			mem_ctrl_fp <= ex_ctrl_fp;
 			mem_ctrl_branch <= ex_ctrl_branch;
@@ -1772,25 +1819,24 @@ always @(posedge clock) begin
 	end
 end
 
-  parameter CSR_debugTriggerCause = 32'he;
-  wire _T_716 = ctrl_killd_not_0 | csr_io_interrupt | ibuf_io_inst_0_bits_replay;
+  wire ctrl_killd_inv_or_csr_io_interrupt_or_ibuf_io_inst_0_bits_replay = ctrl_killd_not_0 | csr_io_interrupt | ibuf_io_inst_0_bits_replay;
 always @(posedge clock) begin
 	ex_reg_xcpt_interrupt <= !take_pc_mem_wb & ibuf_io_inst_0_valid & csr_io_interrupt;
 	ex_reg_valid <= ctrl_killd == 1'h0;
 
 	if (ctrl_killd_not_0) begin
 		if (id_xcpt) begin
-			ex_reg_rvc <= _T_683 | ibuf_io_inst_0_bits_rvc;
+			ex_reg_rvc <= ({ibuf_io_inst_0_bits_xcpt1_pf_inst,ibuf_io_inst_0_bits_xcpt1_ae_inst} != 2'h0) | ibuf_io_inst_0_bits_rvc;
 		end else begin
 			ex_reg_rvc <= ibuf_io_inst_0_bits_rvc;
 		end
 	end
 
-	if (_T_716) begin
+	if (ctrl_killd_inv_or_csr_io_interrupt_or_ibuf_io_inst_0_bits_replay) begin
 		ex_reg_btb_resp_entry <= ibuf_io_btb_resp_entry;
 	end
 
-	if (_T_716) begin
+	if (ctrl_killd_inv_or_csr_io_interrupt_or_ibuf_io_inst_0_bits_replay) begin
 		ex_reg_btb_resp_bht_history <= ibuf_io_btb_resp_bht_history;
 	end
 
@@ -1804,7 +1850,7 @@ always @(posedge clock) begin
 		ex_reg_load_use <= id_load_use;
 	end
 
-	if (_T_716) begin
+	if (ctrl_killd_inv_or_csr_io_interrupt_or_ibuf_io_inst_0_bits_replay) begin
 		if (csr_io_interrupt) begin
 			ex_reg_cause <= csr_io_interrupt_cause;
 		end else begin
@@ -1820,56 +1866,49 @@ always @(posedge clock) begin
 
 	ex_reg_replay <= !take_pc_mem_wb & ibuf_io_inst_0_valid & ibuf_io_inst_0_bits_replay;
 
-	if (_T_716) begin
+	if (ctrl_killd_inv_or_csr_io_interrupt_or_ibuf_io_inst_0_bits_replay) begin
 		ex_reg_pc <= ibuf_io_pc;
 	end
 
 	if (ctrl_killd_not_0) begin
-		if (_T_470 | (id_ctrl_mem_cmd == 5'h5)) begin
+		if ((id_ctrl_mem_cmd == M_SFENCE) | (id_ctrl_mem_cmd == M_FLUSH_ALL)) begin
 			ex_reg_mem_size <= {(id_raddr2 != 5'h0),id_raddr1_not_0};
 		end else begin
 			ex_reg_mem_size <= ibuf_io_inst_0_bits_inst_bits[13:12];
 		end
 	end
 
-	if (_T_716) begin
+	if (ctrl_killd_inv_or_csr_io_interrupt_or_ibuf_io_inst_0_bits_replay) begin
 		ex_reg_inst <= ibuf_io_inst_0_bits_inst_bits;
 	end
 
-	if (_T_716) begin
+	if (ctrl_killd_inv_or_csr_io_interrupt_or_ibuf_io_inst_0_bits_replay) begin
 	  ex_reg_raw_inst <= ibuf_io_inst_0_bits_raw;
 	end
 end
 
-  wire _T_929 = (ex_ctrl_mem_cmd == 5'h0) 
-		| (ex_ctrl_mem_cmd == 5'h6) 
-		| (ex_ctrl_mem_cmd == 5'h7) 
-		| (ex_ctrl_mem_cmd == 5'h4) 
-		| (ex_ctrl_mem_cmd == 5'h9) 
-		| (ex_ctrl_mem_cmd == 5'ha) 
-		| (ex_ctrl_mem_cmd == 5'hb) 
-		| (ex_ctrl_mem_cmd == 5'h8) 
-		| (ex_ctrl_mem_cmd == 5'hc) 
-		| (ex_ctrl_mem_cmd == 5'hd) 
-		| (ex_ctrl_mem_cmd == 5'he) 
-		| (ex_ctrl_mem_cmd == 5'hf);
-  wire _T_953 = (ex_ctrl_mem_cmd == 5'h1) 
-		| (ex_ctrl_mem_cmd == 5'h11) 
-		| (ex_ctrl_mem_cmd == 5'h7) 
-		| (ex_ctrl_mem_cmd == 5'h4) 
-		| (ex_ctrl_mem_cmd == 5'h9) 
-		| (ex_ctrl_mem_cmd == 5'ha) 
-		| (ex_ctrl_mem_cmd == 5'hb) 
-		| (ex_ctrl_mem_cmd == 5'h8) 
-		| (ex_ctrl_mem_cmd == 5'hc) 
-		| (ex_ctrl_mem_cmd == 5'hd) 
-		| (ex_ctrl_mem_cmd == 5'he) 
-		| (ex_ctrl_mem_cmd == 5'hf);
+  wire isAMO_ex_ctrl_mem_cmd = (ex_ctrl_mem_cmd == M_XA_SWAP) 
+		| (ex_ctrl_mem_cmd == M_XA_XOR) 
+		| (ex_ctrl_mem_cmd == M_XA_OR) 
+		| (ex_ctrl_mem_cmd == M_XA_AND) 
+		| (ex_ctrl_mem_cmd == M_XA_ADD) 
+		| (ex_ctrl_mem_cmd == M_XA_MIN) 
+		| (ex_ctrl_mem_cmd == M_XA_MAX) 
+		| (ex_ctrl_mem_cmd == M_XA_MINU) 
+		| (ex_ctrl_mem_cmd == M_XA_MAXU);
+  wire isRead_ex_ctrl_mem_cmd = (ex_ctrl_mem_cmd == M_XRD) 
+		| (ex_ctrl_mem_cmd == M_XLR) 
+		| (ex_ctrl_mem_cmd == M_XSC) 
+		| isAMO_ex_ctrl_mem_cmd;
+  wire isWrite_ex_ctrl_mem_cmd = (ex_ctrl_mem_cmd == M_XWR) 
+		| (ex_ctrl_mem_cmd == M_PWR) 
+		| (ex_ctrl_mem_cmd == M_XSC) 
+		| isAMO_ex_ctrl_mem_cmd;
 always @(posedge clock) begin
 	mem_reg_xcpt_interrupt <= !take_pc_mem_wb & ex_reg_xcpt_interrupt;
 	mem_reg_valid <= ctrl_killx == 1'h0;
 
-	if (!(_T_906)) begin
+	if (!(mem_reg_valid_and_flush_pipe)) begin
 		if (ex_pc_valid) begin
 			mem_reg_rvc <= ex_reg_rvc;
 			mem_reg_btb_resp_entry <= ex_reg_btb_resp_entry;
@@ -1877,8 +1916,8 @@ always @(posedge clock) begin
 			mem_reg_flush_pipe <= (ex_ctrl_jalr & csr_io_status_debug) | ex_reg_flush_pipe;
 			mem_reg_cause <= ex_reg_cause;
 			mem_reg_slow_bypass <= ex_slow_bypass;
-			mem_reg_load <= ex_ctrl_mem & _T_929;
-			mem_reg_store <= ex_ctrl_mem & _T_953;
+			mem_reg_load <= ex_ctrl_mem & isRead_ex_ctrl_mem_cmd;
+			mem_reg_store <= ex_ctrl_mem & isWrite_ex_ctrl_mem_cmd;
 			mem_reg_pc <= ex_reg_pc;
 			mem_reg_inst <= ex_reg_inst;
 	   		mem_reg_mem_size <= ex_reg_mem_size;
@@ -1891,7 +1930,7 @@ always @(posedge clock) begin
 	mem_reg_xcpt <= !ctrl_killx & ex_xcpt;
 	mem_reg_replay <= !take_pc_mem_wb & replay_ex;
 
-	if (_T_906) begin
+	if (mem_reg_valid_and_flush_pipe) begin
 		mem_reg_sfence <= 1'h0;
 	end else begin
 		if (ex_pc_valid) begin
@@ -1899,7 +1938,7 @@ always @(posedge clock) begin
 		end
 	end
 
-	if (!(_T_906)) begin
+	if (!(mem_reg_valid_and_flush_pipe)) begin
 		if (ex_pc_valid) begin
 			if (ex_ctrl_rxs2 & (ex_ctrl_mem | ex_sfence)) begin
 				if (ex_reg_mem_size == 2'h0) begin
@@ -1933,7 +1972,9 @@ always @(posedge clock) begin
 end
 // Passed
 
-  wire [3:0] _T_978 = (mem_reg_valid & mem_npc_misaligned) ? 4'h0 : mem_ldst_cause;
+  wire [31:0] mem_cause = (mem_reg_xcpt_interrupt | mem_reg_xcpt) ? mem_reg_cause
+			: (mem_reg_valid & mem_npc_misaligned) ? Causes_misaligned_fetch
+			: {{28'd0}, mem_ldst_cause};
 always @(posedge clock) begin
 	wb_reg_valid <= ctrl_killm == 1'h0;
 	wb_reg_xcpt <= mem_xcpt & !take_pc_wb;
@@ -1941,11 +1982,7 @@ always @(posedge clock) begin
 	wb_reg_flush_pipe <= !ctrl_killm & mem_reg_flush_pipe;
 
 	if (mem_pc_valid) begin
-		if (mem_reg_xcpt_interrupt | mem_reg_xcpt) begin
-			wb_reg_cause <= mem_reg_cause;
-		end else begin
-			wb_reg_cause <= {{28'd0}, _T_978};
-		end
+		wb_reg_cause <= mem_cause;
 		wb_reg_sfence <= mem_reg_sfence;
 		wb_reg_pc <= mem_reg_pc;
 		wb_reg_mem_size <= mem_reg_mem_size;
@@ -1959,24 +1996,22 @@ always @(posedge clock) begin
 	end
 end
 
-  wire _T_525 = id_mem_busy == 1'h0; 
-  wire _GEN_0 = _T_525 ? 1'h0 : id_reg_fence; 
 always @(posedge clock) begin
 	if (reset) begin
 		id_reg_fence <= 1'h0;
 	end else begin
 		if (ctrl_killd_not_0) begin
-			id_reg_fence <= id_fence_next | _GEN_0;
+			id_reg_fence <= id_fence_next | (!id_mem_busy ? 1'h0 : id_reg_fence);
 		end else begin
-			if (_T_525) begin
+			if (!id_mem_busy) begin
 				id_reg_fence <= 1'h0;
 			end
 		end
 	end
 end
 
-  wire _T_700 = id_ctrl_rxs1 & !do_bypass;
-  wire _T_708 = id_ctrl_rxs2 & !do_bypass_1;
+//  wire _T_700 = id_ctrl_rxs1 & !do_bypass;
+//  wire _T_708 = id_ctrl_rxs2 & !do_bypass_1;
 always @(posedge clock) begin
 	if (ctrl_killd_not_0) begin
 		if (id_illegal_insn) begin
@@ -1989,7 +2024,7 @@ always @(posedge clock) begin
 		if (id_illegal_insn) begin
 			ex_reg_rs_lsb_0 <= inst[1:0];
 		end else begin
-			if (_T_700) begin
+			if (id_ctrl_rxs1 & !do_bypass) begin
 				ex_reg_rs_lsb_0 <= id_rs_0[1:0];
 			end else begin
 				if (id_bypass_src_0_0) begin
@@ -2008,7 +2043,7 @@ always @(posedge clock) begin
 			end
 		end
 
-		if (_T_708) begin
+		if (id_ctrl_rxs2 & !do_bypass_1) begin
 			ex_reg_rs_lsb_1 <= id_rs_1[1:0];
 		end else begin
 			if (id_bypass_src_1_0) begin
@@ -2029,62 +2064,61 @@ always @(posedge clock) begin
 		if (id_illegal_insn) begin
 			ex_reg_rs_msb_0 <= inst[31:2];
 		end else begin
-			if (_T_700) begin
+			if (id_ctrl_rxs1 & !do_bypass) begin
 				ex_reg_rs_msb_0 <= id_rs_0[31:2];
 			end
 		end
 
-		if (_T_708) begin
+		if (id_ctrl_rxs2 & !do_bypass_1) begin
 			ex_reg_rs_msb_1 <= id_rs_1[31:2];
 		end
 	end
 end
 
-  wire [31:0] _T_1118 = ll_wen ? (32'h1 << ll_waddr) : 32'h0;
-  wire [31:0] _T_1120 = _T_1116 & (~ _T_1118);
-  wire _T_1144 = wb_set_sboard & wb_wen;
-  wire [31:0] _T_1145 = 32'h1 << wb_waddr;
-  wire [31:0] _T_1146 = _T_1144 ? _T_1145 : 32'h0; 
+  wire [31:0] sboard_clear_mask = ll_wen ? (32'h1 << ll_waddr) : 32'h0;
+  wire [31:0] sboard_clear_update = sboard_r & (~ sboard_clear_mask);
+  wire sboard_set_en = wb_set_sboard & wb_wen;
+  wire [31:0] sboard_set_mask = sboard_set_en ? (32'h1 << wb_waddr) : 32'h0; 
 always @(posedge clock) begin
 	if (reset) begin
-		_T_1114 <= 32'h0;
+		sboard_reg <= 32'h0;
 	end else begin
-		if (ll_wen | _T_1144) begin
-			_T_1114 <= _T_1120 | _T_1146;
+		if (ll_wen | sboard_set_en) begin
+			sboard_reg <= sboard_clear_update | sboard_set_mask;
 		end else begin
 			if (ll_wen) begin
-				_T_1114 <= _T_1120;
+				sboard_reg <= sboard_clear_update;
 			end
 		end
 	end
 end
 
-  wire _T_1230 = ((wb_dcache_miss & wb_ctrl_wfd) | io_fpu_sboard_set) & wb_valid;
-  wire _T_1235 = dmem_resp_replay & io_dmem_resp_bits_tag[0];
-  wire [31:0] _T_1232 = _T_1230 ? _T_1145 : 32'h0;
-  wire [31:0] _T_1233 = _T_1227 | _T_1232;
-  wire [31:0] _T_1237 = _T_1235 ? (32'h1 << dmem_resp_waddr) : 32'h0;
-  wire [31:0] _T_1239 = _T_1233 & (~ _T_1237);
-  wire _T_1240 = _T_1230 | _T_1235;
-  wire [31:0] _T_1242 = io_fpu_sboard_clr ? (32'h1 << io_fpu_sboard_clra) : 32'h0;
+  wire fp_sboard_set_en = ((wb_dcache_miss & wb_ctrl_wfd) | io_fpu_sboard_set) & wb_valid;
+  wire fp_sboard_clear_en1 = dmem_resp_replay & io_dmem_resp_bits_tag[0];
+  wire [31:0] fp_sboard_set_mask = fp_sboard_set_en ? (32'h1 << wb_waddr) : 32'h0;
+  wire [31:0] fp_sboard_set_update = fp_sboard_reg | fp_sboard_set_mask;
+  wire [31:0] fp_sboard_clear_mask1 = fp_sboard_clear_en1 ? (32'h1 << dmem_resp_waddr) : 32'h0;
+  wire [31:0] fp_sboard_clear_update1 = fp_sboard_set_update & (~ fp_sboard_clear_mask1);
+  wire fp_sboard_clear_en2 = fp_sboard_set_en | fp_sboard_clear_en1;
+  wire [31:0] fp_sboard_clear_mask2 = io_fpu_sboard_clr ? (32'h1 << io_fpu_sboard_clra) : 32'h0;
 always @(posedge clock) begin
 	if (reset) begin
-		_T_1227 <= 32'h0;
+		fp_sboard_reg <= 32'h0;
 	end else begin
-		if (_T_1240 | io_fpu_sboard_clr) begin
-			_T_1227 <= (_T_1239 & (~ (32'h1 << io_fpu_sboard_clra)));
+		if (fp_sboard_clear_en2 | io_fpu_sboard_clr) begin
+			fp_sboard_reg <= fp_sboard_clear_update1 & (~ fp_sboard_clear_mask2);
 		end else begin
-			if (_T_1240) begin
-				_T_1227 <= _T_1239;
+			if (fp_sboard_clear_en2) begin
+				fp_sboard_reg <= fp_sboard_clear_update1;
 			end else begin
-				if (_T_1230) begin
-					_T_1227 <= _T_1233;
+				if (fp_sboard_set_en) begin
+					fp_sboard_reg <= fp_sboard_set_update;
 				end
 			end
 		end
 	end
 	blocked <= !io_dmem_req_ready & !io_dmem_perf_grant & (blocked | io_dmem_req_valid | io_dmem_s2_nack);
-	_T_998 <= div_io_req_ready & div_io_req_valid;
+	div_io_kill_reg <= div_io_req_ready & div_io_req_valid;
 end
 
 always @(posedge clock) begin
@@ -2534,11 +2568,11 @@ initial begin
   `endif // RANDOMIZE_REG_INIT
   `ifdef RANDOMIZE_REG_INIT
   _RAND_89 = {1{`RANDOM}};
-  _T_1114 = _RAND_89[31:0];
+  sboard_reg = _RAND_89[31:0];
   `endif // RANDOMIZE_REG_INIT
   `ifdef RANDOMIZE_REG_INIT
   _RAND_90 = {1{`RANDOM}};
-  _T_1227 = _RAND_90[31:0];
+  fp_sboard_reg = _RAND_90[31:0];
   `endif // RANDOMIZE_REG_INIT
   `ifdef RANDOMIZE_REG_INIT
   _RAND_91 = {1{`RANDOM}};
@@ -2546,7 +2580,7 @@ initial begin
   `endif // RANDOMIZE_REG_INIT
   `ifdef RANDOMIZE_REG_INIT
   _RAND_92 = {1{`RANDOM}};
-  _T_998 = _RAND_92[0:0];
+  div_io_kill_reg = _RAND_92[0:0];
   `endif // RANDOMIZE_REG_INIT
   `ifdef RANDOMIZE_REG_INIT
   _RAND_93 = {1{`RANDOM}};

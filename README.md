@@ -98,3 +98,12 @@
 	1.	Passed compilance test (Note:....)
 3.	Todo:
 	1.	Reduce _T_...
+----------------------------------------------------------------
+200403----------------------------------------------------------
+----------------------------------------------------------------
+1.	This version is created on 200403
+2.	Features:
+	1.	Reduce _T_ at core and FPU blocks
+	1.	Passed all test
+3.	Todo:
+	1.	Reduce _T_...

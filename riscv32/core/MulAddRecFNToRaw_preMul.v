@@ -1,5 +1,6 @@
 `include "include_module.v"
 `ifdef __MulAddRecFNToRaw_preMul
+
 module MulAddRecFNToRaw_preMul(
   input  [1:0]  io_op,
   input  [32:0] io_a,
@@ -87,18 +88,18 @@ module MulAddRecFNToRaw_preMul(
   wire [24:0] _T_66 = doSubMags ? (~ rawC_sig) : rawC_sig;
   wire [52:0] _T_68 = doSubMags ? 53'h1fffffffffffff : 53'h0;
   assign mainAlignedSigC = $signed({_T_66, _T_68}) >>> CAlignDist;
-  wire [26:0] _T_71 = {rawC_sig, 2'h0};
-  wire [6:0] _T_92 = {(_T_71[26:24] != 3'h0)
-			, (_T_71[23:20] != 4'h0)
-			, (_T_71[19:16] != 4'h0)
-			, (_T_71[15:12] != 4'h0)
-			, (_T_71[11:8] != 4'h0)
-			, (_T_71[7:4] != 4'h0)
-			, (_T_71[3:0] != 4'h0)}
-			;
-  wire [32:0] _T_94 = $signed(-33'sh100000000) >>> CAlignDist[6:2];
-  wire [5:0] _T_110 = {_T_94[14], _T_94[15], _T_94[16], _T_94[17], _T_94[18], _T_94[19]};
-  assign reduced4CExtra = (_T_92 & {{1'd0}, _T_110}) != 7'h0;
+
+  wire [26:0] in_orReduceBy4 = {rawC_sig, 2'h0};
+  wire reducedVec_orReduceBy4_0 = in_orReduceBy4[3:0] != 4'h0; // @[primitives.scala
+  wire reducedVec_orReduceBy4_1 = in_orReduceBy4[7:4] != 4'h0;
+  wire reducedVec_orReduceBy4_2 = in_orReduceBy4[11:8] != 4'h0; 
+  wire reducedVec_orReduceBy4_3 = in_orReduceBy4[15:12] != 4'h0;
+  wire reducedVec_orReduceBy4_4 = in_orReduceBy4[19:16] != 4'h0;
+  wire reducedVec_orReduceBy4_5 = in_orReduceBy4[23:20] != 4'h0;
+  wire reducedVec_orReduceBy4_6 = in_orReduceBy4[26:24] != 3'h0;
+  wire [6:0] _T_90 = {reducedVec_orReduceBy4_6,reducedVec_orReduceBy4_5,reducedVec_orReduceBy4_4,reducedVec_orReduceBy4_3,reducedVec_orReduceBy4_2,reducedVec_orReduceBy4_1,reducedVec_orReduceBy4_0};
+  wire [32:0] shift = -33'sh100000000 >>> CAlignDist[6:2];	// @[primitives.scala 160
+  assign reduced4CExtra = (_T_90 & {{1'd0},shift[14],shift[15],shift[16],shift[17],shift[18],shift[19]}) != 7'h0;
 
   wire _T_120 = doSubMags ? ((mainAlignedSigC[2:0] == 3'h7) & !reduced4CExtra) : ((mainAlignedSigC[2:0] != 3'h0) | reduced4CExtra);
   assign alignedSigC = {$unsigned(mainAlignedSigC[77:3]), _T_120};
@@ -121,11 +122,8 @@ module MulAddRecFNToRaw_preMul(
   assign io_toPostMul_isInfC = (io_c[31:30] == 2'h3) & (io_c[29] == 1'h0);
   assign io_toPostMul_isZeroC = rawC_isZero;
 
-  wire [10:0] _T_136 = $signed(sExpAlignedProd) - $signed(11'sh18);
-  wire [10:0] _T_137 = $signed(_T_136);
-  wire [10:0] _T_138 = CIsDominant ? $signed({{1{rawC_sExp[9]}},rawC_sExp}) : $signed(_T_137);
-  wire [9:0] _GEN_2 = _T_138[9:0];
-  assign io_toPostMul_sExpSum = $signed(_GEN_2);
+  wire [10:0] _T_137 = CIsDominant ? $signed({{1{rawC_sExp[9]}},rawC_sExp}) : $signed($signed(sExpAlignedProd) - 11'sh18);
+  assign io_toPostMul_sExpSum = _T_137[9:0];
 
   assign io_toPostMul_doSubMags = doSubMags;
   assign io_toPostMul_CIsDominant = CIsDominant;
@@ -135,4 +133,5 @@ module MulAddRecFNToRaw_preMul(
 
 `endif // MY_ASSIGNMENT
 endmodule
+
 `endif // __MulAddRecFNToRaw_preMul

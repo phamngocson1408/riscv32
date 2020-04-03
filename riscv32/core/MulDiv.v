@@ -58,20 +58,12 @@ module MulDiv(
   wire [31:0] mplier;
   wire [32:0] accum;
   wire [32:0] mpcand;
-  wire [8:0] _T_53;
-  wire [41:0] _T_54;
-  wire [41:0] _T_56;
   wire [41:0] prod;
   wire [65:0] nextMulReg;
   wire  nextMplierSign;
   wire [64:0] nextMulReg1;
-  wire [65:0] _T_83;
-  wire [5:0] _T_85;
-  wire [31:0] _T_92;
-  wire  _T_94;
-  wire [64:0] _T_96;
-  wire  _T_104;
-  wire  _T_106;
+  wire [5:0] count_add_1;
+  wire  divby0;
   wire  io_resp_fire;
   wire  io_req_fire;
   wire [15:0] loOut;
@@ -96,20 +88,12 @@ module MulDiv(
   assign mplier = mulReg[31:0];
   assign accum = $signed(mulReg[64:32]);
   assign mpcand = $signed(divisor);
-  assign _T_53 = $signed({mplierSign, mplier[7:0]});
-  assign _T_54 = $signed({{24{_T_53[8]}},_T_53}) * $signed(mpcand);
-  assign _T_56 = $signed(_T_54) + $signed({{9{accum[32]}},accum});
-  assign prod = $signed(_T_56);
+  assign prod = $signed({{25{mplierSign}},mplier[7:0]}) * $signed(mpcand) + $signed({{9{accum[32]}},accum});
   assign nextMulReg = {$unsigned(prod),mplier[31:8]};
   assign nextMplierSign = (count == 6'h2) & neg_out;
   assign nextMulReg1 = {nextMulReg[64:32],nextMulReg[31:0]};
-  assign _T_83 = {nextMulReg1[64:32],nextMplierSign,nextMulReg1[31:0]};
-  assign _T_85 = count + 6'h1;
-  assign _T_92 = subtractor[32] ? remainder[63:32] : subtractor[31:0];
-  assign _T_94 = subtractor[32] == 1'h0;
-  assign _T_96 = {_T_92,remainder[31:0],_T_94};
-  assign _T_104 = (count == 6'h0) & _T_94;
-  assign _T_106 = _T_104 & !isHi;
+  assign count_add_1 = count + 6'h1;
+  assign divby0 = (count == 6'h0) & !subtractor[32];
   assign io_resp_fire = io_resp_ready & io_resp_valid;
   assign io_req_fire = io_req_ready & io_req_valid;
   assign loOut = result[15:0];
@@ -117,6 +101,146 @@ module MulDiv(
   assign io_resp_valid = s_done_mul | s_done_div;
   assign io_resp_bits_data = {result[31:16], loOut};
   assign io_resp_bits_tag = req_tag;
+
+
+always @(posedge clock) begin
+	if (reset) begin
+		state <= 3'h0;
+	end else begin
+		if (io_req_fire) begin
+			if (cmdMul) begin
+				state <= 3'h2;
+			end else begin
+				if (lhs_sign | rhs_sign) begin
+					state <= 3'h1;
+				end else begin
+					state <= 3'h3;
+				end
+			end
+		end else begin
+			if (io_resp_fire | io_kill) begin
+				state <= 3'h0;
+			end else begin
+				if (s_div && (count == 6'h20)) begin
+					if (neg_out) begin
+						state <= 3'h5;
+					end else begin
+						state <= 3'h7;
+					end
+				end else begin
+					if (s_mul && (count == 6'h3)) begin
+						state <= 3'h6;
+					end else begin
+						if (s_neg_output) begin
+							state <= 3'h7;
+						end else begin
+							if (s_neg_inputs) begin
+								state <= 3'h3;
+							end
+						end
+					end
+				end
+			end
+		end
+	end
+end
+
+always @(posedge clock) begin
+	if (io_req_fire) begin
+		req_tag <= io_req_bits_tag;
+	end
+end
+
+always @(posedge clock) begin
+	if (io_req_fire) begin
+		count <= 6'h0;
+	end else begin
+		if (s_div) begin
+			count <= count_add_1;
+		end else begin
+			if (s_mul) begin
+				count <= count_add_1;
+			end
+		end
+	end
+end
+
+always @(posedge clock) begin
+	if (io_req_fire) begin
+		if (cmdHi) begin
+			neg_out <= lhs_sign;
+		end else begin
+			neg_out <= lhs_sign != rhs_sign;
+		end
+	end else begin
+		if (s_div) begin
+			if (divby0 & !isHi) begin
+				neg_out <= 1'h0;
+			end
+		end
+	end
+end
+
+always @(posedge clock) begin
+	if (io_req_fire) begin
+		isHi <= cmdHi;
+	end
+end
+
+always @(posedge clock) begin
+	if (io_req_fire) begin
+		resHi <= 1'h0;
+	end else begin
+		if (s_div & (count == 6'h20)) begin
+			resHi <= isHi;
+		end else begin
+			if (s_mul & (count == 6'h3)) begin
+				resHi <= isHi;
+			end else begin
+				if (s_neg_output) begin
+					resHi <= 1'h0;
+				end
+			end
+		end
+	end
+end
+
+always @(posedge clock) begin
+	if (io_req_fire) begin
+		divisor <= {rhs_sign,rhs_in};
+	end else begin
+		if (s_neg_inputs) begin
+			if (divisor[31]) begin
+				divisor <= subtractor;
+			end
+		end
+	end
+end
+
+  wire [31:0] _T_92 = subtractor[32] ? remainder[63:32] : subtractor[31:0];
+always @(posedge clock) begin
+	if (io_req_fire) begin
+		remainder <= {{34'd0}, lhs_in};
+	end else begin
+		if (s_div) begin
+			remainder <= {{1'd0}, _T_92,remainder[31:0],!subtractor[32]};
+		end else begin
+			if (s_mul) begin
+				remainder <= {nextMulReg1[64:32],nextMplierSign,nextMulReg1[31:0]};
+			end else begin
+				if (s_neg_output) begin
+					remainder <= {{34'd0}, negated_remainder};
+				end else begin
+					if (s_neg_inputs) begin
+						if (remainder[31]) begin
+							remainder <= {{34'd0}, negated_remainder};
+						end
+					end
+				end
+			end
+		end
+	end
+end
 
 `ifdef RANDOMIZE_GARBAGE_ASSIGN
 `define RANDOMIZE
@@ -182,7 +306,7 @@ initial begin
   `endif // RANDOMIZE_REG_INIT
   `endif // RANDOMIZE
 end
-
+/*
   always @(posedge clock) begin
     if (reset) begin
       state <= #1 3'h0;
@@ -257,20 +381,26 @@ end
         end
       end
     end
+end
+  always @(posedge clock) begin
     if (io_req_fire) begin
       req_tag <= #1 io_req_bits_tag;
     end
+end
+  always @(posedge clock) begin
     if (io_req_fire) begin
       count <= #1 6'h0;
     end else begin
       if (s_div) begin
-        count <= #1 _T_85;
+        count <= #1 count_add_1;
       end else begin
         if (s_mul) begin
-          count <= #1 _T_85;
+          count <= #1 count_add_1;
         end
       end
     end
+end
+  always @(posedge clock) begin
     if (io_req_fire) begin
       if (cmdHi) begin
         neg_out <= #1 lhs_sign;
@@ -284,9 +414,13 @@ end
         end
       end
     end
+end
+  always @(posedge clock) begin
     if (io_req_fire) begin
       isHi <= #1 cmdHi;
     end
+end
+  always @(posedge clock) begin
     if (io_req_fire) begin
       resHi <= #1 1'h0;
     end else begin
@@ -324,6 +458,8 @@ end
         end
       end
     end
+end
+  always @(posedge clock) begin
     if (io_req_fire) begin
       divisor <= #1 {rhs_sign,rhs_in};
     end else begin
@@ -333,6 +469,8 @@ end
         end
       end
     end
+end
+  always @(posedge clock) begin
     if (io_req_fire) begin
       remainder <= #1 {{34'd0}, lhs_in};
     end else begin
@@ -355,6 +493,7 @@ end
       end
     end
   end
+*/
 endmodule
 `endif // __MulDiv
 

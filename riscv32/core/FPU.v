@@ -49,14 +49,11 @@ module FPU(
   wire [4:0] regfile_ex_rs_1_addr;
   wire [32:0] regfile_ex_rs_2_data;
   wire [4:0] regfile_ex_rs_2_addr;
-  wire [32:0] regfile__T_91_data;
-  wire [4:0] regfile__T_91_addr;
-  wire  regfile__T_91_mask;
-  wire  regfile__T_91_en;
-  wire [32:0] regfile__T_214_data;
-  wire [4:0] regfile__T_214_addr;
-  wire  regfile__T_214_mask;
-  wire  regfile__T_214_en;
+  wire [32:0] regfile_load_wb_wdata;
+  wire [32:0] regfile_wdata_2;
+  wire [4:0] regfile_waddr_2;
+  wire [31:0] my_recFNFromFN_io_in;
+  wire [32:0] my_recFNFromFN_io_out;
   wire  sfma_clock;
   wire  sfma_reset;
   wire  sfma_io_in_valid;
@@ -166,7 +163,7 @@ module FPU(
   wire [4:0] divSqrt_flags;
   wire  divSqrt_write_port_busy;
   wire  divSqrt_inFlight;
-  reg  _T_244;
+  reg  reg_next_mem_ctrl;	// _T_244
   wire  tag_2;
 
   FPUDecoder fp_decoder (
@@ -185,6 +182,10 @@ module FPU(
     .io_sigs_div(fp_decoder_io_sigs_div),
     .io_sigs_sqrt(fp_decoder_io_sigs_sqrt),
     .io_sigs_wflags(fp_decoder_io_sigs_wflags)
+  );
+  my_recFNFromFN my_recFNFromFN (
+    .io_in(my_recFNFromFN_io_in),
+    .io_out(my_recFNFromFN_io_out)
   );
   FPUFMAPipe sfma (
     .clock(sfma_clock),
@@ -264,59 +265,15 @@ module FPU(
   assign regfile_ex_rs_2_addr = ex_ra_2;
   assign regfile_ex_rs_2_data = regfile[regfile_ex_rs_2_addr];
 
-  wire _T_14 = load_wb_data[30:23] == 8'h0;
-  wire _T_15 = load_wb_data[22:0] == 23'h0;
-  wire [4:0] _T_60 = load_wb_data[22] ? 5'h0 
-		: load_wb_data[21] ? 5'h1 
-		: load_wb_data[20] ? 5'h2 
-		: load_wb_data[19] ? 5'h3 
-		: load_wb_data[18] ? 5'h4 
-		: load_wb_data[17] ? 5'h5 
-		: load_wb_data[16] ? 5'h6 
-		: load_wb_data[15] ? 5'h7 
-		: load_wb_data[14] ? 5'h8 
-		: load_wb_data[13] ? 5'h9 
-		: load_wb_data[12] ? 5'ha 
-		: load_wb_data[11] ? 5'hb 
-		: load_wb_data[10] ? 5'hc 
-		: load_wb_data[9] ? 5'hd 
-		: load_wb_data[8] ? 5'he 
-		: load_wb_data[7] ? 5'hf 
-		: load_wb_data[6] ? 5'h10 
-		: load_wb_data[5] ? 5'h11 
-		: load_wb_data[4] ? 5'h12 
-		: load_wb_data[3] ? 5'h13 
-		: load_wb_data[2] ? 5'h14 
-		: load_wb_data[1] ? 5'h15 
-		: 5'h16
-		;
-  wire [53:0] _T_61 = {{31'd0}, load_wb_data[22:0]} << _T_60;
-  wire [8:0] _T_65 = _T_14 ? ({{4'd0}, _T_60} ^ 9'h1ff) : {{1'd0}, load_wb_data[30:23]};
-  wire [1:0] _T_66 = _T_14 ? 2'h2 : 2'h1;
-  wire [7:0] _T_67 = 8'h80 | {{6'd0}, _T_66};
-  wire [8:0] _T_69 = _T_65 + {{1'd0}, _T_67};
-  wire _T_75 = (_T_69[8:7] == 2'h3) & !_T_15;
-  wire [9:0] _T_78 = {1'b0,$signed(_T_69)};
-  wire _T_79 = (_T_14 & _T_15) == 1'h0; 
-  wire [22:0] _T_80 = _T_14 ? {_T_61[21:0], 1'h0} : load_wb_data[22:0];
-  wire [24:0] _T_82 = {1'h0,_T_79,_T_80};
-  wire [2:0] _T_84 = (_T_14 & _T_15) ? 3'h0 : _T_78[8:6];
-  wire [2:0] _T_86 = _T_84 | {{2'd0}, _T_75};
-  assign regfile__T_91_data = {load_wb_data[31],_T_86,_T_78[5:0],_T_82[22:0]};
+  assign regfile_load_wb_wdata = my_recFNFromFN_io_out;
 
-  assign regfile__T_91_addr = load_wb_tag;
-  assign regfile__T_91_mask = 1'h1;
-  assign regfile__T_91_en = load_wb;
+  assign regfile_wdata_2 = divSqrt_wen ? divSqrt_wdata 
+			: wbInfo_0_pipeid == 2'h3 ? sfma_io_out_bits_data
+			: wbInfo_0_pipeid == 2'h2 ? sfma_io_out_bits_data 
+			: wbInfo_0_pipeid == 2'h1 ? ifpu_io_out_bits_data 
+			: fpmu_io_out_bits_data;
 
-  wire [32:0] _T_201 = wbInfo_0_pipeid == 2'h3 ? sfma_io_out_bits_data 
-		: wbInfo_0_pipeid == 2'h2 ? sfma_io_out_bits_data 
-		: wbInfo_0_pipeid == 2'h1 ? ifpu_io_out_bits_data 
-		: fpmu_io_out_bits_data;
-  assign regfile__T_214_data = divSqrt_wen ? divSqrt_wdata : _T_201;
-
-  assign regfile__T_214_addr = divSqrt_wen ? divSqrt_waddr : wbInfo_0_rd;
-  assign regfile__T_214_mask = 1'h1;
-  assign regfile__T_214_en = wen[0] | divSqrt_wen;
+  assign regfile_waddr_2 = divSqrt_wen ? divSqrt_waddr : wbInfo_0_rd;
 
   assign killm = io_killm | io_nack_mem;
   assign killx = io_killx | (mem_reg_valid & killm);
@@ -343,10 +300,9 @@ module FPU(
   assign tag_2 = mem_ctrl_singleOut == 1'h0; 
 
   assign io_fcsr_flags_valid = wb_toint_valid | divSqrt_wen | wen[0];
-  wire [4:0] _T_221 = wb_toint_valid ? wb_toint_exc : 5'h0;
-  wire [4:0] _T_222 = divSqrt_wen ? divSqrt_flags : 5'h0;
-  wire [4:0] _T_225 = wen[0] ? wexc : 5'h0;
-  assign io_fcsr_flags_bits = _T_221 | _T_222 | _T_225;
+  assign io_fcsr_flags_bits = (wb_toint_valid ? wb_toint_exc : 5'h0) 
+				| (divSqrt_wen ? divSqrt_flags : 5'h0) 
+				| (wen[0] ? wexc : 5'h0);
   assign io_store_data = fpiu_io_out_bits_store;
   assign io_toint_data = fpiu_io_out_bits_toint;
   wire _T_236 = (ex_reg_valid & ex_reg_ctrl_wflags) 
@@ -363,10 +319,12 @@ module FPU(
   assign io_dec_ren1 = fp_decoder_io_sigs_ren1;
   assign io_dec_ren2 = fp_decoder_io_sigs_ren2;
   assign io_dec_ren3 = fp_decoder_io_sigs_ren3;
-  assign io_sboard_set = wb_reg_valid & _T_244;
+  assign io_sboard_set = wb_reg_valid & reg_next_mem_ctrl;
   assign io_sboard_clr = (divSqrt_io_outValid_div | divSqrt_io_outValid_sqrt) & !divSqrt_killed;
   assign io_sboard_clra = divSqrt_wen ? divSqrt_waddr : wbInfo_0_rd;
   assign fp_decoder_io_inst = io_inst; 
+
+  assign my_recFNFromFN_io_in = load_wb_data;
 
   assign sfma_clock = clock;
   assign sfma_reset = reset;
@@ -394,8 +352,7 @@ module FPU(
   assign ifpu_io_in_bits_wflags = fpiu_io_in_bits_wflags;
   assign ifpu_io_in_bits_rm = fpiu_io_in_bits_rm;
   assign ifpu_io_in_bits_typ = fpiu_io_in_bits_typ;
-  wire [32:0] _T_142 = {{1'd0}, io_fromint_data};
-  assign ifpu_io_in_bits_in1 = _T_142[31:0];
+  assign ifpu_io_in_bits_in1 = io_fromint_data;
 
   assign fpmu_clock = clock;
   assign fpmu_reset = reset;
@@ -421,11 +378,11 @@ always @(posedge clock) begin
 			regfile[initvar] = 33'h0;
 	end
 	else begin
-		if(regfile__T_91_en & regfile__T_91_mask) begin
-			regfile[regfile__T_91_addr] <= regfile__T_91_data;
+		if(load_wb) begin
+			regfile[load_wb_tag] <= regfile_load_wb_wdata;
 		end
-		if(regfile__T_214_en & regfile__T_214_mask) begin
-			regfile[regfile__T_214_addr] <= regfile__T_214_data;
+		if(wen[0] | divSqrt_wen) begin
+			regfile[regfile_waddr_2] <= regfile_wdata_2;
 		end
 	end
 end
@@ -629,15 +586,110 @@ end
 
 always @(posedge clock) begin
 	if (reset) begin
-		_T_244 <= 1'h0;
+		reg_next_mem_ctrl <= 1'h0;
 	end
 	else begin
-		_T_244 <= mem_ctrl_div | mem_ctrl_sqrt;
+		reg_next_mem_ctrl <= mem_ctrl_div | mem_ctrl_sqrt;
 	end
 end
 
 `endif // MY_ASSIGNMENT
 
 endmodule
+
+module my_recFNFromFN(
+  input  [31:0] io_in,
+  output [32:0] io_out
+);
+  wire [31:0] rawIn_io_in;
+  wire  rawIn_io_out_isNaN;
+  wire [9:0] rawIn_io_out_sExp;
+  wire [24:0] rawIn_io_out_sig;
+  wire  rawIn_io_isZero;
+  wire [30:0] rawIn_io_sign;
+
+  my_rawFloatFromFN rawIn ( 
+    .io_in(rawIn_io_in),
+    .io_out_isNaN(rawIn_io_out_isNaN),
+    .io_out_sExp(rawIn_io_out_sExp),
+    .io_out_sig(rawIn_io_out_sig),
+    .io_isZero(rawIn_io_isZero),
+    .io_sign(rawIn_io_sign)
+  );
+
+  wire [2:0] _T_3 = (rawIn_io_isZero ? 3'h0 : rawIn_io_out_sExp[8:6]) | {{2'd0}, rawIn_io_out_isNaN}; 
+  wire [62:0] cat = {rawIn_io_sign,_T_3, rawIn_io_out_sExp[5:0], rawIn_io_out_sig[22:0]};
+  assign io_out = cat[32:0];
+  assign rawIn_io_in = io_in; 
+endmodule
+
+module my_rawFloatFromFN(
+  input  [31:0] io_in,
+  output        io_out_isNaN,
+  output [9:0]  io_out_sExp,
+  output [24:0] io_out_sig,
+  output        io_isZero,
+  output [30:0] io_sign
+);
+  wire  sign;
+  wire [7:0] expIn;
+  wire [22:0] fractIn;
+  wire  isZeroExpIn;
+  wire  isZeroFractIn;
+  wire [4:0] normDist;
+  wire [22:0] subnormFract;
+  wire [8:0] adjustedExp;
+  wire  isZero;
+  wire  isSpecial;
+
+  assign sign = io_in[31];
+  assign expIn = io_in[30:23];
+  assign fractIn = io_in[22:0];
+  assign isZeroExpIn = expIn == 8'h0;
+  assign isZeroFractIn = fractIn == 23'h0;
+
+  assign normDist = fractIn[22] ? 5'h0 
+			: fractIn[21] ? 5'h1 
+			: fractIn[20] ? 5'h2 
+			: fractIn[19] ? 5'h3 
+			: fractIn[18] ? 5'h4 
+			: fractIn[17] ? 5'h5 
+			: fractIn[16] ? 5'h6 
+			: fractIn[15] ? 5'h7 
+			: fractIn[14] ? 5'h8 
+			: fractIn[13] ? 5'h9 
+			: fractIn[12] ? 5'ha 
+			: fractIn[11] ? 5'hb 
+			: fractIn[10] ? 5'hc 
+			: fractIn[9] ? 5'hd 
+			: fractIn[8] ? 5'he 
+			: fractIn[7] ? 5'hf 
+			: fractIn[6] ? 5'h10 
+			: fractIn[5] ? 5'h11 
+			: fractIn[4] ? 5'h12 
+			: fractIn[3] ? 5'h13 
+			: fractIn[2] ? 5'h14 
+			: fractIn[1] ? 5'h15 
+			: 5'h16;
+
+  wire [53:0] _T_44 = {{31'd0}, fractIn} << normDist; 
+  assign subnormFract = {_T_44[21:0], 1'h0}; 
+
+  wire [8:0] _T_47 = isZeroExpIn ? ({{4'd0}, normDist} ^ 9'h1ff) : {{1'd0}, expIn};
+  wire [1:0] _T_48 = isZeroExpIn ? 2'h2 : 2'h1;
+  assign adjustedExp = _T_47 + (9'h80 | {{7'd0}, _T_48});
+
+  assign isZero = isZeroExpIn & isZeroFractIn;
+  assign isSpecial = adjustedExp[8:7] == 2'h3;
+
+  assign io_out_isNaN = isSpecial & !isZeroFractIn; 
+  assign io_out_sExp = {1'b0,$signed(adjustedExp)};
+
+  wire [22:0] _T_58 = isZeroExpIn ? subnormFract : fractIn;
+  assign io_out_sig = {1'h0, !isZero, _T_58};
+  assign io_isZero = isZeroExpIn & isZeroFractIn; 
+  assign io_sign = {{30'd0}, sign}; 
+endmodule
+
 `endif // __FPU
 

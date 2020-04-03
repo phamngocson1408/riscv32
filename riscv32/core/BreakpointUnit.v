@@ -24,8 +24,8 @@ module BreakpointUnit(
 
 `define MY_ASSIGNMENT
 `ifdef MY_ASSIGNMENT
-  wire [3:0] _T_4 = {io_bp_0_control_m,1'h0,io_bp_0_control_s,io_bp_0_control_u} >> io_status_prv;
-  wire en = !io_status_debug & _T_4[0];
+  wire [3:0] bp_control_en = {io_bp_0_control_m,1'h0,io_bp_0_control_s,io_bp_0_control_u} >> io_status_prv;
+  wire en = !io_status_debug & bp_control_en[0];
   wire [31:0] mask = {{28'd0}
 		,(io_bp_0_control_tmatch[0] & io_bp_0_address[0] & io_bp_0_address[1] & io_bp_0_address[2])
 		,(io_bp_0_control_tmatch[0] & io_bp_0_address[0] & io_bp_0_address[1])

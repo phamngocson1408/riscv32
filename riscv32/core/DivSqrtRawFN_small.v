@@ -89,22 +89,19 @@ module DivSqrtRawFN_small(
   assign entering = inReady & io_inValid;
   assign entering_normalCase = entering & normalCase_S;
   assign skipCycle2 = (cycleNum == 5'h3) & sigX_Z[25];
-  wire [25:0] _T_80 = (inReady & !oddSqrt_S) ? {io_a_sig, 1'h0} : 26'h0;
+
   wire [1:0] _T_84 = io_a_sig[23:22] - 2'h1;
-  wire [26:0] _T_88 = (inReady & oddSqrt_S) ? {_T_84, io_a_sig[21:0], 3'h0} : 27'h0;
-  wire [26:0] _T_92 = !inReady ? {rem_Z, 1'h0} : 27'h0;
-  assign rem = {{1'd0}, _T_80} | _T_88 | _T_92;
+  assign rem = ((inReady & !oddSqrt_S) ? {1'h0, io_a_sig, 1'h0} : 27'h0)
+		| ((inReady & oddSqrt_S) ? {_T_84, io_a_sig[21:0], 3'h0} : 27'h0) 
+		| (!inReady ? {rem_Z, 1'h0} : 27'h0);
   wire [31:0] _T_93 = 32'h1 << cycleNum;
   assign bitMask = _T_93[31:2];
-  wire [25:0] _T_97 = (inReady & !io_sqrtOp) ? {io_b_sig, 1'h0} : 26'h0;
-  wire [24:0] _T_99 = (inReady & evenSqrt_S) ? 25'h1000000 : 25'h0;
-  wire [25:0] _T_102 = (inReady & oddSqrt_S) ? 26'h2800000 : 26'h0;
-  wire [24:0] _T_109 = (!inReady & !sqrtOp_Z) ? {1'h1, fractB_Z, 1'h0} : 25'h0;
-  wire [25:0] _T_110 = _T_97 | {{1'd0}, _T_99} | _T_102 | {{1'd0}, _T_109};
-  wire [29:0] _T_115 = (!inReady & sqrtOp_Z) ? ({{3'd0}, sigX_Z, 1'h0} | bitMask) : 30'h0;
-  assign trialTerm = {{4'd0}, _T_110} | _T_115;
-  wire [30:0] _T_119 = $signed({4'b0,$signed(rem)}) - $signed({1'b0,$signed(trialTerm)});
-  assign trialRem = $signed(_T_119);
+  assign trialTerm = ((inReady & !io_sqrtOp) ? {{4'd0}, io_b_sig, 1'h0} : 30'h0)
+			| ((inReady & evenSqrt_S) ? 30'h1000000 : 30'h0)
+			| ((inReady & oddSqrt_S) ? 30'h2800000 : 30'h0)
+			| ((!inReady & !sqrtOp_Z) ? {6'h1, fractB_Z, 1'h0} : 30'h0)
+			| ((!inReady & sqrtOp_Z) ? ({{3'd0}, sigX_Z, 1'h0} | bitMask) : 30'h0);
+  assign trialRem = $signed($signed({4'b0,$signed(rem)}) - $signed({1'b0,$signed(trialTerm)}));
   assign newBit = $signed(31'sh0) <= $signed(trialRem);
   assign rawOutValid = cycleNum == 5'h1;
   assign io_inReady = cycleNum <= 5'h1;
@@ -120,21 +117,6 @@ module DivSqrtRawFN_small(
   assign io_rawOut_sExp = sExp_Z;
   assign io_rawOut_sig = {sigX_Z, 1'h0} | {{26'd0}, notZeroRem_Z};
 
-
-  wire [4:0] _T_56 = io_a_sExp[0] ? 5'h18 : 5'h19;
-  wire [4:0] _T_57 = io_sqrtOp ? _T_56 : 5'h1a;
-  wire [4:0] _T_58 = entering_normalCase ? _T_57 : 5'h0;
-  wire [4:0] _T_65 = (!idle & !skipCycle2) ? (cycleNum - 5'h1) : 5'h0;
-  wire [30:0] _T_123 = newBit ? $unsigned(trialRem) : {{4'd0}, rem};
-  wire [30:0] _GEN_10 = (entering_normalCase | (cycleNum > 5'h2)) ? _T_123 : {{5'd0}, rem_Z};
-  wire [25:0] _T_131 = (inReady & !io_sqrtOp) ? {newBit, 25'h0} : 26'h0;
-  wire [24:0] _T_133 = (inReady & io_sqrtOp) ? 25'h1000000 : 25'h0;
-  wire [23:0] _T_137 = (inReady & oddSqrt_S) ? {newBit, 23'h0} : 24'h0;
-  wire [25:0] _T_138 = _T_131 
-		| {{1'd0}, _T_133} 
-		| {{2'd0}, _T_137};
-  wire [29:0] _T_141 = !inReady ? ({{4'd0}, sigX_Z} | bitMask) : 30'h0;
-  wire [29:0] _GEN_12 = (entering_normalCase | (!inReady & newBit)) ? ({{4'd0}, _T_138} | _T_141) : {{4'd0}, sigX_Z};
 
 always @(posedge clock) begin
 	if (reset) begin
@@ -154,7 +136,13 @@ always @(posedge clock) begin
 	end 
 	else begin
 	 	if (!idle | io_inValid) begin
-	 		cycleNum <= {{4'd0}, (entering & !normalCase_S)} | _T_58 | _T_65 | {{4'd0}, (!idle & skipCycle2)};
+	 		cycleNum <= {{4'd0}, (entering & !normalCase_S)} 
+				| (!entering_normalCase ?  5'h0 
+					: !io_sqrtOp ? 5'h1a 
+					: io_a_sExp[0] ? 5'h18 
+					: 5'h19) 
+				| ((!idle & !skipCycle2) ? (cycleNum - 5'h1) : 5'h0) 
+				| {{4'd0}, (!idle & skipCycle2)};
 	 	end
 		if (entering) begin
 			sqrtOp_Z <= io_sqrtOp;
@@ -165,7 +153,10 @@ always @(posedge clock) begin
         			isZero_Z <= io_a_isZero;
 			end
 			else begin
-				majorExc_Z <= ((io_a_isNaN & !io_a_sig[22]) | (io_b_isNaN & !io_b_sig[22]) | notSigNaNIn_invalidExc_S_div) | (!io_a_isNaN & !io_a_isInf & io_b_isZero);
+				majorExc_Z <= ((io_a_isNaN & !io_a_sig[22]) 
+						| (io_b_isNaN & !io_b_sig[22]) 
+						| notSigNaNIn_invalidExc_S_div) 
+					| (!io_a_isNaN & !io_a_isInf & io_b_isZero);
         			isNaN_Z <= io_a_isNaN | io_b_isNaN | notSigNaNIn_invalidExc_S_div;
         			isInf_Z <= io_a_isInf | io_b_isZero;
         			isZero_Z <= io_a_isZero | io_b_isInf;
@@ -184,11 +175,16 @@ always @(posedge clock) begin
 		if (entering_normalCase & !io_sqrtOp) begin
 			fractB_Z <= io_b_sig[22:0];
 		end
-		rem_Z <= _GEN_10[25:0];
+		rem_Z <= !(entering_normalCase | (cycleNum > 5'h2)) ? rem_Z 
+			: newBit ? $unsigned(trialRem[25:0]) 
+			: rem[25:0];
 		if (entering_normalCase | (!inReady & newBit)) begin
 			notZeroRem_Z <= $signed(trialRem) != $signed(31'sh0);
+			sigX_Z <= ((inReady & !io_sqrtOp) ? {newBit, 25'h0} : 26'h0) 
+				| ((inReady & io_sqrtOp) ? 26'h1000000 : 26'h0)
+				| ((inReady & oddSqrt_S) ? {{2'h0}, newBit, 23'h0} : 26'h0)
+				| (!inReady ? (sigX_Z | bitMask[25:0]) : 26'h0);
 		end
-		sigX_Z <= _GEN_12[25:0];
 	end
 end
 `endif // MY_ASSIGNMENT

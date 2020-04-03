@@ -395,7 +395,7 @@ module Frontend(
   wire  taken_rvc_1;
   wire  taken_rviCall_1;
   wire  taken_rvcCall_1;
-  reg  _T_37;
+  reg  reg_s2_replay;
   reg  _T_54;
   ICache icache (
     .clock(icache_clock),
@@ -584,8 +584,8 @@ module Frontend(
 
   assign ntpc = s1_base_pc + 32'h4;
 
-  wire _T_32 = fq_io_enq_ready & fq_io_enq_valid;
-  assign s2_replay = (s2_valid & (!_T_32)) | _T_37;
+  wire fq_io_enq_fire = fq_io_enq_ready & fq_io_enq_valid;
+  assign s2_replay = (s2_valid & (!fq_io_enq_fire)) | reg_s2_replay;
 
   assign taken_prevRVI = s2_partial_insn_valid & !(s2_partial_insn[1:0] != 2'h3);
   assign taken_bits = fq_io_enq_bits_data[15:0];
@@ -697,7 +697,7 @@ module Frontend(
   assign taken_taken_1 = (taken_prevRVI_1 & (taken_rviJump_1 | taken_rviJALR_1 | (taken_rviBranch_1 & s2_btb_resp_bits_bht_value))) | (taken_valid_1 & (taken_rvcJump_1 | taken_rvcJALR_1 | taken_rvcJR_1 | (taken_rvcBranch_1 & s2_btb_resp_bits_bht_value)));
   assign taken = taken_taken | taken_taken_1;
 
-  wire _GEN_120 = taken ? (_T_32 | io_cpu_req_valid) : io_cpu_req_valid;
+  wire _GEN_120 = taken ? (fq_io_enq_fire | io_cpu_req_valid) : io_cpu_req_valid;
   assign s2_redirect = _T_592 ? _GEN_120 : io_cpu_req_valid;
 
   assign fetch_bubble_likely = fq_io_mask[1] == 1'h0;
@@ -855,7 +855,7 @@ module Frontend(
   assign btb_reset = reset;
   assign btb_io_req_bits_addr = s1_pc;
   wire _T_77 = io_cpu_btb_update_valid == 1'h0;
-  wire _T_81 = _T_32 & !wrong_path;
+  wire _T_81 = fq_io_enq_fire & !wrong_path;
   assign btb_io_btb_update_valid = _T_77 ? (_T_81 & fetch_bubble_likely & updateBTB) : io_cpu_btb_update_valid;
   assign btb_io_btb_update_bits_prediction_entry = _T_77 ? 5'h1c : io_cpu_btb_update_bits_prediction_entry;
   assign btb_io_btb_update_bits_pc = _T_77 ? s2_base_pc : io_cpu_btb_update_bits_pc;
@@ -999,7 +999,7 @@ initial begin
   `endif // RANDOMIZE_REG_INIT
   `ifdef RANDOMIZE_REG_INIT
   _RAND_19 = {1{`RANDOM}};
-  _T_37 = _RAND_19[0:0];
+  reg_s2_replay = _RAND_19[0:0];
   `endif // RANDOMIZE_REG_INIT
   `ifdef RANDOMIZE_REG_INIT
   _RAND_20 = {1{`RANDOM}};
@@ -1069,18 +1069,18 @@ always @(posedge gated_clock) begin
 			s2_partial_insn_valid <= 1'h0;
 		end
 		else begin
-			if (_T_32 & (s2_btb_taken | taken)) begin
+			if (fq_io_enq_fire & (s2_btb_taken | taken)) begin
 				s2_partial_insn_valid <= 1'h0;
 			end
 			else begin
-				if (_T_32) begin
+				if (fq_io_enq_fire) begin
 					s2_partial_insn_valid <= _T_628;
 				end
 			end
 		end
 	end
 
-	if (_T_32) begin
+	if (fq_io_enq_fire) begin
 		if (_T_628) begin
 			s2_partial_insn <= taken_bits_1 | 16'h3;
 		end
@@ -1088,7 +1088,7 @@ always @(posedge gated_clock) begin
 end
 
   wire _GEN_40 = _T_306 | wrong_path;
-  wire _GEN_44 = _T_592 ? ((_T_32 & taken_taken & !taken_predictBranch & !taken_predictJump & !taken_predictReturn) | _GEN_40) : _GEN_40;
+  wire _GEN_44 = _T_592 ? ((fq_io_enq_fire & taken_taken & !taken_predictBranch & !taken_predictJump & !taken_predictReturn) | _GEN_40) : _GEN_40;
   wire _GEN_76 = _T_573 | _GEN_44;
 always @(posedge gated_clock) begin
 	if (io_cpu_req_valid) begin
@@ -1096,7 +1096,7 @@ always @(posedge gated_clock) begin
 	end else begin
 		if (taken_idx) begin
 			if (_T_592) begin
-				wrong_path <= (_T_32 & taken_taken_1 & !taken_predictBranch_1 & !taken_predictJump_1 & !taken_predictReturn_1) | _GEN_76;
+				wrong_path <= (fq_io_enq_fire & taken_taken_1 & !taken_predictBranch_1 & !taken_predictJump_1 & !taken_predictReturn_1) | _GEN_76;
 			end else begin
 				wrong_path <= _GEN_76;
 			end
@@ -1107,7 +1107,7 @@ always @(posedge gated_clock) begin
 end
 
 always @(posedge gated_clock) begin
-	_T_37 <= reset | (s2_replay & !s0_valid);
+	reg_s2_replay <= reset | (s2_replay & !s0_valid);
 	_T_54 <= s1_valid;
 end
 

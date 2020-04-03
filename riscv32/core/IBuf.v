@@ -91,24 +91,21 @@ wire [1:0] nIC_0 = io_imem_bits_btb_taken ? nIC_1 : 2'h2;
 assign nIC = nIC_0 - {{1'd0}, pcWordBits};
 
 wire [1:0] nReady_0 = RVCExpander_io_rvc ? 2'h1 : 2'h2;
-wire _T_98 = RVCExpander_io_rvc | valid[1] | buf_replay[0];
-assign nReady = _T_98 ? nReady_0 : 2'h0;
+assign nReady = (RVCExpander_io_rvc | valid[1] | buf_replay[0]) ? nReady_0 : 2'h0;
 
-wire [1:0] _GEN_57 = {{1'd0}, nBufValid};
-assign nICReady = nReady - _GEN_57;
+assign nICReady = nReady - {1'd0, nBufValid};
 
 wire [1:0] nValid_0 = io_imem_valid ? nIC : 2'h0;
-assign nValid = nValid_0 + _GEN_57;
+assign nValid = nValid_0 + {1'd0, nBufValid};
 
-wire [1:0] nBufValid_2 = (nReady >= _GEN_57) ? 2'h0 : (_GEN_57 - nReady);
+wire [1:0] nBufValid_2 = (nReady >= {1'd0, nBufValid}) ? 2'h0 : ({1'd0, nBufValid} - nReady);
 wire _T_25 = io_imem_valid & (nReady >= {{1'd0}, nBufValid}) & (nICReady < nIC) & (2'h1 >= ( nIC - nICReady));
 wire [1:0] nBufValid_1 = _T_25 ? (nIC - nICReady) : nBufValid_2;
 wire [1:0] nBufValid_0 = io_kill ? 2'h0 
 			: io_inst_0_ready ? nBufValid_1 
-			: _GEN_57
+			: {1'd0, nBufValid}
 			;
-wire [1:0] _GEN_56 = {{1'd0}, pcWordBits};
-wire [63:0] buf__data_0 = {io_imem_bits_data[31:16], io_imem_bits_data[31:16], io_imem_bits_data} >> {_GEN_56 + nICReady, 4'h0};
+wire [63:0] buf__data_0 = {io_imem_bits_data[31:16], io_imem_bits_data[31:16], io_imem_bits_data} >> {{{1'd0}, pcWordBits} + nICReady, 4'h0};
 always @(posedge clock) begin
 	if (reset) begin
 		nBufValid <= 1'h0;
@@ -134,7 +131,7 @@ always @(posedge clock) begin
 	end
 end
 
-assign icShiftAmt = (2'h2 + _GEN_57) - _GEN_56;
+assign icShiftAmt = (2'h2 + {1'd0, nBufValid}) - {{1'd0}, pcWordBits};
 
 wire [127:0] icData_1 = {io_imem_bits_data[31:16], io_imem_bits_data[31:16], io_imem_bits_data[31:16], io_imem_bits_data[31:16], io_imem_bits_data, io_imem_bits_data[15:0], io_imem_bits_data[15:0]};
 wire [190:0] icData_0 = {{63'd0}, icData_1} << {icShiftAmt, 4'h0};
@@ -157,7 +154,9 @@ assign buf_replay = buf__replay ? bufMask : 2'h0;
 wire [1:0] ic_replay_0 = io_imem_bits_replay ? (valid & (~ bufMask)) : 2'h0;
 assign ic_replay = buf_replay | ic_replay_0;
 
+    `ifndef SYNTHESIS
 wire _T_79 = (!io_imem_valid | !io_imem_bits_btb_taken | (io_imem_bits_btb_bridx >= pcWordBits) | reset) == 1'h0;
+    `endif // SYNTHESIS
 always @(posedge clock) begin
     `ifndef SYNTHESIS
     `ifdef PRINTF_COND
@@ -188,11 +187,11 @@ end
 //*****************************************************************************
 `define OUTPUT_ASSIGNMENTS
 `ifdef OUTPUT_ASSIGNMENTS
-assign io_imem_ready = io_inst_0_ready & (nReady >= _GEN_57) & ((nICReady >= nIC) | (2'h1 >= (nIC - nICReady)));
+assign io_imem_ready = io_inst_0_ready & (nReady >= {1'd0, nBufValid}) & ((nICReady >= nIC) | (2'h1 >= (nIC - nICReady)));
 assign io_pc = (nBufValid > 1'h0) ? buf__pc : io_imem_bits_pc;
 assign io_btb_resp_entry = ((bufMask[0] & RVCExpander_io_rvc) | bufMask[1]) ? ibufBTBResp_entry : io_imem_bits_btb_entry;
 assign io_btb_resp_bht_history = ((bufMask[0] & RVCExpander_io_rvc) | bufMask[1]) ? ibufBTBResp_bht_history : io_imem_bits_btb_bht_history;
-assign io_inst_0_valid = valid[0] & _T_98;
+assign io_inst_0_valid = valid[0] & (RVCExpander_io_rvc | valid[1] | buf_replay[0]);
 assign io_inst_0_bits_xcpt0_pf_inst = bufMask[0] ? buf__xcpt_pf_inst : io_imem_bits_xcpt_pf_inst;
 assign io_inst_0_bits_xcpt0_ae_inst = bufMask ? buf__xcpt_ae_inst : io_imem_bits_xcpt_ae_inst;
 

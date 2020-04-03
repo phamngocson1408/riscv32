@@ -63,12 +63,20 @@ module MulAddRecFNToRaw_postMul(
   wire [80:0] _T_20 = {{31'd0}, CDom_absSigSum} << io_fromPreMul_CDom_CAlignDist;
   assign CDom_mainSig = _T_20[49:21];
 
-  wire [8:0] _T_46 = $signed(-9'sh100) >>> (~ io_fromPreMul_CDom_CAlignDist[4:2]);
-  wire [6:0] _GEN_2 = {{1'd0}, _T_46[1], _T_46[2], _T_46[3], _T_46[4], _T_46[5], _T_46[6]};
-  wire [26:0] _T_22 = {CDom_absSigSum[23:0], 3'h0};
-  wire [6:0] _T_43 = {_T_22[26:24] != 3'h0, _T_22[23:20] != 4'h0, _T_22[19:16] != 4'h0, _T_22[15:12] != 4'h0, _T_22[11:8] != 4'h0, _T_22[7:4] != 4'h0, _T_22[3:0] != 4'h0};
-  wire [6:0] _T_63 = _T_43 & _GEN_2;
-  assign CDom_reduced4SigExtra = _T_63 != 7'h0;
+  wire [26:0] in_orReduceBy4 = {CDom_absSigSum[23:0], 3'h0};
+  wire reducedVec_orReduceBy4_0 = in_orReduceBy4[3:0] != 4'h0;	// @[primitives.scala
+  wire reducedVec_orReduceBy4_1 = in_orReduceBy4[7:4] != 4'h0;
+  wire reducedVec_orReduceBy4_2 = in_orReduceBy4[11:8] != 4'h0;
+  wire reducedVec_orReduceBy4_3 = in_orReduceBy4[15:12] != 4'h0;
+  wire reducedVec_orReduceBy4_4 = in_orReduceBy4[19:16] != 4'h0;
+  wire reducedVec_orReduceBy4_5 = in_orReduceBy4[23:20] != 4'h0;
+  wire reducedVec_orReduceBy4_6 = in_orReduceBy4[26:24] != 3'h0;
+  wire [6:0] _T_41 = {reducedVec_orReduceBy4_6,reducedVec_orReduceBy4_5,reducedVec_orReduceBy4_4,reducedVec_orReduceBy4_3,reducedVec_orReduceBy4_2,reducedVec_orReduceBy4_1,reducedVec_orReduceBy4_0};
+  wire [2:0] in_inv = ~io_fromPreMul_CDom_CAlignDist[4:2];
+  wire [8:0] shift = -9'sh100 >>> in_inv; // @[primitives.scala 160
+  wire [5:0] my_lowMask_1 = {shift[1],shift[2],shift[3],shift[4],shift[5],shift[6]};	// @[Cat.scala 29
+  assign CDom_reduced4SigExtra = (_T_41 & {{1'd0}, my_lowMask_1}) != 7'h0;
+
   assign CDom_sig = {CDom_mainSig[28:3], ((CDom_mainSig[2:0] != 3'h0) | CDom_reduced4SigExtra | CDom_absSigSumExtra)};
   assign notCDom_signSigSum = sigSum[51];
   assign notCDom_absSigSum = notCDom_signSigSum ? (~ sigSum[50:0]) : (sigSum[50:0] + {{50'd0}, io_fromPreMul_doSubMags});
@@ -131,24 +139,20 @@ module MulAddRecFNToRaw_postMul(
   assign notCDom_sExp = $signed($signed(io_fromPreMul_sExpSum) - $signed({3'h0, {1'b0,$signed(notCDom_nearNormDist)}}));
   wire [113:0] _T_204 = {{63'd0}, notCDom_absSigSum} << notCDom_nearNormDist;
   assign notCDom_mainSig = _T_204[51:23];
-  wire [6:0] _T_227 = {notCDom_reduced2AbsSigSum[12],
-			(notCDom_reduced2AbsSigSum[11:10] != 2'h0),
-			(notCDom_reduced2AbsSigSum[9:8] != 2'h0),
-			(notCDom_reduced2AbsSigSum[7:6] != 2'h0),
-			(notCDom_reduced2AbsSigSum[5:4] != 2'h0),
-			(notCDom_reduced2AbsSigSum[3:2] != 2'h0),
-			(notCDom_reduced2AbsSigSum[1:0] != 2'h0)
-			};
-  wire [16:0] _T_230 = $signed(-17'sh10000) >>> (~ notCDom_normDistReduced2[4:1]);
-  wire [6:0] _GEN_6 = {1'd0,
-			_T_230[1],
-			_T_230[2],
-			_T_230[3],
-			_T_230[4],
-			_T_230[5],
-			_T_230[6]
-			};
-  assign notCDom_reduced4SigExtra = (_T_227 & _GEN_6) != 7'h0;
+
+  wire [12:0] in_orReduceBy2_1 = notCDom_reduced2AbsSigSum[12:0];
+  wire reducedVec_orReduceBy2_1_0 = in_orReduceBy2_1[1:0] != 2'h0;	// @[primitives.scala
+  wire reducedVec_orReduceBy2_1_1 = in_orReduceBy2_1[3:2] != 2'h0;
+  wire reducedVec_orReduceBy2_1_2 = in_orReduceBy2_1[5:4] != 2'h0;
+  wire reducedVec_orReduceBy2_1_3 = in_orReduceBy2_1[7:6] != 2'h0;
+  wire reducedVec_orReduceBy2_1_4 = in_orReduceBy2_1[9:8] != 2'h0;
+  wire reducedVec_orReduceBy2_1_5 = in_orReduceBy2_1[11:10] != 2'h0;
+  wire reducedVec_orReduceBy2_1_6 = in_orReduceBy2_1[12];
+  wire [6:0] _T_219 = {reducedVec_orReduceBy2_1_6,reducedVec_orReduceBy2_1_5,reducedVec_orReduceBy2_1_4,reducedVec_orReduceBy2_1_3,reducedVec_orReduceBy2_1_2,reducedVec_orReduceBy2_1_1,reducedVec_orReduceBy2_1_0}; // @[primitives.scala
+  wire [3:0] in_inv_1 = ~notCDom_normDistReduced2[4:1];
+  wire [16:0] shift_1 = -17'sh10000 >>> in_inv_1;
+  wire [5:0] my_lowMask_1_1 = {shift_1[1],shift_1[2],shift_1[3],shift_1[4],shift_1[5],shift_1[6]}; // @[Cat.scala
+  assign notCDom_reduced4SigExtra = (_T_219 & {{1'd0}, my_lowMask_1_1}) != 7'h0;
   assign notCDom_sig = {notCDom_mainSig[28:3], ((notCDom_mainSig[2:0] != 3'h0) | notCDom_reduced4SigExtra)};
   assign notCDom_completeCancellation = notCDom_sig[26:25] == 2'h0;
   assign notCDom_sign = notCDom_completeCancellation ? roundingMode_min : (io_fromPreMul_signProd ^ notCDom_signSigSum);
